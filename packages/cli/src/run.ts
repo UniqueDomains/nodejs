@@ -12,7 +12,7 @@ import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { ApiProblemError, createClient, isListingId, LISTINGS, ListingMismatchError, type ClientOptions, type JsonObject, type JsonValue, type OperationId } from '@uniquedomains/sdk';
 import { parseArgv, UsageError, type ParsedArgs } from './argv';
-import { findCommand, suggestCommands, type Command } from './commands';
+import { findCommand, SHORTCUTS, suggestCommands, type Command } from './commands';
 import { renderCommandHelp, renderMainHelp } from './help';
 import { renderData } from './render';
 
@@ -40,6 +40,10 @@ type Envelope = { data?: JsonValue; meta?: { cursor?: string | null } & Record<s
 
 declare const __CLI_VERSION__: string;
 export const CLI_VERSION: string = typeof __CLI_VERSION__ === 'string' ? __CLI_VERSION__ : '0.0.0-dev';
+
+// The longest whoami label ("Word intakes") plus two spaces (review finding 8).
+const WHOAMI_LABEL_WIDTH = 14;
+const label = (name: string, value: string): string => `${name.padEnd(WHOAMI_LABEL_WIDTH)}${value}`;
 
 const VERBOSE_HEADER = /^(x-quota-|x-ratelimit-|retry-after$|location$)/i;
 
@@ -116,7 +120,8 @@ const buildParams = async (command: Command, args: ParsedArgs, io: Io) => {
     if (operation.body) {
         body = { ...(await readBody(args.globals.body, io)), ...args.body };
         const missing = operation.body.properties.filter((property) => property.required && body?.[property.name] === undefined);
-        if (missing.length > 0) throw new UsageError(`${command.name} needs ${missing.map((property) => `--${property.name}`).join(', ')}.`);
+        const flagOf = (name: string): string => command.flags.find((spec) => spec.source === 'body' && spec.name === name)?.flag ?? name;
+        if (missing.length > 0) throw new UsageError(`${command.name} needs ${missing.map((property) => `--${flagOf(property.name)}`).join(', ')}.`);
     } else if (args.globals.body !== undefined) {
         throw new UsageError(`${command.name} takes no body.`);
     }
@@ -144,7 +149,7 @@ const allowanceLine = (label: string, value: JsonValue | undefined): string | nu
     const used = typeof value.used === 'number' ? value.used : null;
     const allowance = typeof value.allowance === 'number' ? value.allowance : null;
     if (used === null || allowance === null) return null;
-    return `${label.padEnd(12)}${used} used of ${allowance}, ${Math.max(0, allowance - used)} left`;
+    return `${label.padEnd(WHOAMI_LABEL_WIDTH)}${used} used of ${allowance}, ${Math.max(0, allowance - used)} left`;
 };
 
 /** `ud whoami`: the key's plan, month and what is left, as sentences rather than a dump of fields. */
@@ -152,13 +157,13 @@ const renderWhoami = (data: JsonValue | undefined): string => {
     if (!isJsonObject(data)) return renderData(data, 80);
     const text = (value: JsonValue | undefined): string => (typeof value === 'string' ? value : '');
     const lines = data.access === 'rapidapi'
-        ? [`Access      RapidAPI`, `Listing     ${text(data.listing)}`, `Plan        ${text(data.subscription)}`]
-        : [`Access      member key ${text(data.keyPrefix)}`, `Plan        ${text(data.plan)}`, `Month       ${text(data.month)}, resets on ${text(data.resetsOn)}`];
+        ? [label('Access', 'RapidAPI'), label('Listing', text(data.listing)), label('Plan', text(data.subscription))]
+        : [label('Access', `member key ${text(data.keyPrefix)}`), label('Plan', text(data.plan)), label('Month', `${text(data.month)}, resets on ${text(data.resetsOn)}`)];
     for (const [label, key] of [['Calls', 'calls'], ['Live checks', 'liveChecks'], ['Appraisals', 'appraisals'], ['Word intakes', 'intakes']] as const) {
         const entry = allowanceLine(label, data[key]);
         if (entry) lines.push(entry);
     }
-    if (typeof data.investorEndpoints === 'boolean') lines.push(`Investor    ${data.investorEndpoints ? 'open' : 'not on this plan'}`);
+    if (typeof data.investorEndpoints === 'boolean') lines.push(label('Investor', data.investorEndpoints ? 'open' : 'not on this plan'));
     return lines.join('\n');
 };
 
@@ -193,6 +198,11 @@ export const run = async (argv: readonly string[], io: Io): Promise<number> => {
             return argv.length === 0 || args.globals.help ? 0 : 2;
         }
         if (args.commandName === 'openapi') {
+            // Help first, so `ud openapi --help` explains the shortcut rather than printing the document (review finding 9).
+            if (args.globals.help) {
+                io.stdout.write(`Usage: ud openapi\n\n${SHORTCUTS.find((entry) => entry.name === 'openapi')?.description ?? ''}\n`);
+                return 0;
+            }
             io.stdout.write(await snapshotText());
             return 0;
         }
@@ -252,8 +262,10 @@ export const run = async (argv: readonly string[], io: Io): Promise<number> => {
             io.stderr.write(line(error.message));
             return 1;
         }
-        if (error instanceof TypeError) {
-            const cause = error.cause instanceof Error ? `: ${error.cause.message}` : `: ${error.message}`;
+        // Only fetch's own network failure ("fetch failed", with its cause) reads as unreachable; any other TypeError
+        // is a defect and keeps its stack (review finding 7).
+        if (error instanceof TypeError && error.message === 'fetch failed') {
+            const cause = error.cause instanceof Error ? `: ${error.cause.message}` : '';
             io.stderr.write(line(`Could not reach the API${cause}`));
             return 1;
         }

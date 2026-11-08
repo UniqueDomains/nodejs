@@ -51,6 +51,7 @@ export class UsageError extends Error {
 const STRING_GLOBALS: ReadonlySet<string> = new Set(GLOBAL_STRING_FLAGS);
 const BOOLEAN_GLOBALS: ReadonlySet<string> = new Set(GLOBAL_BOOLEAN_FLAGS);
 const SHORT_FLAGS: Readonly<Record<string, string>> = { '-h': '--help', '-V': '--version' };
+const NEGATIVE_NUMBER = /^-\d/;
 
 /*----------------------------------
 - HELPERS
@@ -108,19 +109,25 @@ const convertFlag = (spec: FlagSpec, raw: string): ParsedValue => {
     return value;
 };
 
-/** The first bare token is the command; a global string flag written without `=` takes the next token. */
-const findCommandName = (argv: readonly string[]): string | null => {
+/**
+ * The command is the first bare token that names one; a global string flag written without `=` takes the next token.
+ * A command's own flag may come first (`ud --limit 3 list-tlds`, review finding 4): its value is a bare token that
+ * names no command, so it is passed over. With no bare token naming a command, the first bare token is reported.
+ */
+const findCommandName = (argv: readonly string[], resolve: (name: string) => Command | undefined): string | null => {
+    let first: string | null = null;
     for (let index = 0; index < argv.length; index++) {
         const token = argv[index] ?? '';
-        if (token === '--') return argv[index + 1] ?? null;
-        if (token.startsWith('-')) {
+        if (token === '--') return first ?? argv[index + 1] ?? null;
+        if (token.startsWith('-') && !NEGATIVE_NUMBER.test(token)) {
             const { flag, inline } = token.startsWith('--') ? splitFlag(token) : { flag: '', inline: '' };
             if (STRING_GLOBALS.has(flag) && inline === undefined) index++;
             continue;
         }
-        return token;
+        if (resolve(token) || token === 'openapi') return token;
+        first ??= token;
     }
-    return null;
+    return first;
 };
 
 const emptyGlobals = (): GlobalFlags => ({ json: false, csv: false, verbose: false, help: false, version: false });
@@ -130,7 +137,7 @@ const emptyGlobals = (): GlobalFlags => ({ json: false, csv: false, verbose: fal
 ----------------------------------*/
 
 export const parseArgv = (argv: readonly string[], resolve: (name: string) => Command | undefined): ParsedArgs & { command: Command | undefined } => {
-    const commandName = findCommandName(argv);
+    const commandName = findCommandName(argv, resolve);
     const command = commandName ? resolve(commandName) : undefined;
     const flags = new Map((command?.flags ?? []).map((spec) => [spec.flag, spec]));
     const parsed: ParsedArgs & { command: Command | undefined } = { commandName, command, positionals: [], globals: emptyGlobals(), query: {}, body: {} };
@@ -139,6 +146,8 @@ export const parseArgv = (argv: readonly string[], resolve: (name: string) => Co
 
     for (let index = 0; index < argv.length; index++) {
         const token = SHORT_FLAGS[argv[index] ?? ''] ?? argv[index] ?? '';
+        // A single-dash token is an unknown short flag, unless it is a negative number (review finding 6).
+        if (!flagsDone && token.startsWith('-') && !token.startsWith('--') && !NEGATIVE_NUMBER.test(token)) throw new UsageError(`Unknown flag ${token}.`);
         if (flagsDone || !token.startsWith('--') || token === '--') {
             if (token === '--' && !flagsDone) {
                 flagsDone = true;
@@ -148,8 +157,6 @@ export const parseArgv = (argv: readonly string[], resolve: (name: string) => Co
             else parsed.positionals.push(token);
             continue;
         }
-        if (token.startsWith('-') && !token.startsWith('--')) throw new UsageError(`Unknown flag ${token}.`);
-
         const { flag, inline } = splitFlag(token);
         const takeValue = (): string => {
             if (inline !== undefined) return inline;
@@ -171,7 +178,9 @@ export const parseArgv = (argv: readonly string[], resolve: (name: string) => Co
         const negated = flag.startsWith('no-') ? flags.get(flag.slice(3)) : undefined;
         const spec = flags.get(flag) ?? (negated?.type === 'boolean' ? negated : undefined);
         if (!spec) throw new UsageError(command ? `${command.name} does not take --${flag}.` : `Unknown flag --${flag}.`);
-        const value = spec.type === 'boolean' && inline === undefined ? spec !== negated : convertFlag(spec, takeValue());
+        const isNegated = spec === negated && flag !== spec.flag;
+        // `--no-x` is false and `--no-x=true` too; `--no-x=false` is true (review finding 5).
+        const value = spec.type === 'boolean' ? (inline === undefined ? !isNegated : convertFlag(spec, inline) !== isNegated) : convertFlag(spec, takeValue());
         if (spec.source === 'query') {
             if (Array.isArray(value)) throw new UsageError(`--${spec.flag} takes one value.`);
             parsed.query[spec.name] = value;

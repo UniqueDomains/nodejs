@@ -50,6 +50,19 @@ describe('ud: answers', () => {
         assert.equal(new URLSearchParams(lastRequest().query).get('publicSet'), 'false');
     });
 
+    it('accepts a command flag before the command (review finding 4)', async () => {
+        const { code } = await ud(['--limit', '3', 'list-tlds']);
+        assert.equal(code, 0);
+        assert.equal(new URLSearchParams(lastRequest().query).get('limit'), '3');
+    });
+
+    it('reads --no-flag=true as false and --no-flag=false as true (review finding 5)', async () => {
+        await ud(['list-tlds', '--no-public-set=true']);
+        assert.equal(new URLSearchParams(lastRequest().query).get('publicSet'), 'false');
+        await ud(['list-tlds', '--no-public-set=false']);
+        assert.equal(new URLSearchParams(lastRequest().query).get('publicSet'), 'true');
+    });
+
     it('prints the CSV form with --csv', async () => {
         const { code, stdout } = await ud(['list-tlds', '--limit', '3', '--csv']);
         assert.equal(code, 0);
@@ -70,6 +83,7 @@ describe('ud: answers', () => {
         assert.match(stdout, /Plan\s+founder/);
         assert.match(stdout, /Month\s+2026-11, resets on 2026-12-01/);
         assert.match(stdout, /Calls\s+412 used of 10000, 9588 left/);
+        assert.match(stdout, /Word intakes {2}0 used of 0, 0 left/);
     });
 
     it('--verbose prints the request and the quota headers on stderr, never the key', async () => {
@@ -125,11 +139,30 @@ describe('ud: problems and usage', () => {
             ['get-name', 'a.io', '--key', 'k', '--rapidapi-key', 'rk', '--listing', 'whois'],
             ['get-name', 'a.io', '--rapidapi-key', 'rk'],
             ['get-name', 'a.io', '--listing', 'whois'],
+            ['get-name', '-v', 'a.io'],
         ]) {
             const { code, stderr } = await ud(argv);
             assert.equal(code, 2, argv.join(' '));
             assert.ok(stderr.length > 0, argv.join(' '));
         }
+    });
+
+    it('names an unknown short flag, and the missing body flag (review findings 6 and 10)', async () => {
+        assert.match((await ud(['get-name', '-v', 'a.io'])).stderr, /Unknown flag -v/);
+        assert.match((await ud(['batch-names', '--key', 'k'])).stderr, /batch-names needs --names/);
+    });
+
+    it('keeps the stack of a defect instead of calling it a network failure (review finding 7)', async () => {
+        const broken = async () => { throw new TypeError('x is not a function'); };
+        await assert.rejects(run(['get-name', 'a.io'], { stdout: { write: () => {} }, stderr: { write: () => {} }, env: {}, isTTY: false, columns: 80, fetch: broken }), /x is not a function/);
+    });
+
+    it('reports an unreachable API as such', async () => {
+        const down = async () => { throw new TypeError('fetch failed', { cause: new Error('connect ECONNREFUSED') }); };
+        let stderr = '';
+        const code = await run(['get-name', 'a.io'], { stdout: { write: () => {} }, stderr: { write: (text) => { stderr += text; } }, env: {}, isTTY: false, columns: 80, fetch: down });
+        assert.equal(code, 1);
+        assert.match(stderr, /Could not reach the API: connect ECONNREFUSED/);
     });
 
     it('refuses two keys from the environment', async () => {
@@ -153,6 +186,21 @@ describe('ud: help, version, openapi', () => {
         assert.match(stdout, /Usage: ud list-tlds \[flags\]/);
         assert.match(stdout, /--public-set/);
         assert.match(stdout, /Reference: https:\/\/unique\.domains\/api\/list-tlds/);
+    });
+
+    it('ud openapi --help explains the shortcut (review finding 9)', async () => {
+        const { code, stdout } = await ud(['openapi', '--help']);
+        assert.equal(code, 0);
+        assert.match(stdout, /^Usage: ud openapi/);
+    });
+
+    it('the CommonJS entry runs a command', async () => {
+        const { createRequire } = await import('node:module');
+        const cli = createRequire(import.meta.url)('../dist/index.cjs');
+        let stdout = '';
+        const code = await cli.run(['get-name', 'harbor.io'], { stdout: { write: (text) => { stdout += text; } }, stderr: { write: () => {} }, env: { UD_API_BASE: server.base }, isTTY: false, columns: 80 });
+        assert.equal(code, 0);
+        assert.equal(JSON.parse(stdout).data.name, 'harbor.io');
     });
 
     it('prints the version and the snapshot', async () => {
