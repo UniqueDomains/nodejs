@@ -132,12 +132,28 @@ describe('request: problems', () => {
     });
 
     it('a gateway refusal keeps its message and its body', async () => {
-        await assert.rejects(keyless().request('get_name_registry', { path: { name: 'gateway.io' } }), (error) => {
+        const client = createClient({ rapidApi: { key: 'rk', listing: 'whois' }, baseUrl: server.origin });
+        await assert.rejects(client.request('get_name_registry', { path: { name: 'gateway.io' } }), (error) => {
             assert.equal(error.code, 'unexpected_response');
             assert.equal(error.detail, 'You are not subscribed to this API.');
             assert.deepEqual(error.problem.raw, { message: 'You are not subscribed to this API.' });
             return true;
         });
+    });
+
+    it('a success that is not the envelope reads as unexpected_response (review R1-5)', async () => {
+        await assert.rejects(keyless().request('get_name', { path: { name: 'portal.io' } }), (error) => {
+            assert.ok(error instanceof ApiProblemError);
+            assert.equal(error.code, 'unexpected_response');
+            assert.equal(error.status, 200);
+            assert.match(error.problem.raw, /Sign in to the network/);
+            return true;
+        });
+        await assert.rejects(keyless().request('get_name', { path: { name: 'array.io' } }), (error) => error.code === 'unexpected_response');
+    });
+
+    it('reads the status from the answer, not the body (review R1-17)', async () => {
+        await assert.rejects(keyless().request('get_name', { path: { name: 'mismatch.io' } }), (error) => error.status === 403 && error.problem.status === 403);
     });
 
     it('a spent member month carries the quota and Retry-After', async () => {
@@ -162,11 +178,27 @@ describe('request: 304, 429, 202', () => {
         assert.equal(lastRequest().headers['if-none-match'], first.etag);
     });
 
-    it('retries once after Retry-After: 1 on rate_limited', async () => {
+    it('retries once after Retry-After: 1 on rate_limited, after waiting the second', async () => {
         const count = server.requests.length;
         const answer = await keyless().request('get_name', { path: { name: 'limited.io' } });
         assert.equal(answer.data.name, 'limited.io');
         assert.equal(server.requests.length - count, 2);
+        const [first, second] = server.requests.slice(-2);
+        assert.ok(second.at - first.at >= 900, `waited ${second.at - first.at} ms`);
+    });
+
+    it('does not retry on Retry-After: 0 (review R1-15)', async () => {
+        const count = server.requests.length;
+        await assert.rejects(keyless().request('get_name', { path: { name: 'zero.io' } }), (error) => error.code === 'rate_limited' && error.retryAfter === 0);
+        assert.equal(server.requests.length - count, 1);
+    });
+
+    it('stops the wait when the signal aborts', async () => {
+        const controller = new AbortController();
+        // twice.io always answers 429 with Retry-After: 1, so the client is inside its one-second wait at 50 ms.
+        const pending = keyless().request('get_name', { path: { name: 'twice.io' }, signal: controller.signal });
+        setTimeout(() => controller.abort(new Error('stopped')), 50);
+        await assert.rejects(pending, /stopped/);
     });
 
     it('does not wait out a long Retry-After', async () => {
@@ -214,8 +246,36 @@ describe('request: formats and projections', () => {
     });
 
     it('joins fields and include lists', async () => {
-        await keyless().request('list_tlds', { query: { limit: 3 }, fields: ['tld', 'kind'] }).catch(() => undefined);
+        await assert.rejects(keyless().request('list_tlds', { query: { limit: 3 }, fields: ['tld', 'kind'] }), (error) => error.code === 'not_found');
         assert.equal(new URLSearchParams(lastRequest().query).get('fields'), 'tld,kind');
+        const endings = await keyless().request('get_word_endings', { path: { word: 'harbor' }, include: ['cheapest'] });
+        assert.equal(endings.data.word, 'harbor');
+        assert.equal(new URLSearchParams(lastRequest().query).get('include'), 'cheapest');
+    });
+
+    it('sends no empty fields (review R1-8)', async () => {
+        await keyless().request('list_tlds', { query: { limit: 3 }, fields: [] });
+        assert.equal(new URLSearchParams(lastRequest().query).has('fields'), false);
+    });
+
+    it('refuses fields or include an operation does not declare, before any call (review R1-8)', async () => {
+        const count = server.requests.length;
+        await assert.rejects(keyless().requestOperation('get_llms_txt', { fields: ['x'] }), /takes no fields/);
+        await assert.rejects(keyless().requestOperation('list_tlds', { include: ['x'] }), /takes no include/);
+        assert.equal(server.requests.length, count);
+    });
+
+    it('refuses dot path values, before any call (review R1-16)', async () => {
+        const count = server.requests.length;
+        for (const name of ['..', '.', '']) await assert.rejects(keyless().request('get_name', { path: { name } }), TypeError);
+        assert.equal(server.requests.length, count);
+    });
+
+    it('sends If-None-Match only from ifNoneMatch (review R1-7)', async () => {
+        const answer = await keyless().request('get_name', { path: { name: 'harbor.io' }, headers: { 'If-None-Match': 'W/"x"', 'X-Trace': 't' } });
+        assert.equal(answer.notModified, false);
+        assert.equal(lastRequest().headers['if-none-match'], undefined);
+        assert.equal(lastRequest().headers['x-trace'], 't');
     });
 
     it('sends a body as JSON', async () => {
@@ -241,5 +301,36 @@ describe('the CommonJS build', () => {
         const answer = await sdk.createClient({ apiKey: null, baseUrl: server.base }).request('get_name', { path: { name: 'harbor.io' } });
         assert.equal(answer.data.name, 'harbor.io');
         assert.equal(typeof sdk.ApiProblemError, 'function');
+    });
+});
+
+describe('requestOperation (review R1-2)', () => {
+    it('calls an operation id known only at run time', async () => {
+        const id = ['list', 'tlds'].join('_');
+        const answer = await keyless().requestOperation(id, { query: { limit: 3 } });
+        assert.equal(answer.notModified, false);
+        assert.ok(!('text' in answer));
+        assert.equal(answer.data.length, 3);
+    });
+
+    it('answers text for a file operation and refuses an unknown id', async () => {
+        const csv = await keyless().requestOperation('list_tlds', { query: { limit: 3 }, format: 'csv' });
+        assert.match(csv.text, /^tld,/);
+        await assert.rejects(keyless().requestOperation('nope'), /Unknown operation/);
+    });
+
+    it('sends the operation method: GET, then POST with a JSON body', async () => {
+        const client = createClient({ apiKey: 'ud_live_test', baseUrl: server.base });
+        await client.requestOperation('get_name', { path: { name: 'harbor.io' } });
+        assert.equal(lastRequest().method, 'GET');
+        await client.requestOperation('batch_names', { body: { names: ['a.io'] } });
+        assert.equal(lastRequest().method, 'POST');
+    });
+});
+
+describe('the fixture server', () => {
+    it('answers only under /v1 without a RapidAPI host (review R1-22)', async () => {
+        const wrongBase = createClient({ apiKey: null, baseUrl: server.origin });
+        await assert.rejects(wrongBase.request('get_name', { path: { name: 'harbor.io' } }), (error) => error.code === 'not_found');
     });
 });

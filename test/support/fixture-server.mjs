@@ -86,8 +86,62 @@ export const SYNTHETIC = [
         response: { status: 502, headers: { 'content-type': 'text/html' }, body: '<html><body>Bad gateway</body></html>' },
     },
     {
+        name: 'retry-after-zero',
+        request: { method: 'GET', path: '/names/zero.io', query: '' },
+        response: json(429, problem('rate_limited', 429, 'Too many calls this second.'), { 'retry-after': '0' }),
+    },
+    {
+        name: 'html-success',
+        request: { method: 'GET', path: '/names/portal.io', query: '' },
+        response: { status: 200, headers: { 'content-type': 'text/html' }, body: '<html><body>Sign in to the network</body></html>' },
+    },
+    {
+        name: 'array-success',
+        request: { method: 'GET', path: '/names/array.io', query: '' },
+        response: json(200, []),
+    },
+    {
+        name: 'status-mismatch',
+        request: { method: 'GET', path: '/names/mismatch.io', query: '' },
+        response: json(403, problem('keyed_only', 400, 'A gateway rewrote the status.')),
+    },
+    {
+        name: 'word-endings-include',
+        request: { method: 'GET', path: '/words/harbor/endings', query: 'include=cheapest' },
+        response: json(200, { data: { word: 'harbor', endings: [] }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://api.unique.domains/v1/words/harbor/endings', next: null, register: null, product: null, dataset: null } }),
+    },
+    {
+        name: 'meta-enums',
+        request: { method: 'GET', path: '/meta/enums', query: '' },
+        response: json(200, { data: { status: ['free', 'registered'], nested: { kinds: [{ id: 'registry', label: 'Registry' }] } }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://api.unique.domains/v1/meta/enums', next: null, register: null, product: null, dataset: null } }),
+    },
+    {
+        name: 'member-get-key-projected',
+        request: { method: 'GET', path: '/meta/key', query: 'fields=plan' },
+        response: json(200, { data: { plan: 'founder' }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://api.unique.domains/v1/meta/key?fields=plan', next: null, register: null, product: null, dataset: null } }),
+    },
+    {
+        name: 'null-data',
+        request: { method: 'GET', path: '/names/empty.io', query: '' },
+        response: json(200, { data: null, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://api.unique.domains/v1/names/empty.io', next: null, register: null, product: null, dataset: null } }),
+    },
+    {
+        name: 'rapidapi-get-key',
+        request: { method: 'GET', path: '/meta/key', query: '', header: ['x-rapidapi-host', 'whois-lookup24.p.rapidapi.com'] },
+        response: json(200, {
+            data: { access: 'rapidapi', plan: null, keyPrefix: null, listing: 'whois', subscription: 'BASIC', month: null, resetsOn: null, calls: null, liveChecks: null, appraisals: null, intakes: null, investorEndpoints: null },
+            meta: { asOf: null, cursor: null, limit: null },
+            links: { self: 'https://whois-lookup24.p.rapidapi.com/meta/key', next: null, register: null, product: null, dataset: null },
+        }),
+    },
+    {
+        name: 'rapidapi-registry',
+        request: { method: 'GET', path: '/names/harbor.io/registry', query: '', header: ['x-rapidapi-host', 'whois-lookup24.p.rapidapi.com'] },
+        response: json(200, { data: { name: 'harbor.io', registrar: null }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://whois-lookup24.p.rapidapi.com/names/harbor.io/registry', next: null, register: null, product: null, dataset: null } }, { 'x-ratelimit-limit': '1000', 'x-ratelimit-remaining': '999' }),
+    },
+    {
         name: 'gateway-refusal',
-        request: { method: 'GET', path: '/names/gateway.io/registry', query: '' },
+        request: { method: 'GET', path: '/names/gateway.io/registry', query: '', header: ['x-rapidapi-host', 'whois-lookup24.p.rapidapi.com'] },
         response: { status: 403, headers: { 'content-type': 'application/json' }, body: { message: 'You are not subscribed to this API.' } },
     },
     {
@@ -106,11 +160,29 @@ export const SYNTHETIC = [
 - SERVER
 ----------------------------------*/
 
-const keyOf = (method, path, query) => `${method} ${path.replace(/^\/v1(?=\/)/, '')}?${[...new URLSearchParams(query)].map(([key, value]) => `${key}=${value}`).sort().join('&')}`;
+/**
+ * The public base serves under `/v1`; a RapidAPI host serves at its root. A request matches a fixture only under the
+ * prefix its headers call for (review R1-22: a client on a wrong base path no longer passes).
+ */
+const routedPath = (path, headers) => {
+    if (headers['x-rapidapi-host']) return path;
+    return path.startsWith('/v1/') ? path.slice(3) : null;
+};
+
+const keyOf = (method, path, query) => `${method} ${path}?${[...new URLSearchParams(query)].map(([key, value]) => `${key}=${value}`).sort().join('&')}`;
+
+/** A fixture with `request.header: [name, value]` answers only a request carrying that header, and wins over one without. */
+const matches = (fixture, headers) => !fixture.request.header || headers[fixture.request.header[0]] === fixture.request.header[1];
 
 export const startFixtureServer = async (extra = []) => {
     const fixtures = new Map();
-    for (const fixture of [...loadRecorded(), ...SYNTHETIC, ...extra]) fixtures.set(keyOf(fixture.request.method, fixture.request.path, fixture.request.query), { fixture, served: 0 });
+    for (const fixture of [...extra, ...loadRecorded(), ...SYNTHETIC]) {
+        const key = keyOf(fixture.request.method, fixture.request.path, fixture.request.query);
+        const list = fixtures.get(key) ?? [];
+        list.push({ fixture, served: 0 });
+        list.sort((left, right) => Number(Boolean(right.fixture.request.header)) - Number(Boolean(left.fixture.request.header)));
+        fixtures.set(key, list);
+    }
     const requests = [];
 
     const server = createServer((req, res) => {
@@ -118,8 +190,9 @@ export const startFixtureServer = async (extra = []) => {
         let raw = '';
         req.on('data', (chunk) => { raw += chunk; });
         req.on('end', () => {
-            requests.push({ method: req.method, path: url.pathname, query: url.search.slice(1), headers: req.headers, body: raw ? JSON.parse(raw) : undefined });
-            const entry = fixtures.get(keyOf(req.method, url.pathname, url.search.slice(1)));
+            requests.push({ method: req.method, path: url.pathname, query: url.search.slice(1), headers: req.headers, body: raw ? JSON.parse(raw) : undefined, at: Date.now() });
+            const path = routedPath(url.pathname, req.headers);
+            const entry = path === null ? undefined : (fixtures.get(keyOf(req.method, path, url.search.slice(1))) ?? []).find((candidate) => matches(candidate.fixture, req.headers));
             if (!entry) {
                 res.writeHead(404, { 'content-type': 'application/problem+json' });
                 res.end(JSON.stringify(problem('not_found', 404, `No fixture for ${req.method} ${url.pathname}${url.search}.`)));

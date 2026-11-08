@@ -10,9 +10,8 @@
 export { createClient, SDK_VERSION } from './client';
 export type { AuthMode, ClientOptions, UniqueDomainsClient } from './client';
 export { ApiProblemError, ListingMismatchError } from './errors';
-export type { ProblemCode, ProblemShape } from './errors';
 export { parseQuota, parseRateLimit, parseRetryAfter } from './headers';
-export { findListing, isListingId, listingServes, listingsServing } from './listing';
+export { findListing, isListingId, isOperationId, listingServes, listingsServing } from './listing';
 export type { ListingDefinition } from './listing';
 export { API_DOCUMENT_VERSION, API_PUBLIC_BASE, OPERATIONS, TAGS } from './generated/operations';
 export type { CsvOperationId, OperationId, TextOperationId } from './generated/operations';
@@ -36,6 +35,11 @@ export type {
     BodyOf,
     DataOf,
     EnvelopeOf,
+    ExactParams,
+    ListOption,
+    OperationAnswer,
+    OperationRequestParams,
+    ProblemCode,
     JsonObject,
     JsonPrimitive,
     JsonValue,

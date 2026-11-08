@@ -8,29 +8,7 @@
  * not serve, thrown before any request. A network failure stays the runtime's own `TypeError` from `fetch`.
  */
 
-import type { ApiAnswerFacts, ApiProblemCode, ApiQuota, ApiRateLimit, JsonValue } from './types';
-
-/*----------------------------------
-- TYPES
-----------------------------------*/
-
-/**
- * `unexpected_response`: an error answer without a problem body (a gateway's own refusal, a proxy's HTML page, an
- * empty 502); its body is in `problem.raw`.
- */
-export type ProblemCode = ApiProblemCode | 'unexpected_response';
-
-/** The problem body as the error carries it: `ApiProblem` with the code widened to `ProblemCode`. */
-export type ProblemShape = {
-    type: string;
-    title: string;
-    status: number;
-    detail: string;
-    instance: string;
-    code: ProblemCode;
-    product?: string;
-    readonly [extension: string]: JsonValue | undefined;
-};
+import type { ApiAnswerFacts, ApiProblem, ApiQuota, ApiRateLimit, JsonValue, ProblemCode } from './types';
 
 /*----------------------------------
 - HELPERS
@@ -38,36 +16,44 @@ export type ProblemShape = {
 
 const isRecord = (value: unknown): value is Record<string, JsonValue | undefined> => typeof value === 'object' && value !== null && !Array.isArray(value);
 
+/** A body kept for the caller: the object itself, or at most 2,000 characters of text. */
+const keepRaw = (body: unknown): JsonValue => (isRecord(body) ? { ...body } : typeof body === 'string' ? body.slice(0, 2000) : null);
+
 /**
  * @boundary The error body of an answer, parsed by openapi-fetch: a problem object from the API, or text from
  *           whatever stood between (a proxy, a load balancer).
+ * `status` is the answer's own status, never the body's: a gateway may rewrite one and not the other (review R1-17).
  */
-const toProblem = (body: unknown, status: number, statusText: string, instance: string): ProblemShape => {
+const toProblem = (body: unknown, status: number, statusText: string, instance: string): ApiProblem => {
     if (isRecord(body) && typeof body.code === 'string' && typeof body.detail === 'string') {
+        const code: ProblemCode = body.code;
         return {
             ...body,
             type: typeof body.type === 'string' ? body.type : 'about:blank',
             title: typeof body.title === 'string' ? body.title : statusText,
-            status: typeof body.status === 'number' ? body.status : status,
+            status,
             detail: body.detail,
             instance: typeof body.instance === 'string' ? body.instance : instance,
-            code: body.code as ProblemCode, // The API's own catalog; an unknown future code still reads as its string.
+            code,
         };
     }
     // Not a problem body: a gateway's own refusal (RapidAPI answers `{ "message": "..." }`) or a proxy's page. Its
-    // message becomes the detail and the body is kept in `raw`, so the reason is never lost (review finding 2).
+    // message becomes the detail and the body is kept in `raw`, so the reason is never lost (self-review 2).
     const message = isRecord(body) && typeof body.message === 'string' ? body.message : null;
-    const raw: JsonValue = isRecord(body) ? { ...body } : typeof body === 'string' ? body.slice(0, 2000) : null;
-    return {
-        type: 'about:blank',
-        title: statusText || 'Unexpected response',
-        status,
-        detail: message ?? `The API answered ${status} without a problem body.`,
-        instance,
-        code: 'unexpected_response',
-        raw,
-    };
+    return unexpected(status, statusText, instance, message ?? `The API answered ${status} without a problem body.`, keepRaw(body));
 };
+
+const unexpected = (status: number, statusText: string, instance: string, detail: string, raw: JsonValue): ApiProblem => ({
+    type: 'about:blank',
+    title: statusText || 'Unexpected response',
+    status,
+    detail,
+    instance,
+    code: 'unexpected_response',
+    raw,
+});
+
+const instanceOf = (response: Response): string => new URL(response.url || 'http://localhost/').pathname;
 
 /*----------------------------------
 - PUBLIC API
@@ -86,12 +72,12 @@ export class ApiProblemError extends Error {
     /** Seconds to wait, from `Retry-After` (a 429 or a 503). */
     readonly retryAfter: number | null;
     /** The whole problem body, extension members included (`reason`, `suggestion`, `allowed`, ...). */
-    readonly problem: ProblemShape;
+    readonly problem: ApiProblem;
     readonly headers: Headers;
     readonly quota: ApiQuota | null;
     readonly rateLimit: ApiRateLimit | null;
 
-    constructor(problem: ProblemShape, facts: ApiAnswerFacts) {
+    constructor(problem: ApiProblem, facts: ApiAnswerFacts) {
         super(problem.detail);
         this.problem = problem;
         this.status = problem.status;
@@ -109,7 +95,16 @@ export class ApiProblemError extends Error {
 
     /** @boundary `body` is the error body openapi-fetch parsed from the answer. */
     static from(body: unknown, response: Response, facts: ApiAnswerFacts): ApiProblemError {
-        return new ApiProblemError(toProblem(body, response.status, response.statusText, new URL(response.url || 'http://localhost/').pathname), facts);
+        return new ApiProblemError(toProblem(body, response.status, response.statusText, instanceOf(response)), facts);
+    }
+
+    /**
+     * @boundary A success answer the SDK could not read as the API's (not JSON, or not the `{ data, meta, links }`
+     *           envelope): a captive portal, a CDN page, a wrong `baseUrl` (review R1-5). Its body is kept in `raw`.
+     */
+    static unreadable(body: unknown, response: Response, facts: ApiAnswerFacts): ApiProblemError {
+        const detail = `The answer to ${instanceOf(response)} (${response.status}) is not the API's JSON envelope.`;
+        return new ApiProblemError(unexpected(response.status, response.statusText, instanceOf(response), detail, keepRaw(body)), facts);
     }
 }
 

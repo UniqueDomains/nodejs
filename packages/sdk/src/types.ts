@@ -24,10 +24,32 @@ export type ApiMeta = components['schemas']['Meta'];
 /** `details`, the public website page of the subject, is declared by the API's envelope but not yet filled. */
 export type ApiLinks = components['schemas']['Links'] & { details?: string | null };
 
+/** The problem codes the document lists. */
 export type ApiProblemCode = components['schemas']['Problem']['code'];
 
-/** `application/problem+json`, with its extension members (`reason`, `suggestion`, `allowed`, `product`, ...). */
-export type ApiProblem = components['schemas']['Problem'] & { readonly [extension: string]: JsonValue | undefined };
+/**
+ * The code an `ApiProblemError` carries: one the document lists, `unexpected_response` for an answer the SDK could
+ * not read as the API's (a gateway's own refusal, a proxy's page, a success body that is not the envelope), or a code
+ * a newer API added since this snapshot (kept as its string; `string & Record<never, never>` keeps the listed codes
+ * offered by an editor).
+ */
+export type ProblemCode = ApiProblemCode | 'unexpected_response' | (string & Record<never, never>);
+
+/**
+ * `application/problem+json` as the error carries it, with its extension members (`reason`, `suggestion`,
+ * `allowed`, `product`, ...). `raw` holds the body of an `unexpected_response`.
+ */
+export type ApiProblem = {
+    type: string;
+    title: string;
+    status: number;
+    detail: string;
+    instance: string;
+    code: ProblemCode;
+    product?: string;
+    raw?: JsonValue;
+    readonly [extension: string]: JsonValue | undefined;
+};
 
 export type ApiEnvelope<TData> = { data: TData; meta: ApiMeta; links: ApiLinks };
 
@@ -64,16 +86,27 @@ export type DataOf<Id extends OperationId> = SuccessOf<Id> extends { data: infer
 
 /** Options every call takes, beside the operation's own parameters. */
 export type RequestOptions = {
-    /** A previous answer's `etag`: an unchanged answer comes back as `{ notModified: true }` (a 304). Null sends none. */
+    /**
+     * A previous answer's `etag`: an unchanged answer comes back as `{ notModified: true }` (a 304). Null sends none.
+     * The one way to send `If-None-Match`: the header is removed from `headers` so the answer type stays true.
+     */
     ifNoneMatch?: string | null;
-    /** Top-level keys to keep (`fields=`), on operations that declare them. */
-    fields?: string | readonly string[];
-    /** Optional blocks to add (`include=`), on operations that declare them. */
-    include?: string | readonly string[];
     signal?: AbortSignal;
-    /** Extra headers for this call only. */
+    /** Extra headers for this call only (`If-None-Match` excepted: use `ifNoneMatch`). */
     headers?: Readonly<Record<string, string>>;
 };
+
+/** A `fields` or `include` value: a comma-separated string or a list; an empty list sends nothing. */
+export type ListOption = string | readonly string[];
+
+type HasQueryKey<Id extends OperationId, Key extends string> = [QueryParamsOf<Id>] extends [never] ? false : Key extends keyof QueryParamsOf<Id> ? true : false;
+
+/**
+ * `fields` keeps the listed top-level keys; the answer is still typed as the full row, so read a key you did not
+ * keep as missing. Offered only where the operation declares `fields` (`include` the same).
+ */
+type ProjectionPart<Id extends OperationId> = (HasQueryKey<Id, 'fields'> extends true ? { fields?: ListOption } : { fields?: undefined })
+    & (HasQueryKey<Id, 'include'> extends true ? { include?: ListOption } : { include?: undefined });
 
 type PathPart<Id extends OperationId> = [PathParamsOf<Id>] extends [never] ? { path?: undefined } : { path: PathParamsOf<Id> };
 type QueryPart<Id extends OperationId> = [QueryParamsOf<Id>] extends [never] ? { query?: undefined } : { query?: QueryParamsOf<Id> };
@@ -81,12 +114,39 @@ type BodyPart<Id extends OperationId> = [BodyOf<Id>] extends [never] ? { body?: 
 type FormatPart<Id extends OperationId> = Id extends CsvOperationId ? { format?: 'json' | 'csv' } : { format?: 'json' };
 
 /** What `request(operationId, params)` takes for one operation. */
-export type RequestParams<Id extends OperationId> = PathPart<Id> & QueryPart<Id> & BodyPart<Id> & FormatPart<Id> & RequestOptions;
+export type RequestParams<Id extends OperationId> = PathPart<Id> & QueryPart<Id> & BodyPart<Id> & FormatPart<Id> & ProjectionPart<Id> & RequestOptions;
 
 type RequiredKeys<T> = { [Key in keyof T]-?: object extends Pick<T, Key> ? never : Key }[keyof T];
 
+type NoExtraKeys<P, Shape> = { [Key in Exclude<keyof P, keyof Shape>]: never };
+
+/**
+ * `P` with no key the operation does not take, at the top level and inside `path`, `query` and `body` (review
+ * R1-6): a misspelled `qurey` or `limt` is a compile error instead of a parameter dropped or sent.
+ */
+export type ExactParams<Id extends OperationId, P> = NoExtraKeys<P, RequestParams<Id>> & {
+    // Homomorphic over `keyof P`, so an optional key stays optional.
+    [Key in keyof P]: Key extends 'path' | 'query' | 'body' ? ExactInner<P[Key], NonNullable<RequestParams<Id>[Key & keyof RequestParams<Id>]>> : P[Key];
+};
+
+// Distributive over `V`, so `{ ... } | undefined` checks the object and keeps `undefined`.
+type ExactInner<V, Shape> = V extends object ? V & NoExtraKeys<V, Shape> : V;
+
 /** `params` may be left out when the operation has no required path parameter or body. */
-export type RequestArgs<Id extends OperationId, P> = [RequiredKeys<RequestParams<Id>>] extends [never] ? [params?: P] : [params: P];
+export type RequestArgs<Id extends OperationId, P> = [RequiredKeys<RequestParams<Id>>] extends [never] ? [params?: ExactParams<Id, P>] : [params: ExactParams<Id, P>];
+
+/**
+ * The params of `requestOperation`, for an operation id known only at run time (the CLI's command loop, an MCP
+ * server's tool loop): the same keys, checked at run time against the operation table instead of at compile time.
+ */
+export type OperationRequestParams = RequestOptions & {
+    path?: Readonly<Record<string, string | number>>;
+    query?: Readonly<Record<string, string | number | boolean | undefined>>;
+    body?: JsonObject;
+    format?: 'json' | 'csv';
+    fields?: ListOption;
+    include?: ListOption;
+};
 
 /*----------------------------------
 - TYPES: AN ANSWER
@@ -131,6 +191,9 @@ export type ApiTextResult = ApiAnswerFacts & { notModified: false; text: string;
 
 /** A 304 to an `ifNoneMatch` call: keep the answer you have. */
 export type ApiNotModified = ApiAnswerFacts & { notModified: true };
+
+/** What `requestOperation` answers: any of the three, to narrow on `notModified` and `'text' in answer`. */
+export type OperationAnswer = ApiResult<ApiEnvelope<JsonValue>> | ApiTextResult | ApiNotModified;
 
 /**
  * The answer of `request(Id, P)`, from the operation and the options passed. Sound for values only known at run time

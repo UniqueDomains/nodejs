@@ -53,7 +53,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "node ../../scripts/copy-assets.mjs sdk && tsup"
+    "build": "node ../../scripts/copy-assets.mjs sdk && tsup",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "openapi-fetch": "0.17.0"

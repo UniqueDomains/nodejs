@@ -24,7 +24,20 @@ console.log(endings.data.map((row) => row.tld));
 
 Every answer is the API's envelope, `data`, `meta` and `links`, plus what its headers said: `status`, `etag`, `quota`, `rateLimit`, `retryAfter` and `location`. A list carries `meta.cursor`; pass it back as `query.cursor` for the next page.
 
-The operation ids are the names on the [API reference](https://unique.domains/api). `OPERATIONS` lists them all with their method, path, parameters and access.
+The operation ids are the names on the [API reference](https://unique.domains/api). `OPERATIONS` lists them all with their method, path, parameters and access. A misspelled parameter is a compile error.
+
+When the operation id is only known at run time (a command or tool loop), use `requestOperation`. It makes the same call, checks the params against `OPERATIONS` at run time, and answers one of the three kinds to narrow:
+
+```js
+import { isOperationId } from '@uniquedomains/sdk';
+
+if (isOperationId(id)) {
+    const answer = await ud.requestOperation(id, { path, query });
+    if (answer.notModified) { /* a 304 */ }
+    else if ('text' in answer) console.log(answer.text);
+    else console.log(answer.data);
+}
+```
 
 ## A member key
 
@@ -68,9 +81,9 @@ try {
 }
 ```
 
-`code` is one of the API's problem codes (`validation_failed`, `keyed_only`, `plan_required`, `rate_limited`, `quota_spent`, `not_found` and the rest), or `unexpected_response` when an answer came back without a problem body. A network failure stays the runtime's own error from `fetch`.
+`code` is one of the API's problem codes (`validation_failed`, `keyed_only`, `plan_required`, `rate_limited`, `quota_spent`, `not_found` and the rest), or `unexpected_response` when the answer was not the API's: an error without a problem body (a RapidAPI refusal, a proxy's page) or a success that is not the API's JSON. Its message is in `detail` and the body in `error.problem.raw`. A network failure stays the runtime's own error from `fetch`.
 
-The client retries once by itself, after a `rate_limited` answer that asks to wait one second. Any longer wait is yours to decide, so it throws.
+The client retries once by itself, after a `rate_limited` answer with `Retry-After: 1`. Any other wait is yours to decide, so it throws.
 
 ## Formats, fields and caching
 
@@ -79,8 +92,9 @@ The client retries once by itself, after a `rate_limited` answer that asks to wa
 const csv = await ud.request('list_tlds', { query: { limit: 100 }, format: 'csv' });
 console.log(csv.text);
 
-// Keep some top-level keys, or add optional blocks
+// Keep some top-level keys, or add optional blocks, where the operation offers them
 await ud.request('get_name', { path: { name: 'harbor.io' }, fields: ['name', 'status', 'price'] });
+await ud.request('get_word_endings', { path: { word: 'harbor' }, include: ['cheapest'] });
 
 // Ask again only when the answer changed
 const first = await ud.request('get_name', { path: { name: 'harbor.io' } });
@@ -88,7 +102,7 @@ const again = await ud.request('get_name', { path: { name: 'harbor.io' }, ifNone
 if (again.notModified) console.log('unchanged');
 ```
 
-The calendar feeds (`get_events_ics`, `get_agenda_ics`), `get_llms_txt` and `get_openapi` answer text in `text`.
+With `fields`, the answer is still typed as the whole row: a key you did not keep is missing at run time. `ifNoneMatch` is the one way to send `If-None-Match`; the header is removed from `headers`. The calendar feeds (`get_events_ics`, `get_agenda_ics`), `get_llms_txt` and `get_openapi` answer text in `text`.
 
 ## Links
 
@@ -113,6 +127,6 @@ The document this version was built from ships with the package as `@uniquedomai
 ## Also
 
 - [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli): the same API from the command line.
-- [`@uniquedomains/mcp-server`](https://github.com/UniqueDomains/mcp-server): the same API as tools for AI assistants.
+- `@uniquedomains/mcp-server`: the same API as tools for AI assistants, coming next in its own repository.
 
 MIT

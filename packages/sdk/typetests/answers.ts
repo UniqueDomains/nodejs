@@ -8,7 +8,7 @@
  * finding 3 of 2026-11-08).
  */
 
-import { createClient, type RequestParams } from '../src/index';
+import { createClient, type OperationId, type RequestParams } from '../src/index';
 
 const ud = createClient();
 
@@ -53,6 +53,25 @@ export const checks = async (etag: string | null, format: 'json' | 'csv'): Promi
     await ud.request('get_name', { path: { name: 'harbor.io' }, format: 'csv' });
     // @ts-expect-error unknown operation
     await ud.request('nope');
+
+    // Misspelled keys fail at the top level and inside query (review R1-6).
+    // @ts-expect-error qurey is not a key
+    await ud.request('get_name', { path: { name: 'x.io' }, qurey: { limit: 1 } });
+    // @ts-expect-error limt is not a query parameter of list_tlds
+    await ud.request('list_tlds', { query: { limit: 3, limt: 4 } });
+
+    // fields and include only where the operation declares them (review R1-8).
+    await ud.request('list_tlds', { fields: ['tld', 'kind'] });
+    await ud.request('get_word_endings', { path: { word: 'harbor' }, include: ['cheapest'] });
+    // @ts-expect-error list_tlds declares no include
+    await ud.request('list_tlds', { include: ['x'] });
+    // @ts-expect-error get_llms_txt declares no fields
+    await ud.request('get_llms_txt', { fields: ['x'] });
+
+    // An id known only at run time goes through requestOperation (review R1-2).
+    const id: OperationId = 'list_tlds';
+    const any = await ud.requestOperation(id, { query: { limit: 3 } });
+    if (!any.notModified && !('text' in any)) void any.data;
 
     void [count, status, text, body];
 };

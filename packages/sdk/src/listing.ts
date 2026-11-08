@@ -9,6 +9,7 @@
  */
 
 import { LISTINGS, type ListingId } from './generated/listings';
+import { OPERATIONS, type OperationId } from './generated/operations';
 
 export type ListingDefinition = {
     readonly id: string;
@@ -18,6 +19,9 @@ export type ListingDefinition = {
     readonly host: string;
     readonly operations: readonly string[];
 };
+
+/** Whether a string is an operation id of this snapshot: the guard a command or tool loop narrows with. */
+export const isOperationId = (id: string): id is OperationId => Object.prototype.hasOwnProperty.call(OPERATIONS, id);
 
 export const findListing = (id: string): ListingDefinition | undefined => LISTINGS.find((listing) => listing.id === id);
 

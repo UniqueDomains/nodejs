@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { describe, it } from 'node:test';
-import { findListing, LISTINGS, listingsServing, OPERATIONS, parseRetryAfter, TAGS } from '../dist/index.js';
+import { findListing, isOperationId, LISTINGS, listingsServing, OPERATIONS, parseRetryAfter, TAGS } from '../dist/index.js';
 
 const require = createRequire(import.meta.url);
 const SHARED = Object.values(OPERATIONS).filter((operation) => operation.tag === 'shared').map((operation) => operation.id);
@@ -62,6 +62,12 @@ describe('the operation table', () => {
     it('marks the file answers as text', () => {
         for (const id of ['get_openapi', 'get_llms_txt', 'get_events_ics', 'get_agenda_ics']) assert.equal(OPERATIONS[id].answer, 'text', id);
         assert.equal(OPERATIONS.get_name.answer, 'json');
+    });
+
+    it('guards operation ids', () => {
+        assert.equal(isOperationId('get_name'), true);
+        assert.equal(isOperationId('toString'), false);
+        assert.equal(isOperationId('nope'), false);
     });
 
     it('carries get_key for ud whoami', () => {
