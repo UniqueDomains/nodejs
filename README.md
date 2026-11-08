@@ -34,7 +34,7 @@ What each plan includes is on the [API page](https://unique.domains/api).
 
 - [The API reference](https://unique.domains/api): every endpoint, with examples.
 - [The datasets](https://github.com/UniqueDomains): one-word domain names, expiring names, the daily editions and the new gTLD applications, as files on GitHub.
-- [`@uniquedomains/mcp-server`](https://github.com/UniqueDomains/mcp-server): the same API as tools for AI assistants, through the Model Context Protocol.
+- `@uniquedomains/mcp-server`: the same API as tools for AI assistants, through the Model Context Protocol. It is coming next, in its own repository in this organization.
 
 ## Working on this repository
 
@@ -46,8 +46,10 @@ npm test
 
 - `npm run generate` fetches the live document and the sixteen listing documents into `openapi/` and regenerates `packages/sdk/src/generated/`. `npm run generate -- --check` fails when the snapshot differs from the live document; `--offline` regenerates from the snapshot alone.
 - `npm run check:text` holds the repository to its writing rules.
+- `npm run check:pack` packs both packages, installs them in an empty folder and loads them.
 - `npm run smoke` runs the built CLI against the live free API.
-- A tag `v<version>` publishes both packages from GitHub Actions with provenance. The two packages share one version.
+- A tag `v<version>` publishes both packages from GitHub Actions with provenance. The two packages share one version, and a tag never carries a pre-release.
+- A publish by hand, `npm publish --workspace packages/sdk` then `--workspace packages/cli`, builds each package first through its `prepack` script.
 
 ## License
 

@@ -33,7 +33,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet -- openapi packages/sdk/src/generated; then
+          # Staged first, so a new listing file (untracked) counts as a change too (review R1-18).
+          git add openapi packages/sdk/src/generated
+          if git diff --cached --quiet; then
             echo "The snapshot matches the live document."
             exit 0
           fi
@@ -42,7 +44,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
-          git add openapi packages/sdk/src/generated
           git commit -m "openapi: ${day}"
           git push --force origin "$branch"
           if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null)" = "OPEN" ]; then

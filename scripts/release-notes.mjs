@@ -18,7 +18,9 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const tag = process.argv[2];
-if (!tag || !/^v\d+\.\d+\.\d+(-[\w.]+)?$/.test(tag)) throw new Error('Usage: release-notes.mjs v<major>.<minor>.<patch>');
+// No pre-release channel (review R1-4): npm 11 refuses a pre-release version without `--tag`, so such a tag would pass
+// every check and fail at the publish step. A plain version or nothing.
+if (!tag || !/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Usage: release-notes.mjs v<major>.<minor>.<patch> (no pre-release tags)');
 
 const versionOf = (name) => JSON.parse(readFileSync(join(ROOT, 'packages', name, 'package.json'), 'utf8')).version;
 const version = tag.slice(1);
@@ -42,12 +44,13 @@ const GROUPS = [['feat', 'Added'], ['fix', 'Fixed'], ['perf', 'Faster'], ['docs'
 const lines = [`## ${version}`, ''];
 const used = new Set();
 for (const [type, title] of GROUPS) {
-    const entries = subjects.filter((subject) => new RegExp(`^${type}(\\(.+\\))?!?:`).test(subject));
+    // `\([^)]*\)`, not a greedy `\(.+\)`: a subject such as `fix(sdk): read (304): keep it` keeps its text (R1-18).
+    const entries = subjects.filter((subject) => new RegExp(`^${type}(\\([^)]*\\))?!?:`).test(subject));
     if (entries.length === 0) continue;
     entries.forEach((entry) => used.add(entry));
-    lines.push(`### ${title}`, '', ...entries.map((entry) => `- ${entry.replace(/^\w+(\(.+\))?!?:\s*/, '')}`), '');
+    lines.push(`### ${title}`, '', ...entries.map((entry) => `- ${entry.replace(/^\w+(\([^)]*\))?!?:\s*/, '')}`), '');
 }
-const other = subjects.filter((subject) => !used.has(subject) && !/^(chore|ci|test|build|style|refactor)(\(.+\))?!?:/.test(subject));
+const other = subjects.filter((subject) => !used.has(subject) && !/^(chore|ci|test|build|style|refactor)(\([^)]*\))?!?:/.test(subject));
 if (other.length > 0) lines.push('### Other', '', ...other.map((entry) => `- ${entry}`), '');
 if (previous) lines.push(`Changes since ${previous}.`);
 console.log(lines.join('\n'));

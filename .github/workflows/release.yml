@@ -3,20 +3,24 @@ name: Release
 # A tag `v<version>` publishes both packages at that version through npm trusted publishing (plan decision 22): a
 # GitHub-hosted runner, Node 22, npm 11.5.1 or later, an OIDC token and no NODE_AUTH_TOKEN. The first version of each
 # package is published by hand; this workflow takes over once each package has a trusted-publishing configuration for
-# this repository and this file, with direct publishing switched on.
+# this repository and this file, with direct publishing switched on. A new configuration expires when no publish
+# succeeds within two days, so add it only when the next tag is ready.
+#
+# Two jobs (review R1-18): `build` installs the dependencies and runs their scripts without any publish right; only
+# `publish` can mint the OIDC token, and it installs nothing and runs no package script.
 
 on:
   push:
     tags: ['v*']
 
 permissions:
-  contents: write # the GitHub release
-  id-token: write # npm trusted publishing and provenance
+  contents: read
 
-concurrency: release
+# One group per tag: a third tag never cancels a waiting second one (review R1-18).
+concurrency: release-${{ github.ref }}
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -25,17 +29,46 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
-      - run: npm install -g npm@^11.5.1
+          cache: npm
       - run: npm ci
-      # Fails when the tag does not match both packages' versions.
-      - run: node scripts/release-notes.mjs "$GITHUB_REF_NAME" > "$RUNNER_TEMP/release-notes.md"
+      # Fails when the tag does not match both packages' versions, or carries a pre-release (review R1-4).
+      - run: node scripts/release-notes.mjs "$GITHUB_REF_NAME" > release-notes.md
       # A release ships the live document's shape: regenerate and commit first when this fails (plan decision 7).
       - run: npm run generate -- --check
       - run: npm run generate -- --offline --check
+      - run: npm run check:text
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
+      - run: npm run check:pack
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          if-no-files-found: error
+          path: |
+            release-notes.md
+            packages/sdk/dist
+            packages/sdk/openapi.json
+            packages/sdk/LICENSE
+            packages/cli/dist
+            packages/cli/LICENSE
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # the GitHub release
+      id-token: write # npm trusted publishing and provenance
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@^11.5.1
       - name: Publish @uniquedomains/sdk, then @uniquedomains/cli
         run: |
           version="${GITHUB_REF_NAME#v}"
@@ -45,10 +78,11 @@ jobs:
             if npm view "${name}@${version}" version >/dev/null 2>&1; then
               echo "${name}@${version} is already published."
             else
-              npm publish --workspace "packages/${package}" --provenance --access public
+              # The build job built `dist`; --ignore-scripts keeps `prepack` from running a build here.
+              npm publish --workspace "packages/${package}" --provenance --access public --ignore-scripts
             fi
           done
       - name: GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file release-notes.md --verify-tag
