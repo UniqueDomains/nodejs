@@ -9,8 +9,8 @@
  * ranges (`minimum`, `maximum`) are left to the API, whose problem detail names the limit.
  */
 
-import { GLOBAL_BOOLEAN_FLAGS, GLOBAL_STRING_FLAGS, type Command, type FlagSpec } from './commands';
-import type { ParameterType } from '@uniquedomains/sdk';
+import { GLOBAL_BOOLEAN_FLAGS, GLOBAL_FLAGS, GLOBAL_STRING_FLAGS, type Command, type FlagSpec } from './commands';
+import type { OperationParameter, ParameterType } from '@uniquedomains/sdk';
 
 /*----------------------------------
 - TYPES
@@ -22,7 +22,8 @@ export type GlobalFlags = {
     listing?: string;
     base?: string;
     body?: string;
-    json: boolean;
+    /** null when not given: JSON off a terminal, a table on one. */
+    json: boolean | null;
     csv: boolean;
     verbose: boolean;
     help: boolean;
@@ -50,8 +51,11 @@ export class UsageError extends Error {
 
 const STRING_GLOBALS: ReadonlySet<string> = new Set(GLOBAL_STRING_FLAGS);
 const BOOLEAN_GLOBALS: ReadonlySet<string> = new Set(GLOBAL_BOOLEAN_FLAGS);
-const SHORT_FLAGS: Readonly<Record<string, string>> = { '-h': '--help', '-V': '--version' };
+const SHORT_FLAGS: Readonly<Record<string, string>> = Object.fromEntries(GLOBAL_FLAGS.filter((entry) => entry.short).map((entry) => [entry.short, `--${entry.flag}`]));
 const NEGATIVE_NUMBER = /^-\d/;
+// Plain decimal only: `Number()` would read `0x10` as 16 and `1e3` as 1000 (review R1-19).
+const INTEGER = /^-?\d+$/;
+const DECIMAL = /^-?\d+(\.\d+)?$/;
 
 /*----------------------------------
 - HELPERS
@@ -63,6 +67,16 @@ const setBooleanGlobal = (globals: GlobalFlags, flag: string, value: boolean): v
     else if (flag === 'verbose') globals.verbose = value;
     else if (flag === 'help') globals.help = value;
     else if (flag === 'version') globals.version = value;
+};
+
+/** The value of a global string flag, by its flag name. */
+export const stringGlobal = (globals: GlobalFlags, flag: string): string | undefined => {
+    if (flag === 'key') return globals.key;
+    if (flag === 'rapidapi-key') return globals.rapidapiKey;
+    if (flag === 'listing') return globals.listing;
+    if (flag === 'base') return globals.base;
+    if (flag === 'body') return globals.body;
+    return undefined;
 };
 
 const setStringGlobal = (globals: GlobalFlags, flag: string, value: string): void => {
@@ -81,9 +95,8 @@ const splitFlag = (token: string): { flag: string; inline: string | undefined } 
 
 const convertScalar = (raw: string, type: ParameterType, label: string): string | number | boolean => {
     if (type === 'integer' || type === 'number') {
-        const value = Number(raw);
-        if (raw.trim() === '' || !Number.isFinite(value) || (type === 'integer' && !Number.isInteger(value))) throw new UsageError(`${label} takes ${type === 'integer' ? 'a whole number' : 'a number'}, not "${raw}".`);
-        return value;
+        if (!(type === 'integer' ? INTEGER : DECIMAL).test(raw.trim())) throw new UsageError(`${label} takes ${type === 'integer' ? 'a whole number' : 'a number'}, not "${raw}".`);
+        return Number(raw);
     }
     if (type === 'boolean') {
         if (raw === 'true') return true;
@@ -95,6 +108,13 @@ const convertScalar = (raw: string, type: ParameterType, label: string): string 
 
 const checkEnum = (value: string | number | boolean, spec: { enum?: readonly (string | number)[] }, label: string): void => {
     if (spec.enum && !spec.enum.some((allowed) => allowed === value)) throw new UsageError(`${label} takes one of: ${spec.enum.join(', ')}.`);
+};
+
+/** A positional argument checked like a flag (review R1-10): its type and its enum, before any call. */
+export const convertArgument = (param: OperationParameter, raw: string): string | number | boolean => {
+    const value = convertScalar(raw, param.type, `<${param.name}>`);
+    checkEnum(value, param, `<${param.name}>`);
+    return value;
 };
 
 const convertFlag = (spec: FlagSpec, raw: string): ParsedValue => {
@@ -130,7 +150,7 @@ const findCommandName = (argv: readonly string[], resolve: (name: string) => Com
     return first;
 };
 
-const emptyGlobals = (): GlobalFlags => ({ json: false, csv: false, verbose: false, help: false, version: false });
+const emptyGlobals = (): GlobalFlags => ({ json: null, csv: false, verbose: false, help: false, version: false });
 
 /*----------------------------------
 - PUBLIC API

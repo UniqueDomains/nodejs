@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { OPERATIONS } from '@uniquedomains/sdk';
-import { COMMANDS, findCommand, kebab, SHORTCUTS } from '../dist/index.js';
+import { COMMANDS, findCommand, GLOBAL_FLAGS, kebab, SHORTCUTS } from '../dist/index.js';
 
-const GLOBALS = new Set(['key', 'rapidapi-key', 'listing', 'base', 'body', 'json', 'csv', 'verbose', 'help', 'version']);
+// Read from the one catalog the parser and the help read (review R1-19).
+const GLOBALS = new Set(GLOBAL_FLAGS.map((entry) => entry.flag));
 
 describe('the command table (plan decision 5)', () => {
     it('has one command per operation, named by its id in kebab case', () => {
@@ -43,8 +44,13 @@ describe('the command table (plan decision 5)', () => {
         assert.equal(kebab('q'), 'q');
     });
 
-    it('prefixes the query parameter named listing', () => {
-        assert.ok(findCommand('get-meta-tlds').flags.some((spec) => spec.flag === 'param-listing' && spec.name === 'listing'));
+    it('prefixes the query parameter named listing (pinned cases, review R1-22)', () => {
+        for (const name of ['get-meta-tlds', 'get-openapi']) {
+            const flags = findCommand(name).flags.map((spec) => `${spec.flag}=${spec.name}`);
+            assert.ok(flags.includes('param-listing=listing'), `${name}: ${flags.join(' ')}`);
+            assert.ok(!flags.some((flag) => flag.startsWith('listing=')), name);
+        }
+        assert.deepEqual([...GLOBALS].sort(), ['base', 'body', 'csv', 'help', 'json', 'key', 'listing', 'rapidapi-key', 'verbose', 'version']);
     });
 
     it('maps the shortcuts', () => {

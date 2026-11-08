@@ -9,7 +9,7 @@
  * operation table, so a regenerated snapshot adds its commands with no change here.
  */
 
-import { OPERATIONS, type BodyProperty, type OperationDefinition, type OperationParameter, type ParameterType } from '@uniquedomains/sdk';
+import { isOperationId, OPERATIONS, type BodyProperty, type OperationDefinition, type OperationId, type OperationParameter, type ParameterType } from '@uniquedomains/sdk';
 
 /*----------------------------------
 - TYPES
@@ -32,6 +32,7 @@ export type FlagSpec = {
 
 export type Command = {
     name: string;
+    operationId: OperationId;
     operation: OperationDefinition;
     /** The path parameters, in path order. */
     positionals: readonly OperationParameter[];
@@ -49,10 +50,36 @@ export type Shortcut = {
 - CONSTANTS
 ----------------------------------*/
 
-/** Flags every command takes, whatever its operation. */
-export const GLOBAL_STRING_FLAGS = ['key', 'rapidapi-key', 'listing', 'base', 'body'] as const;
-export const GLOBAL_BOOLEAN_FLAGS = ['json', 'csv', 'verbose', 'help', 'version'] as const;
-const RESERVED_FLAGS: ReadonlySet<string> = new Set<string>([...GLOBAL_STRING_FLAGS, ...GLOBAL_BOOLEAN_FLAGS]);
+export type GlobalFlag = {
+    flag: string;
+    /** `string` flags take a value; `boolean` flags take none, or `=true` and `=false`. */
+    kind: 'string' | 'boolean';
+    /** How the value shows in the help (`<key>`). */
+    value?: string;
+    short?: string;
+    help: string;
+};
+
+/**
+ * Flags every command takes, whatever its operation: the one list the parser, the help and the tests read
+ * (review R1-19).
+ */
+export const GLOBAL_FLAGS: readonly GlobalFlag[] = [
+    { flag: 'json', kind: 'boolean', help: 'Print the answer as JSON (the default when the output is not a terminal); --json=false prints a table' },
+    { flag: 'csv', kind: 'boolean', help: 'Print the CSV form, on the commands that have one' },
+    { flag: 'verbose', kind: 'boolean', help: 'Print the request, the status and the quota and rate-limit headers on stderr' },
+    { flag: 'key', kind: 'string', value: '<key>', help: 'A member key (ud_live_...); default UD_API_KEY' },
+    { flag: 'rapidapi-key', kind: 'string', value: '<key>', help: 'A RapidAPI key; default UD_RAPIDAPI_KEY' },
+    { flag: 'listing', kind: 'string', value: '<id>', help: 'The RapidAPI listing of that key (names, whois, ...); default UD_RAPIDAPI_LISTING' },
+    { flag: 'base', kind: 'string', value: '<url>', help: 'Another API base; default UD_API_BASE (not read for a RapidAPI key), else the public base' },
+    { flag: 'body', kind: 'string', value: '<json>', help: 'The JSON body of a POST command: inline, @file, or - for stdin' },
+    { flag: 'help', kind: 'boolean', short: '-h', help: 'This help, or a command\'s help after its name' },
+    { flag: 'version', kind: 'boolean', short: '-V', help: 'The version of ud' },
+];
+
+export const GLOBAL_STRING_FLAGS: readonly string[] = GLOBAL_FLAGS.filter((entry) => entry.kind === 'string').map((entry) => entry.flag);
+export const GLOBAL_BOOLEAN_FLAGS: readonly string[] = GLOBAL_FLAGS.filter((entry) => entry.kind === 'boolean').map((entry) => entry.flag);
+const RESERVED_FLAGS: ReadonlySet<string> = new Set<string>(GLOBAL_FLAGS.map((entry) => entry.flag));
 
 /**
  * A parameter whose flag would take a global flag's name gets the `param-` prefix: `get_meta_tlds` and `get_openapi`
@@ -102,8 +129,9 @@ const fromBody = (property: BodyProperty): FlagSpec => ({
     description: property.description ?? (property.type === 'array' ? 'A comma-separated list.' : ''),
 });
 
-const toCommand = (operation: OperationDefinition): Command => ({
+const toCommand = (operationId: OperationId, operation: OperationDefinition): Command => ({
     name: kebab(operation.id),
+    operationId,
     operation,
     positionals: operation.parameters.filter((param) => param.in === 'path'),
     flags: [
@@ -117,7 +145,7 @@ const toCommand = (operation: OperationDefinition): Command => ({
 ----------------------------------*/
 
 /** Every command, in document order. */
-export const COMMANDS: readonly Command[] = Object.values<OperationDefinition>(OPERATIONS).map(toCommand);
+export const COMMANDS: readonly Command[] = Object.entries<OperationDefinition>(OPERATIONS).flatMap(([id, operation]) => (isOperationId(id) ? [toCommand(id, operation)] : []));
 
 export const findCommand = (name: string): Command | undefined => {
     const shortcut = SHORTCUTS.find((entry) => entry.name === name);

@@ -9,7 +9,7 @@
  */
 
 import { TAGS } from '@uniquedomains/sdk';
-import { COMMANDS, SHORTCUTS, type Command, type FlagSpec } from './commands';
+import { COMMANDS, GLOBAL_FLAGS, SHORTCUTS, type Command, type FlagSpec } from './commands';
 
 /*----------------------------------
 - CONSTANTS
@@ -17,10 +17,28 @@ import { COMMANDS, SHORTCUTS, type Command, type FlagSpec } from './commands';
 
 const API_PAGE = 'https://unique.domains/api';
 const INDENT = '  ';
+// The fixed text of the help (the global flags, the closing lines) fits 80 columns (review R1-19).
+const HELP_WIDTH = 80;
 
 /*----------------------------------
 - HELPERS
 ----------------------------------*/
+
+/** Wraps `text` at word boundaries so no line, `indent` included, runs past `width` columns. */
+const wrap = (text: string, indent: string, width = HELP_WIDTH): string => {
+    const lines: string[] = [];
+    let current = '';
+    for (const word of text.split(/\s+/).filter(Boolean)) {
+        if (current && indent.length + current.length + 1 + word.length > width) {
+            lines.push(`${indent}${current}`);
+            current = word;
+        } else {
+            current = current ? `${current} ${word}` : word;
+        }
+    }
+    if (current) lines.push(`${indent}${current}`);
+    return lines.join('\n');
+};
 
 const truncate = (text: string, max: number): string => (text.length > max ? `${text.slice(0, Math.max(0, max - 1))}…` : text);
 
@@ -58,18 +76,10 @@ const describeFlag = (spec: FlagSpec): string => {
 - PUBLIC API
 ----------------------------------*/
 
+/** The global flags from their one catalog, each description on its own line so no line runs past 80 columns. */
 export const GLOBAL_HELP = [
     'Flags for every command',
-    `${INDENT}--json               Print the answer as JSON (the default when the output is not a terminal)`,
-    `${INDENT}--csv                Print the CSV form, on the commands that have one`,
-    `${INDENT}--verbose            Print the request, the status and the quota and rate-limit headers on stderr`,
-    `${INDENT}--key <key>          A member key (ud_live_...); default UD_API_KEY`,
-    `${INDENT}--rapidapi-key <key> A RapidAPI key; default UD_RAPIDAPI_KEY`,
-    `${INDENT}--listing <id>       The RapidAPI listing of that key (names, whois, ...); default UD_RAPIDAPI_LISTING`,
-    `${INDENT}--base <url>         Another API base; default UD_API_BASE, else https://api.unique.domains/v1`,
-    `${INDENT}--body <json>        The JSON body of a POST command, inline, @file or - for stdin`,
-    `${INDENT}--help, -h           This help, or a command's help after its name`,
-    `${INDENT}--version, -V        The version of ud`,
+    ...GLOBAL_FLAGS.map((entry) => `${INDENT}--${entry.flag}${entry.value ? ` ${entry.value}` : ''}${entry.short ? `, ${entry.short}` : ''}\n${wrap(entry.help, `${INDENT}${INDENT}`)}`),
 ].join('\n');
 
 export const renderMainHelp = (columns: number): string => {
@@ -94,7 +104,7 @@ export const renderMainHelp = (columns: number): string => {
         '',
         GLOBAL_HELP,
         '',
-        'Every command is an operation of the API, its id in kebab case: get_name is ud get-name.',
+        wrap('Every command is an operation of the API, its id in kebab case: get_name is ud get-name.', ''),
         `Reference: ${API_PAGE}`,
         '',
     ].join('\n');
@@ -111,7 +121,12 @@ export const renderCommandHelp = (command: Command): string => {
         `${operation.method} ${operation.path}  (${accessOf(command)})`,
     ];
     if (command.positionals.length > 0) {
-        sections.push('', 'Arguments', ...command.positionals.map((param) => `${INDENT}<${param.name}>${param.example !== undefined ? `  e.g. ${String(param.example)}` : ''}\n${INDENT}${INDENT}${param.description.replace(/\s+/g, ' ').trim()}`));
+        sections.push('', 'Arguments', ...command.positionals.map((param) => [
+            `${INDENT}<${param.name}>${param.example !== undefined ? `  e.g. ${String(param.example)}` : ''}`,
+            `${INDENT}${INDENT}${param.description.replace(/\s+/g, ' ').trim()}`,
+            // The values an argument takes, as a flag's help lists them (review R1-10).
+            ...(param.enum ? [`${INDENT}${INDENT}One of: ${param.enum.join(', ')}.`] : []),
+        ].join('\n')));
     }
     if (command.flags.length > 0) sections.push('', 'Flags', ...command.flags.map(describeFlag));
     if (operation.csv) sections.push('', 'CSV: add --csv for the CSV form.');

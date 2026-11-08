@@ -53,7 +53,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "node ../../scripts/copy-assets.mjs cli && tsup"
+    "build": "node ../../scripts/copy-assets.mjs cli && tsup",
+    "prepack": "npm run build"
   },
   "dependencies": {
     "@uniquedomains/sdk": "0.1.0"

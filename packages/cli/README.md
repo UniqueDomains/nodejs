@@ -39,9 +39,9 @@ ud list-tlds --limit 3 --json
 ud list-tld-prices io --csv > io-prices.csv
 ```
 
-`--verbose` prints the request, the status and the quota and rate-limit headers on stderr.
+`--verbose` prints the request, the status and the quota and rate-limit headers on stderr. `--json=false` prints a table even when the output is piped.
 
-A refused call exits with code 1 and prints the API's explanation on stderr. A mistyped command or flag exits with code 2.
+Arguments and flags are checked before any call: a missing required flag, a number that is not one, or a value outside a command's list exits with code 2 and makes no call. A refused call exits with code 1 and prints the API's explanation on stderr.
 
 ## Keys
 
@@ -61,12 +61,12 @@ A RapidAPI subscription works too, with the listing it subscribes to:
 ud --rapidapi-key "$RAPIDAPI_KEY" --listing whois get-name-registry harbor.io
 ```
 
-`UD_RAPIDAPI_KEY` and `UD_RAPIDAPI_LISTING` set them for every command. `UD_API_BASE` or `--base` points the command at another base URL.
+`UD_RAPIDAPI_KEY` and `UD_RAPIDAPI_LISTING` set them for every command. `UD_API_BASE` or `--base` points the command at another base URL. With a RapidAPI key, only `--base` does: `UD_API_BASE` is not read, so a base left set from member-key work never receives your RapidAPI key. Pass `--base` on purpose when you test against a local gateway.
 
 ## Also
 
 - [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk): the typed client behind this command.
-- [`@uniquedomains/mcp-server`](https://github.com/UniqueDomains/mcp-server): the same API as tools for AI assistants.
+- `@uniquedomains/mcp-server`: the same API as tools for AI assistants, coming next in its own repository.
 - [The datasets](https://github.com/UniqueDomains) on GitHub.
 
 MIT

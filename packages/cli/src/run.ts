@@ -4,15 +4,16 @@
 
 /**
  * `run(argv, io)` is the whole CLI behind an injectable `io`, so the tests drive it without a process: parse, build
- * the client from flags and environment, call, print. Exit codes: 0 on an answer, 1 on a problem from the API (its
- * `detail` on stderr), a listing mismatch or a network failure, 2 on a usage error.
+ * the client from flags and environment, check every argument and flag against the operation, call, print. Exit
+ * codes: 0 on an answer, 1 on a problem from the API (its `detail` on stderr), a listing mismatch or a network
+ * failure, 2 on a usage error (no call made).
  */
 
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { ApiProblemError, createClient, isListingId, LISTINGS, ListingMismatchError, type ClientOptions, type JsonObject, type JsonValue, type OperationId } from '@uniquedomains/sdk';
-import { parseArgv, UsageError, type ParsedArgs } from './argv';
-import { findCommand, SHORTCUTS, suggestCommands, type Command } from './commands';
+import { ApiProblemError, createClient, isListingId, LISTINGS, ListingMismatchError, type ApiLinks, type ApiMeta, type ClientOptions, type JsonObject, type JsonValue, type OperationAnswer, type OperationRequestParams } from '@uniquedomains/sdk';
+import { convertArgument, parseArgv, stringGlobal, UsageError, type ParsedArgs } from './argv';
+import { findCommand, GLOBAL_STRING_FLAGS, SHORTCUTS, suggestCommands, type Command } from './commands';
 import { renderCommandHelp, renderMainHelp } from './help';
 import { renderData } from './render';
 
@@ -32,7 +33,7 @@ export type Io = {
     readStdin?: () => Promise<string>;
 };
 
-type Envelope = { data?: JsonValue; meta?: { cursor?: string | null } & Record<string, JsonValue | undefined>; links?: Record<string, string | null | undefined> };
+type Envelope = { data: JsonValue; meta: ApiMeta; links: ApiLinks };
 
 /*----------------------------------
 - CONSTANTS
@@ -41,9 +42,8 @@ type Envelope = { data?: JsonValue; meta?: { cursor?: string | null } & Record<s
 declare const __CLI_VERSION__: string;
 export const CLI_VERSION: string = typeof __CLI_VERSION__ === 'string' ? __CLI_VERSION__ : '0.0.0-dev';
 
-// The longest whoami label ("Word intakes") plus two spaces (review finding 8).
+// The longest whoami label ("Word intakes") plus two spaces (self-review 8).
 const WHOAMI_LABEL_WIDTH = 14;
-const label = (name: string, value: string): string => `${name.padEnd(WHOAMI_LABEL_WIDTH)}${value}`;
 
 const VERBOSE_HEADER = /^(x-quota-|x-ratelimit-|retry-after$|location$)/i;
 
@@ -60,7 +60,7 @@ const nonEmpty = (value: string | undefined): string | undefined => (value && va
  * environment (the caller asked for RapidAPI on purpose); two keys from the same place are a usage error, never a
  * silent pick.
  */
-const resolveKeys = (args: ParsedArgs, env: Io['env']): Pick<ClientOptions, 'apiKey' | 'rapidApi'> => {
+const resolveKeys = (args: ParsedArgs, command: Command, env: Io['env']): Pick<ClientOptions, 'apiKey' | 'rapidApi'> => {
     const memberFlag = nonEmpty(args.globals.key);
     const rapidFlag = nonEmpty(args.globals.rapidapiKey);
     if (memberFlag && rapidFlag) throw new UsageError('Pass either --key or --rapidapi-key, not both.');
@@ -75,8 +75,29 @@ const resolveKeys = (args: ParsedArgs, env: Io['env']): Pick<ClientOptions, 'api
         if (!isListingId(listing)) throw new UsageError(`Unknown listing "${listing}". Listings: ${LISTINGS.map((entry) => entry.id).join(', ')}.`);
         return { apiKey: null, rapidApi: { key: rapidKey, listing } };
     }
-    if (nonEmpty(args.globals.listing)) throw new UsageError('--listing goes with a RapidAPI key (--rapidapi-key or UD_RAPIDAPI_KEY).');
+    if (nonEmpty(args.globals.listing)) {
+        const own = command.flags.some((spec) => spec.flag === 'param-listing');
+        throw new UsageError(`--listing goes with a RapidAPI key (--rapidapi-key or UD_RAPIDAPI_KEY).${own ? ' This command\'s own listing parameter is --param-listing.' : ''}`);
+    }
     return { apiKey: memberFlag ?? memberEnv ?? null };
+};
+
+/**
+ * The base URL: `--base`, else `UD_API_BASE`, which a RapidAPI call does not read (review R1-23): a base left set
+ * from member work would send the RapidAPI key and host to that base. An explicit `--base` with a RapidAPI key stays
+ * allowed, for a local gateway test. Only http and https (review R1-9).
+ */
+const resolveBase = (args: ParsedArgs, env: Io['env'], rapidApi: boolean): string | undefined => {
+    const base = nonEmpty(args.globals.base) ?? (rapidApi ? undefined : nonEmpty(env.UD_API_BASE));
+    if (base === undefined) return undefined;
+    let url: URL;
+    try {
+        url = new URL(base);
+    } catch {
+        throw new UsageError(`--base takes an http or https URL, not "${base}".`);
+    }
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new UsageError(`--base takes an http or https URL, not "${base}".`);
+    return base;
 };
 
 /** `--verbose`: the request line, the status and the quota and rate-limit headers, on stderr. Never a key. */
@@ -95,9 +116,21 @@ const verboseFetch = (base: typeof fetch, io: Io): typeof fetch => async (input,
 - HELPERS: REQUEST
 ----------------------------------*/
 
+const readText = async (raw: string, io: Io): Promise<string> => {
+    if (raw === '-') return io.readStdin?.() ?? '';
+    if (!raw.startsWith('@')) return raw;
+    try {
+        return await readFile(raw.slice(1), 'utf8');
+    } catch (error) {
+        // A missing or unreadable file is the caller's typo, not a crash (review R1-9).
+        const code = error instanceof Error && 'code' in error ? String(error.code) : 'unreadable';
+        throw new UsageError(`--body cannot read ${raw.slice(1)} (${code}).`);
+    }
+};
+
 const readBody = async (raw: string | undefined, io: Io): Promise<JsonObject | undefined> => {
     if (raw === undefined) return undefined;
-    const text = raw === '-' ? await (io.readStdin?.() ?? Promise.resolve('')) : raw.startsWith('@') ? await readFile(raw.slice(1), 'utf8') : raw;
+    const text = await readText(raw, io);
     let body: JsonValue;
     try {
         body = JSON.parse(text);
@@ -108,24 +141,35 @@ const readBody = async (raw: string | undefined, io: Io): Promise<JsonObject | u
     return body;
 };
 
-const buildParams = async (command: Command, args: ParsedArgs, io: Io) => {
+const isMissing = (value: JsonValue | undefined): boolean => value === undefined || value === null || value === '' || (Array.isArray(value) && value.length === 0);
+
+/** Arguments, required flags and the body, checked before any call (review R1-10): a typo never spends a call. */
+const buildParams = async (command: Command, name: string, args: ParsedArgs, io: Io): Promise<OperationRequestParams> => {
     const expected = command.positionals;
     if (args.positionals.length !== expected.length) {
         const names = expected.map((param) => `<${param.name}>`).join(' ');
-        throw new UsageError(expected.length === 0 ? `${command.name} takes no argument.` : `${command.name} takes ${expected.length === 1 ? 'one argument' : `${expected.length} arguments`}: ${names}.`);
+        throw new UsageError(expected.length === 0 ? `${name} takes no argument.` : `${name} takes ${expected.length === 1 ? 'one argument' : `${expected.length} arguments`}: ${names}.`);
     }
-    const path = Object.fromEntries(expected.map((param, index) => [param.name, args.positionals[index] ?? '']));
+    const path = Object.fromEntries(expected.map((param, index) => {
+        const raw = args.positionals[index] ?? '';
+        // The URL parser would resolve these away and call another path (review R1-16); the SDK refuses them too.
+        if (raw === '' || raw === '.' || raw === '..') throw new UsageError(`<${param.name}> cannot be "${raw}".`);
+        const value = convertArgument(param, raw);
+        return [param.name, typeof value === 'boolean' ? String(value) : value];
+    }));
+    const missingQuery = command.flags.filter((spec) => spec.source === 'query' && spec.required && args.query[spec.name] === undefined);
+    if (missingQuery.length > 0) throw new UsageError(`${name} needs ${missingQuery.map((spec) => `--${spec.flag}`).join(', ')}.`);
+
     const operation = command.operation;
     let body: JsonObject | undefined;
     if (operation.body) {
         body = { ...(await readBody(args.globals.body, io)), ...args.body };
-        const missing = operation.body.properties.filter((property) => property.required && body?.[property.name] === undefined);
-        const flagOf = (name: string): string => command.flags.find((spec) => spec.source === 'body' && spec.name === name)?.flag ?? name;
-        if (missing.length > 0) throw new UsageError(`${command.name} needs ${missing.map((property) => `--${flagOf(property.name)}`).join(', ')}.`);
+        const missing = command.flags.filter((spec) => spec.source === 'body' && spec.required && isMissing(body?.[spec.name]));
+        if (missing.length > 0) throw new UsageError(`${name} needs ${missing.map((spec) => `--${spec.flag}`).join(', ')}.`);
     } else if (args.globals.body !== undefined) {
-        throw new UsageError(`${command.name} takes no body.`);
+        throw new UsageError(`${name} takes no body.`);
     }
-    if (args.globals.csv && !operation.csv) throw new UsageError(`${command.name} has no CSV form.`);
+    if (args.globals.csv && !operation.csv) throw new UsageError(`${name} has no CSV form.`);
     return { path, query: args.query, ...(body ? { body } : {}), ...(args.globals.csv ? { format: 'csv' as const } : {}) };
 };
 
@@ -136,34 +180,43 @@ const buildParams = async (command: Command, args: ParsedArgs, io: Io) => {
 const line = (text: string): string => (text.endsWith('\n') ? text : `${text}\n`);
 
 /** Lines under a table: the register and dataset links (API v2 plan, section 12) and how to read the next page. */
-const footer = (command: Command, envelope: Envelope): string[] => {
+const footer = (name: string, envelope: Envelope): string[] => {
     const lines: string[] = [];
     if (envelope.links?.register) lines.push(`Register: ${envelope.links.register}`);
     if (envelope.links?.dataset) lines.push(`Dataset: ${envelope.links.dataset}`);
-    if (envelope.meta?.cursor) lines.push(`Next page: ud ${command.name} ... --cursor ${envelope.meta.cursor}`);
+    if (envelope.meta?.cursor) lines.push(`Next page: ud ${name} ... --cursor ${envelope.meta.cursor}`);
     return lines;
 };
+
+const labelled = (label: string, value: string): string => `${label.padEnd(WHOAMI_LABEL_WIDTH)}${value}`;
 
 const allowanceLine = (label: string, value: JsonValue | undefined): string | null => {
     if (!isJsonObject(value)) return null;
     const used = typeof value.used === 'number' ? value.used : null;
     const allowance = typeof value.allowance === 'number' ? value.allowance : null;
     if (used === null || allowance === null) return null;
-    return `${label.padEnd(WHOAMI_LABEL_WIDTH)}${used} used of ${allowance}, ${Math.max(0, allowance - used)} left`;
+    return labelled(label, `${used} used of ${allowance}, ${Math.max(0, allowance - used)} left`);
 };
 
-/** `ud whoami`: the key's plan, month and what is left, as sentences rather than a dump of fields. */
-const renderWhoami = (data: JsonValue | undefined): string => {
-    if (!isJsonObject(data)) return renderData(data, 80);
-    const text = (value: JsonValue | undefined): string => (typeof value === 'string' ? value : '');
-    const lines = data.access === 'rapidapi'
-        ? [label('Access', 'RapidAPI'), label('Listing', text(data.listing)), label('Plan', text(data.subscription))]
-        : [label('Access', `member key ${text(data.keyPrefix)}`), label('Plan', text(data.plan)), label('Month', `${text(data.month)}, resets on ${text(data.resetsOn)}`)];
+/**
+ * `ud whoami`: the key's plan, month and what is left, as sentences rather than a dump of fields. A line whose facts
+ * are missing (a `--fields` projection, a null field) is left out, and an answer of another shape prints as a plain
+ * table (review R1-12).
+ */
+const renderWhoami = (data: JsonValue | undefined, columns: number): string => {
+    if (!isJsonObject(data) || (data.access !== 'member' && data.access !== 'rapidapi')) return renderData(data, { width: columns, fieldsFlag: true });
+    const text = (value: JsonValue | undefined): string | null => (typeof value === 'string' && value ? value : null);
+    const month = text(data.month);
+    const resets = text(data.resetsOn);
+    const candidates: [string, string | null][] = data.access === 'rapidapi'
+        ? [['Access', 'RapidAPI'], ['Listing', text(data.listing)], ['Plan', text(data.subscription)]]
+        : [['Access', text(data.keyPrefix) ? `member key ${text(data.keyPrefix)}` : 'member key'], ['Plan', text(data.plan)], ['Month', month ? `${month}${resets ? `, resets on ${resets}` : ''}` : null]];
+    const lines = candidates.filter((entry): entry is [string, string] => entry[1] !== null).map(([label, value]) => labelled(label, value));
     for (const [label, key] of [['Calls', 'calls'], ['Live checks', 'liveChecks'], ['Appraisals', 'appraisals'], ['Word intakes', 'intakes']] as const) {
         const entry = allowanceLine(label, data[key]);
         if (entry) lines.push(entry);
     }
-    if (typeof data.investorEndpoints === 'boolean') lines.push(label('Investor', data.investorEndpoints ? 'open' : 'not on this plan'));
+    if (typeof data.investorEndpoints === 'boolean') lines.push(labelled('Investor', data.investorEndpoints ? 'open' : 'not on this plan'));
     return lines.join('\n');
 };
 
@@ -176,9 +229,37 @@ const printProblem = (error: ApiProblemError, io: Io, verbose: boolean): void =>
     if (verbose) io.stderr.write(line(JSON.stringify(error.problem, null, 2)));
 };
 
+const printAnswer = (answer: OperationAnswer, command: Command, name: string, args: ParsedArgs, io: Io): void => {
+    if (answer.notModified) return;
+    if ('text' in answer) {
+        io.stdout.write(line(answer.text));
+        return;
+    }
+    const envelope: Envelope = { data: answer.data, meta: answer.meta, links: answer.links };
+    // `--json` forces JSON, `--json=false` forces a table even into a pipe (review R1-19), else the terminal decides.
+    const asJson = args.globals.json ?? !io.isTTY;
+    if (asJson) {
+        io.stdout.write(`${JSON.stringify(envelope, null, 2)}\n`);
+    } else {
+        const fieldsFlag = command.flags.some((spec) => spec.flag === 'fields');
+        const body = command.operation.id === 'get_key' ? renderWhoami(envelope.data, io.columns) : renderData(envelope.data, { width: io.columns, fieldsFlag });
+        io.stdout.write(line([body, ...footer(name, envelope).map((entry, index) => (index === 0 ? `\n${entry}` : entry))].join('\n')));
+    }
+    if (answer.status === 202 && answer.location) io.stderr.write(line(`Accepted: the full answer will be at ${answer.location}${answer.retryAfter !== null ? ` in about ${answer.retryAfter} seconds` : ''}.`));
+};
+
 const snapshotText = async (): Promise<string> => {
     const require = createRequire(import.meta.url);
     return readFile(require.resolve('@uniquedomains/sdk/openapi.json'), 'utf8');
+};
+
+/** With no command found: say why on stderr, naming a global flag that took a command as its value (review R1-11). */
+const noCommand = (args: ParsedArgs): UsageError => {
+    for (const flag of GLOBAL_STRING_FLAGS) {
+        const value = stringGlobal(args.globals, flag);
+        if (value && (findCommand(value) || value === 'openapi')) return new UsageError(`No command given: did --${flag} take "${value}" as its value? Run ud --help.`);
+    }
+    return new UsageError('No command given. Run ud --help for the list.');
 };
 
 /*----------------------------------
@@ -194,15 +275,19 @@ export const run = async (argv: readonly string[], io: Io): Promise<number> => {
             return 0;
         }
         if (!args.commandName) {
-            io.stdout.write(renderMainHelp(io.columns));
-            return argv.length === 0 || args.globals.help ? 0 : 2;
+            if (argv.length === 0 || args.globals.help) {
+                io.stdout.write(renderMainHelp(io.columns));
+                return 0;
+            }
+            throw noCommand(args);
         }
         if (args.commandName === 'openapi') {
-            // Help first, so `ud openapi --help` explains the shortcut rather than printing the document (review finding 9).
+            // Help first, so `ud openapi --help` explains the shortcut rather than printing the document (self-review 9).
             if (args.globals.help) {
                 io.stdout.write(`Usage: ud openapi\n\n${SHORTCUTS.find((entry) => entry.name === 'openapi')?.description ?? ''}\n`);
                 return 0;
             }
+            if (args.positionals.length > 0) throw new UsageError('openapi takes no argument.');
             io.stdout.write(await snapshotText());
             return 0;
         }
@@ -221,37 +306,24 @@ export const run = async (argv: readonly string[], io: Io): Promise<number> => {
     }
 
     const command = args.command;
+    // Messages name the command as typed: `ud whoami x` says "whoami takes no argument" (review R1-19).
+    const name = args.commandName;
     try {
-        const base = nonEmpty(args.globals.base) ?? nonEmpty(io.env.UD_API_BASE);
+        const keys = resolveKeys(args, command, io.env);
+        const base = resolveBase(args, io.env, Boolean(keys.rapidApi));
         const baseFetch = io.fetch ?? globalThis.fetch;
         const client = createClient({
-            ...resolveKeys(args, io.env),
+            ...keys,
             ...(base ? { baseUrl: base } : {}),
             fetch: args.globals.verbose ? verboseFetch(baseFetch, io) : baseFetch,
             userAgent: `uniquedomains-cli/${CLI_VERSION}`,
         });
-        const params = await buildParams(command, args, io);
-        // `request` is typed per operation; the CLI builds its params from the same table at runtime, so it calls the
-        // untyped form through one adapter instead of a cast at every use.
-        const answer = await callOperation(client.request, command.operation.id, params);
-
-        if ('text' in answer && typeof answer.text === 'string') {
-            io.stdout.write(line(answer.text));
-            return 0;
-        }
-        const envelope: Envelope = { data: answer.data, meta: answer.meta, links: answer.links };
-        const asJson = args.globals.json || !io.isTTY;
-        if (asJson) {
-            io.stdout.write(`${JSON.stringify(envelope, null, 2)}\n`);
-        } else {
-            const body = command.operation.id === 'get_key' ? renderWhoami(envelope.data) : renderData(envelope.data, io.columns);
-            io.stdout.write(line([body, ...footer(command, envelope).map((entry, index) => (index === 0 ? `\n${entry}` : entry))].join('\n')));
-        }
-        if (answer.status === 202 && answer.location) io.stderr.write(line(`Accepted: the full answer will be at ${answer.location}${answer.retryAfter !== null ? ` in about ${answer.retryAfter} seconds` : ''}.`));
+        const params = await buildParams(command, name, args, io);
+        printAnswer(await client.requestOperation(command.operationId, params), command, name, args, io);
         return 0;
     } catch (error) {
         if (error instanceof UsageError) {
-            io.stderr.write(line(`${error.message} Run ud ${command.name} --help.`));
+            io.stderr.write(line(`${error.message} Run ud ${name} --help.`));
             return 2;
         }
         if (error instanceof ApiProblemError) {
@@ -263,7 +335,7 @@ export const run = async (argv: readonly string[], io: Io): Promise<number> => {
             return 1;
         }
         // Only fetch's own network failure ("fetch failed", with its cause) reads as unreachable; any other TypeError
-        // is a defect and keeps its stack (review finding 7).
+        // is a defect and keeps its stack (self-review 7).
         if (error instanceof TypeError && error.message === 'fetch failed') {
             const cause = error.cause instanceof Error ? `: ${error.cause.message}` : '';
             io.stderr.write(line(`Could not reach the API${cause}`));
@@ -272,24 +344,3 @@ export const run = async (argv: readonly string[], io: Io): Promise<number> => {
         throw error;
     }
 };
-
-/*----------------------------------
-- ADAPTER
-----------------------------------*/
-
-type UntypedAnswer = {
-    status: number;
-    text?: string;
-    data?: JsonValue;
-    meta?: Envelope['meta'];
-    links?: Envelope['links'];
-    location: string | null;
-    retryAfter: number | null;
-};
-
-/**
- * The one boundary between the CLI's runtime-built params and the SDK's per-operation types: the operation id and
- * the params both come from the generated table, which is what the types are generated from.
- */
-const callOperation = (request: ReturnType<typeof createClient>['request'], operationId: string, params: object): Promise<UntypedAnswer> =>
-    (request as unknown as (id: OperationId, params: object) => Promise<UntypedAnswer>)(operationId as OperationId, params);
