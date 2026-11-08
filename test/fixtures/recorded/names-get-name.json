@@ -1,0 +1,75 @@
+{
+  "name": "names-get-name",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/names/harbor.io",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"ZH2a-eePHLpHtYLse2_5DrG3fj0\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "26",
+      "x-ratelimit-reset": "13"
+    },
+    "body": {
+      "data": {
+        "id": null,
+        "name": "harbor.io",
+        "ending": "io",
+        "tracked": false,
+        "status": "not_checked",
+        "lifecycle": null,
+        "drop": {
+          "kind": "none"
+        },
+        "ownableNow": false,
+        "price": {
+          "kind": null,
+          "firstYear": null,
+          "registrar": null,
+          "renewal": null,
+          "transfer": null,
+          "isPromo": null,
+          "renewalTrap": false
+        },
+        "registry": {
+          "createdAt": null,
+          "updatedAt": null,
+          "expiresAt": null,
+          "registryUpdatedAt": null,
+          "registrar": null
+        },
+        "parking": null,
+        "length": null,
+        "format": null,
+        "shape": null,
+        "word": null,
+        "rating": {
+          "band": null
+        },
+        "comps": {
+          "tier": null,
+          "count": 0,
+          "medianUsd": null,
+          "endingsSoldOn": 0
+        }
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/names/harbor.io",
+        "next": null,
+        "register": null,
+        "product": "https://app.unique.domains/availability/harbor.io",
+        "dataset": null
+      }
+    }
+  }
+}

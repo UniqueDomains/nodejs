@@ -1,0 +1,74 @@
+{
+  "name": "catalog-list-domains",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/domains",
+    "query": "limit=2"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"IirsxNw5TjJ4WQP63qtoI1pRiHU\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "24",
+      "x-ratelimit-reset": "12"
+    },
+    "body": {
+      "data": [
+        {
+          "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+          "name": "get.plumbing",
+          "ending": "plumbing",
+          "status": "resell",
+          "price": null,
+          "priceKind": null,
+          "renewal": null,
+          "ratingBand": "prime",
+          "format": null,
+          "shape": "single",
+          "length": 3,
+          "coverage": {
+            "available": 23,
+            "premium": 41,
+            "forSale": 60,
+            "unavailable": 0
+          }
+        },
+        {
+          "id": "dom_34142395-fc76-457d-bb55-e6285d2671d7",
+          "name": "domain.recipes",
+          "ending": "recipes",
+          "status": "available",
+          "price": 5.48,
+          "priceKind": "registration",
+          "renewal": 105.48,
+          "ratingBand": "prime",
+          "format": null,
+          "shape": "single",
+          "length": 6,
+          "coverage": {
+            "available": 28,
+            "premium": 65,
+            "forSale": 0,
+            "unavailable": 0
+          }
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": 2
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/domains?limit=2",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": "https://github.com/uniquedomains/oneword-domains",
+        "details": "https://unique.domains/domains"
+      }
+    }
+  }
+}

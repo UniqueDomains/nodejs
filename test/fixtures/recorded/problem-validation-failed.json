@@ -1,0 +1,29 @@
+{
+  "name": "problem-validation-failed",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/names/harbor",
+    "query": ""
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/problem+json; charset=utf-8",
+      "etag": "W/\"11a-xVk+3M69v5+djCFRpXUr2Zr3nMw\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "17",
+      "x-ratelimit-reset": "9"
+    },
+    "body": {
+      "type": "https://unique.domains/api/problems/validation_failed",
+      "title": "A value is not valid",
+      "status": 400,
+      "detail": "A bare word is not a domain name: add its ending (`example.com`).",
+      "instance": "/v1/names/harbor",
+      "code": "validation_failed",
+      "reason": "not_a_name",
+      "suggestion": null
+    }
+  }
+}

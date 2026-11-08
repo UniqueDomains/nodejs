@@ -1,0 +1,50 @@
+{
+  "name": "shared-get-meta-freshness",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/meta/freshness",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"LuLYzLRB9rc4I_fBJb2e3pUnXo8\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "18",
+      "x-ratelimit-reset": "10"
+    },
+    "body": {
+      "data": {
+        "asOf": "2026-11-08T12:00:01.000Z",
+        "scannedToday": 1194030,
+        "checkedLast24h": 66335,
+        "lanes": [
+          {
+            "lane": "taken_refresh",
+            "scanned": 2572,
+            "state": "completed"
+          },
+          {
+            "lane": "timing",
+            "scanned": 32608,
+            "state": "completed"
+          }
+        ]
+      },
+      "meta": {
+        "asOf": "2026-11-08T12:00:01.000Z",
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/meta/freshness",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

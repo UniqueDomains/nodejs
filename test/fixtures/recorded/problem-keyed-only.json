@@ -1,0 +1,28 @@
+{
+  "name": "problem-keyed-only",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/names/harbor.io/prices",
+    "query": ""
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "content-type": "application/problem+json; charset=utf-8",
+      "etag": "W/\"135-8scdX2hgpOmjH4W0zYqXgdwFRPQ\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "16",
+      "x-ratelimit-reset": "9"
+    },
+    "body": {
+      "type": "https://unique.domains/api/problems/keyed_only",
+      "title": "A paid subscription is required",
+      "status": 403,
+      "detail": "GET /names/{name}/prices needs a Pro, Ultra or Mega subscription, or a member key.",
+      "instance": "/v1/names/harbor.io/prices",
+      "code": "keyed_only",
+      "product": "https://unique.domains/pricing"
+    }
+  }
+}

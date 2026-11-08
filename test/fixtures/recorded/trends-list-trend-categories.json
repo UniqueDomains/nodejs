@@ -1,0 +1,103 @@
+{
+  "name": "trends-list-trend-categories",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/trends/categories",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"gzM4U_UiEdIKhD_IzCRlDsp1Heo\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "20",
+      "x-ratelimit-reset": "11"
+    },
+    "body": {
+      "data": [
+        {
+          "slug": "business",
+          "name": "Business"
+        },
+        {
+          "slug": "general",
+          "name": "Trending"
+        },
+        {
+          "slug": "sports",
+          "name": "Sports"
+        },
+        {
+          "slug": "technology",
+          "name": "Technology"
+        },
+        {
+          "slug": "beauty",
+          "name": "Beauty"
+        },
+        {
+          "slug": "politics",
+          "name": "Politics"
+        },
+        {
+          "slug": "health-wellness",
+          "name": "Health & Wellness"
+        },
+        {
+          "slug": "home",
+          "name": "Home"
+        },
+        {
+          "slug": "crypto",
+          "name": "Crypto"
+        },
+        {
+          "slug": "entertainment",
+          "name": "Entertainment"
+        },
+        {
+          "slug": "fashion",
+          "name": "Fashion"
+        },
+        {
+          "slug": "finance",
+          "name": "Finance"
+        },
+        {
+          "slug": "food-beverage",
+          "name": "Food & Beverage"
+        },
+        {
+          "slug": "industry",
+          "name": "Industry"
+        },
+        {
+          "slug": "tech",
+          "name": "Tech"
+        },
+        {
+          "slug": "lifestyle-culture",
+          "name": "Lifestyle & Culture"
+        },
+        {
+          "slug": "pop-culture",
+          "name": "Pop culture"
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/trends/categories",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "name": "registrars-list-registrars",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/registrars",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"n-sYSdRHZocAxkIs-OQj_oQuoiU\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "22",
+      "x-ratelimit-reset": "11"
+    },
+    "body": {
+      "data": [
+        {
+          "slug": "namecheap",
+          "name": "Namecheap",
+          "kind": "registrar",
+          "ianaId": 1068,
+          "accredited": true,
+          "homepageUrl": "https://www.namecheap.com",
+          "siteUrl": "https://www.namecheap.com",
+          "logoUrl": "/public/brand/registrars/namecheap.png",
+          "endingsPriced": 519
+        },
+        {
+          "slug": "porkbun",
+          "name": "Porkbun",
+          "kind": "registrar",
+          "ianaId": 1861,
+          "accredited": true,
+          "homepageUrl": "https://porkbun.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "siteUrl": "https://porkbun.com",
+          "logoUrl": "/public/brand/registrars/porkbun.png",
+          "endingsPriced": 537
+        },
+        {
+          "slug": "name.com",
+          "name": "Name.com",
+          "kind": "registrar",
+          "ianaId": 625,
+          "accredited": true,
+          "homepageUrl": "https://www.name.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "siteUrl": "https://www.name.com",
+          "logoUrl": "/public/brand/registrars/name-com.svg",
+          "endingsPriced": 550
+        },
+        {
+          "slug": "dynadot",
+          "name": "Dynadot",
+          "kind": "registrar",
+          "ianaId": 472,
+          "accredited": true,
+          "homepageUrl": "https://www.dynadot.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "siteUrl": "https://www.dynadot.com",
+          "logoUrl": "/public/brand/registrars/dynadot.svg",
+          "endingsPriced": 591
+        },
+        {
+          "slug": "spaceship",
+          "name": "Spaceship",
+          "kind": "registrar",
+          "ianaId": 3862,
+          "accredited": true,
+          "homepageUrl": "https://www.spaceship.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "siteUrl": "https://www.spaceship.com",
+          "logoUrl": "/public/brand/registrars/spaceship.svg",
+          "endingsPriced": 472
+        },
+        {
+          "slug": "namesilo",
+          "name": "NameSilo",
+          "kind": "registrar",
+          "ianaId": 1479,
+          "accredited": true,
+          "homepageUrl": "https://www.namesilo.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "siteUrl": "https://www.namesilo.com",
+          "logoUrl": "/public/brand/registrars/namesilo.png",
+          "endingsPriced": 461
+        },
+        {
+          "slug": "godaddy",
+          "name": "GoDaddy",
+          "kind": "registrar",
+          "ianaId": 146,
+          "accredited": true,
+          "homepageUrl": "https://www.godaddy.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "siteUrl": "https://www.godaddy.com",
+          "logoUrl": "/public/brand/registrars/godaddy.png",
+          "endingsPriced": 463
+        },
+        {
+          "slug": "unstoppable",
+          "name": "Unstoppable Domains",
+          "kind": "registrar",
+          "ianaId": 4326,
+          "accredited": true,
+          "homepageUrl": "https://unstoppabledomains.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "siteUrl": "https://unstoppabledomains.com",
+          "logoUrl": "/public/brand/registrars/unstoppable.svg",
+          "endingsPriced": 194
+        },
+        {
+          "slug": "cloudflare",
+          "name": "Cloudflare",
+          "kind": "registrar",
+          "ianaId": 1910,
+          "accredited": true,
+          "homepageUrl": "https://domains.cloudflare.com",
+          "siteUrl": "https://domains.cloudflare.com",
+          "logoUrl": "/public/brand/registrars/cloudflare.png",
+          "endingsPriced": 389
+        }
+      ],
+      "meta": {
+        "asOf": "2026-11-08T10:26:06.000Z",
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/registrars",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

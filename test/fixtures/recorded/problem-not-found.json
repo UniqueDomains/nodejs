@@ -1,0 +1,27 @@
+{
+  "name": "problem-not-found",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/trends/zzz-no-such",
+    "query": ""
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "content-type": "application/problem+json; charset=utf-8",
+      "etag": "W/\"cc-AlWMGPuSQWQbetFdt3dJcTteUCg\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "15",
+      "x-ratelimit-reset": "9"
+    },
+    "body": {
+      "type": "https://unique.domains/api/problems/not_found",
+      "title": "Not found",
+      "status": 404,
+      "detail": "No published trend has the slug \"zzz-no-such\".",
+      "instance": "/v1/trends/zzz-no-such",
+      "code": "not_found"
+    }
+  }
+}

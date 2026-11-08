@@ -1,0 +1,113 @@
+{
+  "name": "tlds-list-tlds",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/tlds",
+    "query": "limit=3"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"Py3LF_ZfNQHUlmJTsrVB8J4I5MY\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "23",
+      "x-ratelimit-reset": "12"
+    },
+    "body": {
+      "data": [
+        {
+          "tld": ".aaa",
+          "slug": "aaa",
+          "ianaStatus": "delegated",
+          "kind": "root",
+          "ianaType": "generic",
+          "registryOperator": "American Automobile Association, Inc.",
+          "registryCountryCode": "US",
+          "isBrand": true,
+          "isIdn": false,
+          "delegatedOn": "2015-08-28",
+          "removedOn": null,
+          "contractTerminated": false,
+          "rdapServer": "https://rdap.nic.aaa/",
+          "category": null,
+          "phases": [
+            {
+              "id": "854b7353-5aff-482b-94c1-3e3a95e8f878",
+              "phase": "claims",
+              "startsOn": "2015-12-07",
+              "endsOn": "2016-03-06",
+              "programLabel": null
+            }
+          ],
+          "insights": null
+        },
+        {
+          "tld": ".aarp",
+          "slug": "aarp",
+          "ianaStatus": "delegated",
+          "kind": "root",
+          "ianaType": "generic",
+          "registryOperator": "AARP",
+          "registryCountryCode": "US",
+          "isBrand": true,
+          "isIdn": false,
+          "delegatedOn": "2015-11-03",
+          "removedOn": null,
+          "contractTerminated": false,
+          "rdapServer": "https://rdap.nic.aarp/",
+          "category": null,
+          "phases": [
+            {
+              "id": "5923b941-8a10-437a-89bf-7e48d44d288b",
+              "phase": "claims",
+              "startsOn": "2016-02-03",
+              "endsOn": null,
+              "programLabel": null
+            }
+          ],
+          "insights": null
+        },
+        {
+          "tld": ".abb",
+          "slug": "abb",
+          "ianaStatus": "delegated",
+          "kind": "root",
+          "ianaType": "generic",
+          "registryOperator": "ABB Ltd",
+          "registryCountryCode": "CH",
+          "isBrand": true,
+          "isIdn": false,
+          "delegatedOn": "2015-04-25",
+          "removedOn": null,
+          "contractTerminated": false,
+          "rdapServer": "https://rdap.identitydigital.services/rdap/",
+          "category": null,
+          "phases": [
+            {
+              "id": "f18b9258-3dfd-45ee-9349-248397e4f2de",
+              "phase": "claims",
+              "startsOn": "2015-07-30",
+              "endsOn": "2023-07-15",
+              "programLabel": null
+            }
+          ],
+          "insights": null
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": "eyJ2IjoxLCJzb3J0Ijoic2x1ZyIsImtleSI6WyJhYmIiLCJhYmIiXX0",
+        "limit": 3
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/tlds?limit=3",
+        "next": "https://api.unique.domains/v1/tlds?limit=3&cursor=eyJ2IjoxLCJzb3J0Ijoic2x1ZyIsImtleSI6WyJhYmIiLCJhYmIiXX0",
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "words-resolve-word",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/words/resolve",
+    "query": "q=harbor"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"D9jYutGbgR8aaCcmUawICbKwBDw\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "25",
+      "x-ratelimit-reset": "13"
+    },
+    "body": {
+      "data": {
+        "match": {
+          "id": "wrd_46075",
+          "slug": "harbor",
+          "word": "harbor",
+          "shape": "single",
+          "origin": "dictionary",
+          "via": "exact"
+        }
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/words/resolve?q=harbor",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

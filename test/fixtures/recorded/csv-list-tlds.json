@@ -1,0 +1,20 @@
+{
+  "name": "csv-list-tlds",
+  "recordedOn": "2026-11-08",
+  "request": {
+    "method": "GET",
+    "path": "/tlds.csv",
+    "query": "limit=3"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "text/csv; charset=utf-8",
+      "etag": "W/\"222-w4ZMdRncHL2Td7aZLfNn2NLkToQ\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "14",
+      "x-ratelimit-reset": "8"
+    },
+    "body": "tld,slug,ianaStatus,kind,ianaType,registryOperator,registryCountryCode,isBrand,isIdn,delegatedOn,removedOn,contractTerminated,rdapServer,category,insights.market.sales12m,insights.market.medianBuy\r\n.aaa,aaa,delegated,root,generic,\"American Automobile Association, Inc.\",US,true,false,2015-08-28,,false,https://rdap.nic.aaa/,,,\r\n.aarp,aarp,delegated,root,generic,AARP,US,true,false,2015-11-03,,false,https://rdap.nic.aarp/,,,\r\n.abb,abb,delegated,root,generic,ABB Ltd,CH,true,false,2015-04-25,,false,https://rdap.identitydigital.services/rdap/,,,\r\n"
+  }
+}
