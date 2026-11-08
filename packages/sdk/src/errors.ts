@@ -14,7 +14,10 @@ import type { ApiAnswerFacts, ApiProblemCode, ApiQuota, ApiRateLimit, JsonValue 
 - TYPES
 ----------------------------------*/
 
-/** `unexpected_response`: an error answer without a problem body (a proxy's HTML page, an empty 502). */
+/**
+ * `unexpected_response`: an error answer without a problem body (a gateway's own refusal, a proxy's HTML page, an
+ * empty 502); its body is in `problem.raw`.
+ */
 export type ProblemCode = ApiProblemCode | 'unexpected_response';
 
 /** The problem body as the error carries it: `ApiProblem` with the code widened to `ProblemCode`. */
@@ -51,13 +54,18 @@ const toProblem = (body: unknown, status: number, statusText: string, instance: 
             code: body.code as ProblemCode, // The API's own catalog; an unknown future code still reads as its string.
         };
     }
+    // Not a problem body: a gateway's own refusal (RapidAPI answers `{ "message": "..." }`) or a proxy's page. Its
+    // message becomes the detail and the body is kept in `raw`, so the reason is never lost (review finding 2).
+    const message = isRecord(body) && typeof body.message === 'string' ? body.message : null;
+    const raw: JsonValue = isRecord(body) ? { ...body } : typeof body === 'string' ? body.slice(0, 2000) : null;
     return {
         type: 'about:blank',
         title: statusText || 'Unexpected response',
         status,
-        detail: `The API answered ${status} without a problem body.`,
+        detail: message ?? `The API answered ${status} without a problem body.`,
         instance,
         code: 'unexpected_response',
+        raw,
     };
 };
 

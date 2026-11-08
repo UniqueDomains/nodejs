@@ -131,6 +131,15 @@ describe('request: problems', () => {
         });
     });
 
+    it('a gateway refusal keeps its message and its body', async () => {
+        await assert.rejects(keyless().request('get_name_registry', { path: { name: 'gateway.io' } }), (error) => {
+            assert.equal(error.code, 'unexpected_response');
+            assert.equal(error.detail, 'You are not subscribed to this API.');
+            assert.deepEqual(error.problem.raw, { message: 'You are not subscribed to this API.' });
+            return true;
+        });
+    });
+
     it('a spent member month carries the quota and Retry-After', async () => {
         const client = createClient({ apiKey: 'ud_live_test', baseUrl: server.base });
         await assert.rejects(client.request('get_name_prices', { path: { name: 'quota.io' } }), (error) => {
@@ -222,5 +231,15 @@ describe('request: formats and projections', () => {
         assert.equal(answer.quota.remaining, 9588);
         assert.equal(answer.quota.resetsAt.toISOString(), '2026-12-01T00:00:00.000Z');
         assert.equal(answer.data.plan, 'founder');
+    });
+});
+
+describe('the CommonJS build', () => {
+    it('creates a client and calls (review finding 1)', async () => {
+        const { createRequire } = await import('node:module');
+        const sdk = createRequire(import.meta.url)('../dist/index.cjs');
+        const answer = await sdk.createClient({ apiKey: null, baseUrl: server.base }).request('get_name', { path: { name: 'harbor.io' } });
+        assert.equal(answer.data.name, 'harbor.io');
+        assert.equal(typeof sdk.ApiProblemError, 'function');
     });
 });

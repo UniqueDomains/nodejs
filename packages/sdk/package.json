@@ -55,7 +55,7 @@
   "scripts": {
     "build": "node ../../scripts/copy-assets.mjs sdk && tsup"
   },
-  "dependencies": {
+  "devDependencies": {
     "openapi-fetch": "0.17.0"
   }
 }

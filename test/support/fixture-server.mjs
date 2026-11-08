@@ -86,6 +86,11 @@ export const SYNTHETIC = [
         response: { status: 502, headers: { 'content-type': 'text/html' }, body: '<html><body>Bad gateway</body></html>' },
     },
     {
+        name: 'gateway-refusal',
+        request: { method: 'GET', path: '/names/gateway.io/registry', query: '' },
+        response: { status: 403, headers: { 'content-type': 'application/json' }, body: { message: 'You are not subscribed to this API.' } },
+    },
+    {
         name: 'csv-with-path-param',
         request: { method: 'GET', path: '/tlds/io/phases.csv', query: '' },
         response: { status: 200, headers: { 'content-type': 'text/csv; charset=utf-8' }, body: 'phase,startsOn,endsOn\ngeneral,1997-09-16,\n' },
