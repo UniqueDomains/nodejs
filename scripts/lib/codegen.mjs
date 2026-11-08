@@ -138,7 +138,9 @@ export const buildOperations = (document) => {
             const id = operation.operationId;
             if (!id || seen.has(id)) throw new Error(`${method.toUpperCase()} ${path}: missing or repeated operationId`);
             seen.add(id);
-            const parameters = [...(item.parameters ?? []), ...(operation.parameters ?? [])].map((param) => toParameter(document, param, id));
+            // An operation's parameter overrides the path item's parameter of the same name and location (OpenAPI 3.1).
+            const declared = [...(item.parameters ?? []), ...(operation.parameters ?? [])].map((param) => toParameter(document, param, id));
+            const parameters = declared.filter((param, index) => !declared.slice(index + 1).some((later) => later.in === param.in && later.name === param.name));
             const success = operation.responses?.['200']?.content ?? {};
             operations.push({
                 id,

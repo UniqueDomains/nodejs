@@ -51,6 +51,13 @@ describe('codegen', () => {
         assert.deepEqual(batch.body.properties, [{ name: 'names', required: true, type: 'array', items: { type: 'string' } }]);
     });
 
+    it('lets an operation parameter override the path item one', () => {
+        const document = tinyDocument();
+        document.paths['/tlds/{tld}/changes'].parameters = [{ name: 'tld', in: 'path', required: true, description: 'path level', schema: { type: 'string' } }];
+        const changes = buildOperations(document).find((operation) => operation.id === 'list_tld_changes');
+        assert.equal(changes.parameters.filter((param) => param.name === 'tld').length, 1);
+    });
+
     it('fails on a parameter type it does not know', () => {
         const document = tinyDocument();
         document.paths['/tlds/{tld}/changes'].get.parameters[0].schema = { type: 'object' };

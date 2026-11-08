@@ -23,7 +23,7 @@
  * The generated files are committed, so installing the packages never needs the network.
  */
 
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildListingsSource, buildOperations, buildOperationsSource, listingIdsOf, reduceListing } from './lib/codegen.mjs';
@@ -128,6 +128,11 @@ const main = async () => {
     const files = await buildFiles(next);
     const differing = [];
     for (const [file, content] of files) if ((await readText(file)) !== content) differing.push(file);
+    // A listing file whose id left the document is stale: `--check` reports it and a write removes it.
+    const stale = (await readdir(LISTINGS_DIR).catch(() => []))
+        .map((name) => join(LISTINGS_DIR, name))
+        .filter((file) => file.endsWith('.json') && !files.has(file));
+    differing.push(...stale);
 
     if (options.check) {
         if (differing.length === 0) {
@@ -142,6 +147,10 @@ const main = async () => {
     }
 
     for (const file of differing) {
+        if (!files.has(file)) {
+            await rm(file);
+            continue;
+        }
         await mkdir(dirname(file), { recursive: true });
         await writeFile(file, files.get(file));
     }
