@@ -51,8 +51,11 @@ export type ClientOptions = {
 export type AuthMode = 'none' | 'member' | 'rapidapi';
 
 export type UniqueDomainsClient = {
-    /** Calls one operation by its id: `request('get_name', { path: { name: 'harbor.io' } })`. */
-    request: <Id extends OperationId, P extends RequestParamsFor<Id> = RequestParamsFor<Id>>(operationId: Id, ...params: RequestArgs<Id, P>) => Promise<AnswerOf<Id, P>>;
+    /**
+     * Calls one operation by its id: `request('get_name', { path: { name: 'harbor.io' } })`. `P` defaults to `never`
+     * so a call without params types as the plain envelope (see `AnswerOf`).
+     */
+    request: <Id extends OperationId, P extends RequestParamsFor<Id> = never>(operationId: Id, ...params: RequestArgs<Id, P>) => Promise<AnswerOf<Id, P>>;
     readonly baseUrl: string;
     readonly auth: AuthMode;
     /** The RapidAPI listing, when the client was created with `rapidApi`. */

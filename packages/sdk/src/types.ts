@@ -64,8 +64,8 @@ export type DataOf<Id extends OperationId> = SuccessOf<Id> extends { data: infer
 
 /** Options every call takes, beside the operation's own parameters. */
 export type RequestOptions = {
-    /** A previous answer's `etag`: an unchanged answer comes back as `{ notModified: true }` (a 304). */
-    ifNoneMatch?: string;
+    /** A previous answer's `etag`: an unchanged answer comes back as `{ notModified: true }` (a 304). Null sends none. */
+    ifNoneMatch?: string | null;
     /** Top-level keys to keep (`fields=`), on operations that declare them. */
     fields?: string | readonly string[];
     /** Optional blocks to add (`include=`), on operations that declare them. */
@@ -132,7 +132,23 @@ export type ApiTextResult = ApiAnswerFacts & { notModified: false; text: string;
 /** A 304 to an `ifNoneMatch` call: keep the answer you have. */
 export type ApiNotModified = ApiAnswerFacts & { notModified: true };
 
-/** The answer of `request(Id, P)`, from the operation and the options passed. */
-export type AnswerOf<Id extends OperationId, P> =
-    | (P extends { ifNoneMatch: string } ? ApiNotModified : never)
-    | (Id extends TextOperationId ? ApiTextResult : P extends { format: 'csv' } ? ApiTextResult : ApiResult<EnvelopeOf<Id>>);
+/**
+ * The answer of `request(Id, P)`, from the operation and the options passed. Sound for values only known at run time
+ * (review finding 3): an `ifNoneMatch` that may hold a string adds the 304 to the union, and a `format` that may be
+ * `'csv'` adds the text answer. The tuple wrapping keeps `P = never` (no params passed) at the plain envelope.
+ */
+export type AnswerOf<Id extends OperationId, P> = MayBeNotModified<P> | BodyAnswer<Id, P>;
+
+// Reads a key by `keyof`, not by `P extends { key?: X }`: an all-optional object type is a "weak type", and a params
+// object without that key would fail the weak-type check and fall into the wrong branch.
+type FieldOf<P, Key extends PropertyKey> = Key extends keyof P ? P[Key] : undefined;
+
+type MayBeNotModified<P> = [Exclude<FieldOf<P, 'ifNoneMatch'>, undefined | null>] extends [never] ? never : ApiNotModified;
+
+type BodyAnswer<Id extends OperationId, P> = Id extends TextOperationId
+    ? ApiTextResult
+    : [Extract<FieldOf<P, 'format'>, 'csv'>] extends [never]
+        ? ApiResult<EnvelopeOf<Id>>
+        : [Exclude<FieldOf<P, 'format'>, 'csv' | undefined>] extends [never]
+            ? ApiTextResult
+            : ApiResult<EnvelopeOf<Id>> | ApiTextResult;
