@@ -1,0 +1,57 @@
+name: Contract
+
+# Nightly: regenerate from the live document and, on a difference, open (or refresh) one pull request titled
+# "openapi: <date>" with the summary of what changed. Then build, test and run the CLI against the live free API, so
+# the job is green only when the published shape still works end to end.
+#
+# Needs the repository setting "Allow GitHub Actions to create and approve pull requests". A pull request opened with
+# the workflow's own token does not start the CI workflow by itself: close and reopen it, or push to its branch.
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency: contract
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run generate -- --summary "$RUNNER_TEMP/summary.md"
+      - name: Open or refresh the pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- openapi packages/sdk/src/generated; then
+            echo "The snapshot matches the live document."
+            exit 0
+          fi
+          day="$(date -u +%F)"
+          branch="contract/openapi"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add openapi packages/sdk/src/generated
+          git commit -m "openapi: ${day}"
+          git push --force origin "$branch"
+          if [ "$(gh pr view "$branch" --json state --jq .state 2>/dev/null)" = "OPEN" ]; then
+            gh pr edit "$branch" --title "openapi: ${day}" --body-file "$RUNNER_TEMP/summary.md"
+          else
+            gh pr create --base main --head "$branch" --title "openapi: ${day}" --body-file "$RUNNER_TEMP/summary.md"
+          fi
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+      - name: The CLI against the live free API
+        run: npm run smoke
