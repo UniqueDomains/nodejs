@@ -26,7 +26,8 @@ for (const name of ['sdk', 'cli']) if (versionOf(name) !== version) throw new Er
 const cli = JSON.parse(readFileSync(join(ROOT, 'packages', 'cli', 'package.json'), 'utf8'));
 if (cli.dependencies['@uniquedomains/sdk'] !== version) throw new Error(`the CLI depends on @uniquedomains/sdk ${cli.dependencies['@uniquedomains/sdk']}, not ${version}`);
 
-const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' }).trim();
+// stderr is dropped: on the first tag `git describe` finds no previous tag, which is expected, not an error to show.
+const git = (...args) => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
 const previous = (() => {
     try {
         return git('describe', '--tags', '--abbrev=0', '--match', 'v*', `${tag}^`);
