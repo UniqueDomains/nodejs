@@ -26,7 +26,7 @@ Every answer is the API's envelope, `data`, `meta` and `links`, plus what its he
 
 The operation ids are the names on the [API reference](https://unique.domains/api). `OPERATIONS` lists them all with their method, path, parameters and access. A misspelled parameter is a compile error.
 
-When the operation id is only known at run time (a command or tool loop), use `requestOperation`. It makes the same call, checks the params against `OPERATIONS` at run time, and answers one of the three kinds to narrow:
+When the operation id is only known at run time (a command or tool loop), use `requestOperation`. It makes the same call, and answers one of the three kinds to narrow. Before the call it checks the format, `fields`, `include` and dot path values against `OPERATIONS`. It does not check the other parameters: a misspelled, missing or wrongly typed one goes to the API, which answers 400 `validation_failed`. Check them yourself from `OPERATIONS[id].parameters` when you need to fail earlier.
 
 ```js
 import { isOperationId } from '@uniquedomains/sdk';
