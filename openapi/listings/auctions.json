@@ -1,0 +1,24 @@
+{
+  "id": "auctions",
+  "title": "Domain Auctions",
+  "host": "domain-auctions.p.rapidapi.com",
+  "operations": [
+    "get_name_auction",
+    "get_meta_tlds",
+    "get_market_auctions",
+    "list_market_auctions_sample",
+    "list_market_auction_venues",
+    "list_market_auction_outcomes",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

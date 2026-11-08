@@ -1,0 +1,23 @@
+{
+  "id": "sales-history",
+  "title": "Domain Sales History",
+  "host": "domain-sales-history1.p.rapidapi.com",
+  "operations": [
+    "get_name_comps",
+    "get_meta_tlds",
+    "get_market_sales",
+    "list_market_sales_series",
+    "get_market_sales_word",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

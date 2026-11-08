@@ -1,0 +1,26 @@
+{
+  "id": "catalog",
+  "title": "Domain Catalog",
+  "host": "domain-catalog.p.rapidapi.com",
+  "operations": [
+    "list_domains",
+    "get_domain",
+    "list_expiring_domains",
+    "get_domain_drops",
+    "list_domain_hacks",
+    "list_domain_changes",
+    "get_catalog_stats",
+    "get_meta_tlds",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

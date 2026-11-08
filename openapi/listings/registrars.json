@@ -1,0 +1,32 @@
+{
+  "id": "registrars",
+  "title": "Registrar Prices",
+  "host": "registrar-prices.p.rapidapi.com",
+  "operations": [
+    "get_meta_tlds",
+    "list_registrars",
+    "list_registrar_prices",
+    "list_registrar_changes",
+    "get_registrar_footprint",
+    "list_tld_prices",
+    "list_tld_price_history",
+    "list_price_changes",
+    "list_price_traps",
+    "list_cheapest_prices",
+    "list_venues",
+    "get_venue",
+    "list_iana_registrars",
+    "get_iana_registrar",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "id": "price-comparison",
+  "title": "Domain Price Comparison",
+  "host": "domain-price-comparison.p.rapidapi.com",
+  "operations": [
+    "get_name_prices",
+    "get_meta_tlds",
+    "list_tld_prices",
+    "list_price_changes",
+    "list_price_traps",
+    "list_cheapest_prices",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

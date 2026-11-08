@@ -1,0 +1,23 @@
+{
+  "id": "trending-topics",
+  "title": "Trending Topics",
+  "host": "trending-topics1.p.rapidapi.com",
+  "operations": [
+    "get_meta_tlds",
+    "list_trends",
+    "get_trend",
+    "list_trend_categories",
+    "list_trend_pool",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

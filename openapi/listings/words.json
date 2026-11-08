@@ -1,0 +1,33 @@
+{
+  "id": "words",
+  "title": "Word Intelligence",
+  "host": "word-intelligence.p.rapidapi.com",
+  "operations": [
+    "resolve_word",
+    "list_word_categories",
+    "batch_words",
+    "list_words",
+    "get_word",
+    "get_word_endings",
+    "list_word_names",
+    "get_word_trademarks",
+    "get_word_notability",
+    "get_word_market",
+    "list_related_words",
+    "list_word_fits",
+    "request_word",
+    "get_word_request",
+    "get_meta_tlds",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

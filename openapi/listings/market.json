@@ -1,0 +1,29 @@
+{
+  "id": "market",
+  "title": "Domain Market",
+  "host": "domain-market.p.rapidapi.com",
+  "operations": [
+    "get_meta_tlds",
+    "get_market_sales",
+    "list_market_sales_series",
+    "list_market_sales_endings",
+    "get_market_sales_lengths",
+    "list_market_sales_movers",
+    "get_market_sales_word",
+    "get_market_auctions",
+    "list_market_auctions_sample",
+    "list_market_auction_venues",
+    "list_market_auction_outcomes",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

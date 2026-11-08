@@ -1,0 +1,24 @@
+{
+  "id": "agenda",
+  "title": "Agenda",
+  "host": "agenda6.p.rapidapi.com",
+  "operations": [
+    "get_meta_tlds",
+    "list_events",
+    "get_events_ics",
+    "get_event",
+    "get_agenda",
+    "get_agenda_ics",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "names",
+  "title": "Domain Check",
+  "host": "domain-check18.p.rapidapi.com",
+  "operations": [
+    "get_name",
+    "batch_names",
+    "check_name",
+    "get_name_prices",
+    "get_name_registry",
+    "get_name_registry_history",
+    "get_name_dns",
+    "list_name_changes",
+    "get_name_history",
+    "get_name_value",
+    "appraise_name",
+    "get_name_comps",
+    "get_name_auction",
+    "get_meta_tlds",
+    "get_latest_edition",
+    "get_edition",
+    "get_meta_enums",
+    "get_meta_freshness",
+    "list_meta_datasets",
+    "list_meta_trademark_classes",
+    "get_meta_providers",
+    "get_key",
+    "get_openapi",
+    "get_llms_txt",
+    "get_health"
+  ]
+}
