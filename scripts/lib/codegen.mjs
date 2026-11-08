@@ -8,11 +8,12 @@
  * workflow fails loudly on structural drift instead of generating a table the CLI would misread.
  */
 
+import { METHODS } from './methods.mjs';
+
 /*----------------------------------
 - CONSTANTS
 ----------------------------------*/
 
-const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
 const SCALAR_TYPES = new Set(['string', 'integer', 'number', 'boolean']);
 const LISTING_TITLE_PREFIX = 'Unique Domains API: ';
 
@@ -20,13 +21,18 @@ const LISTING_TITLE_PREFIX = 'Unique Domains API: ';
 - HELPERS
 ----------------------------------*/
 
-const resolveRef = (document, value) => {
+const resolveRef = (document, value, seen = new Set()) => {
     if (!value || typeof value.$ref !== 'string') return value;
+    // A cycle throws a readable error rather than overflowing the stack (review R1-20).
+    if (seen.has(value.$ref)) throw new Error(`Cyclic $ref ${value.$ref}`);
     const match = /^#\/components\/(\w+)\/(.+)$/.exec(value.$ref);
     const target = match ? document.components?.[match[1]]?.[match[2]] : undefined;
     if (!target) throw new Error(`Cannot follow ${value.$ref}`);
-    return resolveRef(document, target);
+    return resolveRef(document, target, new Set([...seen, value.$ref]));
 };
+
+/** `null` in an enum is the nullable marker, never a value to pass: dropped for parameters and body alike (R1-20). */
+const enumOf = (schema) => schema.enum?.filter((value) => value !== null);
 
 /** `['string', 'null']` reads as `string`: a nullable scalar is still that scalar on the command line. */
 const scalarType = (schema, where) => {
@@ -47,7 +53,7 @@ const toParameter = (document, raw, operationId) => {
         in: param.in,
         required: Boolean(param.required),
         type: scalarType(schema, where),
-        enum: schema.enum?.filter((value) => value !== null),
+        enum: enumOf(schema),
         default: schema.default,
         minimum: schema.minimum,
         maximum: schema.maximum,
@@ -73,9 +79,9 @@ const toBodyProperty = (document, name, raw, required, operationId) => {
     const where = `${operationId} body.${name}`;
     if (schema.type === 'array') {
         const items = resolveRef(document, schema.items ?? {});
-        return definedOnly({ name, required, type: 'array', items: definedOnly({ type: scalarType(items, where), enum: items.enum }), description: schema.description });
+        return definedOnly({ name, required, type: 'array', items: definedOnly({ type: scalarType(items, where), enum: enumOf(items) }), description: schema.description });
     }
-    return definedOnly({ name, required, type: scalarType(schema, where), enum: schema.enum, description: schema.description });
+    return definedOnly({ name, required, type: scalarType(schema, where), enum: enumOf(schema), description: schema.description });
 };
 
 const toBody = (document, requestBody, operationId) => {

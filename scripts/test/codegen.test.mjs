@@ -17,7 +17,7 @@ const tinyDocument = () => ({
                 'x-tier': 'free',
                 parameters: [
                     { name: 'limit', in: 'query', schema: { type: 'integer', default: 20 } },
-                    { name: 'tld', in: 'path', required: true, schema: { type: 'string' } },
+                    { name: 'tld', in: 'path', required: true, description: 'operation level', schema: { type: 'string' } },
                 ],
                 responses: { 200: { content: { 'application/json': {}, 'text/csv': {} } } },
             },
@@ -55,7 +55,21 @@ describe('codegen', () => {
         const document = tinyDocument();
         document.paths['/tlds/{tld}/changes'].parameters = [{ name: 'tld', in: 'path', required: true, description: 'path level', schema: { type: 'string' } }];
         const changes = buildOperations(document).find((operation) => operation.id === 'list_tld_changes');
-        assert.equal(changes.parameters.filter((param) => param.name === 'tld').length, 1);
+        const tld = changes.parameters.filter((param) => param.name === 'tld');
+        assert.equal(tld.length, 1);
+        // The operation's own declaration wins (review R1-22: pin which one, not only that one remains).
+        assert.equal(tld[0].description, 'operation level');
+    });
+
+    it('drops null from body enums and throws on a cyclic $ref (review R1-20)', () => {
+        const document = tinyDocument();
+        document.paths['/names/batch'].post.requestBody.content['application/json'].schema.properties.mode = { type: ['string', 'null'], enum: ['fast', null] };
+        const batch = buildOperations(document).find((operation) => operation.id === 'batch_names');
+        assert.deepEqual(batch.body.properties.find((property) => property.name === 'mode').enum, ['fast']);
+        const cyclic = tinyDocument();
+        cyclic.components = { parameters: { a: { $ref: '#/components/parameters/b' }, b: { $ref: '#/components/parameters/a' } } };
+        cyclic.paths['/tlds/{tld}/changes'].get.parameters.push({ $ref: '#/components/parameters/a' });
+        assert.throws(() => buildOperations(cyclic), /Cyclic \$ref/);
     });
 
     it('fails on a parameter type it does not know', () => {
@@ -84,5 +98,17 @@ describe('codegen', () => {
         assert.match(summary.text, /removed batch_names/);
         assert.match(summary.text, /listing tlds: host h to h2; adds get_openapi/);
         assert.equal(summarizeChanges(previous, previous).changed, false);
+    });
+
+    it('summarizes path-level parameters, servers and tags (review R1-14)', () => {
+        const previous = { document: tinyDocument(), listings: [] };
+        const next = { document: tinyDocument(), listings: [] };
+        next.document.paths['/tlds/{tld}/changes'].parameters = [{ name: 'x', in: 'query', schema: { type: 'string' } }];
+        next.document.servers = [{ url: 'https://api.example.test/v2' }];
+        next.document.tags = [];
+        const { text } = summarizeChanges(previous, next);
+        assert.match(text, /changed list_tld_changes/);
+        assert.match(text, /changed the servers \(https:\/\/api\.example\.test\/v2\)/);
+        assert.match(text, /changed the tags/);
     });
 });

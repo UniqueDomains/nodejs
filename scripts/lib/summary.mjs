@@ -7,13 +7,14 @@
  * operations added, removed and changed, the shared components, and the listings' hosts and operation sets.
  */
 
-const METHODS = ['get', 'post', 'put', 'patch', 'delete'];
+import { METHODS } from './methods.mjs';
 
+/** Each operation with what defines it: its own object and the path item's parameters (review R1-14). */
 const operationsOf = (document) => {
     const operations = new Map();
     for (const [path, item] of Object.entries(document?.paths ?? {})) {
         for (const method of METHODS) {
-            if (item[method]?.operationId) operations.set(item[method].operationId, { label: `${method.toUpperCase()} ${path}`, body: JSON.stringify(item[method]) });
+            if (item[method]?.operationId) operations.set(item[method].operationId, { label: `${method.toUpperCase()} ${path}`, body: JSON.stringify([item.parameters ?? null, item[method]]) });
         }
     }
     return operations;
@@ -54,6 +55,9 @@ export const summarizeChanges = (previous, next) => {
     }
     for (const [id, operation] of before) if (!after.has(id)) lines.push(`removed ${id} (${operation.label})`);
     if (JSON.stringify(prevDocument?.components) !== JSON.stringify(next.document.components)) lines.push('changed the shared components (Problem, Meta, Links, security)');
+    // `servers[0].url` becomes API_PUBLIC_BASE and the tags group the CLI's help: both are worth a line of their own.
+    if (JSON.stringify(prevDocument?.servers) !== JSON.stringify(next.document.servers)) lines.push(`changed the servers (${(next.document.servers ?? []).map((server) => server.url).join(', ')})`);
+    if (JSON.stringify(prevDocument?.tags) !== JSON.stringify(next.document.tags)) lines.push('changed the tags (the APIs and their descriptions)');
     lines.push(...compareListings(previous?.listings, next.listings));
 
     const count = after.size;

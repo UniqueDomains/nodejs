@@ -7,8 +7,8 @@
  * Records the answers the tests replay: one free call per API (the document's tags), the three problem shapes a
  * keyless caller meets (400 `validation_failed`, 403 `keyed_only`, 404 `not_found`) and one `.csv` form. Thirteen
  * keyless calls, so a run stays well inside the keyless hourly window. The 304, the 429s, the 202 and a member key's
- * quota headers cannot be recorded without a key or without spending the window: they live in
- * `test/fixtures/synthetic/`, written by hand from the document's examples.
+ * quota headers cannot be recorded without a key or without spending the window: they live in `SYNTHETIC` of
+ * `test/support/fixture-server.mjs`, written by hand from the document's examples.
  *
  * Usage: node scripts/record-fixtures.mjs   (rewrites test/fixtures/recorded/)
  */

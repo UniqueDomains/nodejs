@@ -18,12 +18,14 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', 'generated']);
 const SKIP_FILES = new Set(['package-lock.json', 'openapi.json']);
 const SKIP_PATHS = [join(ROOT, 'openapi'), join(ROOT, 'test', 'fixtures', 'recorded')];
-const TEXT = /\.(m?[jt]s|json|md|ya?ml|txt)$|^LICENSE$/;
+// Every hand-written text file type, `.gitignore` included (review R1-13).
+const TEXT = /\.([mc]?[jt]s|json|md|ya?ml|txt|html|sh)$|^(LICENSE|\.gitignore)$/;
 
 // Built from parts so this file does not trip its own check.
 const BANNED = [
     { pattern: new RegExp(String.fromCharCode(0x2014)), label: 'an em dash' },
-    { pattern: new RegExp(`\\b${['dae', 'mon'].join('')}\\b`, 'i'), label: 'the internal name of the scanner (write "scanner")' },
+    // No closing boundary, so the plural and every suffixed form are caught too (review R1-13).
+    { pattern: new RegExp(`\\b${['dae', 'mon'].join('')}`, 'i'), label: 'the internal name of the scanner (write "scanner")' },
 ];
 
 const walk = async (dir) => {
