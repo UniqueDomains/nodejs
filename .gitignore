@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tgz
+.DS_Store
+# Copied from openapi/v1.json by the SDK build so the package ships the snapshot (`@uniquedomains/sdk/openapi.json`).
+packages/sdk/openapi.json
+# Copied from the root by each package's build so the tarball carries them.
+packages/*/LICENSE
