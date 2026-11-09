@@ -77,10 +77,21 @@ jobs:
             # A re-run after a partial publish skips what is already on the registry.
             if npm view "${name}@${version}" version >/dev/null 2>&1; then
               echo "${name}@${version} is already published."
-            else
-              # The build job built `dist`; --ignore-scripts keeps `prepack` from running a build here.
-              npm publish --workspace "packages/${package}" --provenance --access public --ignore-scripts
+              continue
             fi
+            # The build job built `dist`; --ignore-scripts keeps `prepack` from running a build here.
+            if ! output="$(npm publish --workspace "packages/${package}" --provenance --access public --ignore-scripts 2>&1)"; then
+              echo "$output"
+              # The registry's read side can lag a fresh publish by a minute or more: a version published by hand just
+              # before the tag is not yet seen by `npm view` and is refused here. That refusal means the version is out, so it is a
+              # skip, not a failure (v0.1.0 of 2026-11-09, review N5). Any other refusal fails the job.
+              if grep -qi "cannot publish over the previously published versions" <<<"$output"; then
+                echo "${name}@${version} was already published (the registry had not shown it yet)."
+                continue
+              fi
+              exit 1
+            fi
+            echo "$output"
           done
       - name: GitHub release
         env:
