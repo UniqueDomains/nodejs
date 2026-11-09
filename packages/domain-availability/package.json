@@ -1,0 +1,61 @@
+{
+  "name": "@uniquedomains/domain-availability",
+  "version": "0.2.0",
+  "description": "Domain availability check for Node.js: a name's stored status, drop day, price and renewal for free, a live check with a key, from code or the ud-availability command.",
+  "license": "MIT",
+  "author": "Unique Domains (https://unique.domains)",
+  "homepage": "https://unique.domains/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniqueDomains/nodejs.git",
+    "directory": "packages/domain-availability"
+  },
+  "bugs": "https://github.com/UniqueDomains/nodejs/issues",
+  "keywords": [
+    "domain-availability",
+    "domain-check",
+    "availability",
+    "domain",
+    "domain-names",
+    "unique-domains"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "ud-availability": "dist/bin.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/copy-assets.mjs domain-availability && tsup",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@uniquedomains/sdk": "0.2.0"
+  }
+}

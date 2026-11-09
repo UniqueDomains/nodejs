@@ -1,0 +1,39 @@
+{
+  "name": "usecase-comps",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/names/get.plumbing/comps",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"oDo63wn62lzMz5jeIurlc6gh64U\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "32",
+      "x-ratelimit-reset": "2515"
+    },
+    "body": {
+      "data": {
+        "tier": "same_word",
+        "count": 10,
+        "medianUsd": 2677,
+        "endingsSoldOn": 0
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/names/get.plumbing/comps",
+        "next": null,
+        "register": null,
+        "product": "https://app.unique.domains/availability/get.plumbing",
+        "dataset": null
+      }
+    }
+  }
+}

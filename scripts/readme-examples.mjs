@@ -14,14 +14,15 @@
  *        node scripts/readme-examples.mjs --live    (write them, then run them against the live API)
  */
 
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { findReadmes, renderModule, runExample } from './lib/readme.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'test', 'readme');
-const SDK_SPECIFIER = '../support/readme-sdk.mjs';
+/** The module a README's `from '@uniquedomains/<package>'` becomes; null for a package that has none (the CLI). */
+const specifierOf = (name) => (existsSync(join(ROOT, 'test', 'support', `readme-${name}.mjs`)) ? `../support/readme-${name}.mjs` : null);
 
 /** Writes one module per README and removes those of READMEs that are gone. Answers what it wrote. */
 export const writeGenerated = () => {
@@ -30,12 +31,15 @@ export const writeGenerated = () => {
     for (const file of readdirSync(OUT).filter((name) => name.endsWith('.generated.mjs'))) {
         if (!readmes.some((readme) => readme.module === join(OUT, file))) rmSync(join(OUT, file));
     }
-    for (const readme of readmes) writeFileSync(readme.module, renderModule(readme.examples, SDK_SPECIFIER, relative(ROOT, readme.file)));
+    for (const readme of readmes) writeFileSync(readme.module, renderModule(readme.examples, specifierOf, relative(ROOT, readme.file)));
     return readmes;
 };
 
 const runLive = async (readmes) => {
     delete process.env.UD_API_KEY;
+    // Imported here: writing the generated files needs no build.
+    const { useTarget } = await import(pathToFileURL(join(ROOT, 'test', 'support', 'readme-sdk.mjs')).href);
+    useTarget(null);
     let ran = 0;
     for (const readme of readmes) {
         const { examples } = await import(pathToFileURL(readme.module).href);

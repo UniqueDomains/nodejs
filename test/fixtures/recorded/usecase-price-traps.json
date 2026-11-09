@@ -1,0 +1,140 @@
+{
+  "name": "usecase-price-traps",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/prices/traps",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"6NELNikJJCgHHfOpuMZCiy1mDLs\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "30",
+      "x-ratelimit-reset": "2515"
+    },
+    "body": {
+      "data": [
+        {
+          "tld": "academy",
+          "multiple": 5,
+          "cheapestYearOne": {
+            "registrar": "spaceship",
+            "price": 7.45,
+            "renewal": 37.46
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "cloudflare",
+            "renewal": 36.2
+          }
+        },
+        {
+          "tld": "accountants",
+          "multiple": 4.4,
+          "cheapestYearOne": {
+            "registrar": "porkbun",
+            "price": 23.17,
+            "renewal": 102.47
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "cloudflare",
+            "renewal": 90.2
+          }
+        },
+        {
+          "tld": "actor",
+          "multiple": 4.2,
+          "cheapestYearOne": {
+            "registrar": "spaceship",
+            "price": 8.48,
+            "renewal": 35.39
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "cloudflare",
+            "renewal": 34.2
+          }
+        },
+        {
+          "tld": "agency",
+          "multiple": 8,
+          "cheapestYearOne": {
+            "registrar": "dynadot",
+            "price": 3.5,
+            "renewal": 28.04
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "cloudflare",
+            "renewal": 24.2
+          }
+        },
+        {
+          "tld": "apartments",
+          "multiple": 4.7,
+          "cheapestYearOne": {
+            "registrar": "porkbun",
+            "price": 10.81,
+            "renewal": 50.98
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "cloudflare",
+            "renewal": 44.2
+          }
+        },
+        {
+          "tld": "app",
+          "multiple": 2.5,
+          "cheapestYearOne": {
+            "registrar": "godaddy",
+            "price": 7.99,
+            "renewal": 19.99
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "cloudflare",
+            "renewal": 14.2
+          }
+        },
+        {
+          "tld": "archi",
+          "multiple": 6.3,
+          "cheapestYearOne": {
+            "registrar": "spaceship",
+            "price": 13.14,
+            "renewal": 83
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "porkbun",
+            "renewal": 92.17
+          }
+        },
+        {
+          "tld": "army",
+          "multiple": 3.2,
+          "cheapestYearOne": {
+            "registrar": "porkbun",
+            "price": 10.81,
+            "renewal": 34.5
+          },
+          "cheapestRenewalElsewhere": {
+            "registrar": "cloudflare",
+            "renewal": 30.2
+          }
+        }
+      ],
+      "meta": {
+        "trapCount": 317,
+        "asOf": "2026-11-09T06:16:30.000Z",
+        "cursor": null,
+        "limit": 20
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/prices/traps",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

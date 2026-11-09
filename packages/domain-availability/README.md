@@ -1,0 +1,86 @@
+# Domain availability check for Node.js
+
+Find out whether a domain name can be registered, from Node.js or the command line. The stored answer is free and needs no key: the name's status, drop day, price and renewal. A live check needs a key, and a list of names at once needs a key on the Investor plan.
+
+```bash
+npx @uniquedomains/domain-availability get.plumbing
+```
+
+```bash
+npm install @uniquedomains/domain-availability
+```
+
+Node 20 or later. ESM and CommonJS. Built on [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk).
+
+## The stored answer
+
+<!-- example: availability -->
+```js
+import { availability } from '@uniquedomains/domain-availability';
+
+const answer = await availability('get.plumbing');
+console.log(answer.status, answer.ownableNow, answer.price.firstYear);
+```
+
+`status` says where the name stands, `ownableNow` whether it can be bought now, `drop` the day it is due to come free when one is known, and `price` what it costs for the first year and to renew. The answer comes from storage, not from the registry at that moment. A name the catalog never stored answers `tracked: false` and the status `not_checked`, which says nothing about whether it is free: that is when the live check helps.
+
+## The live check
+
+Reads the name from its registry and a registrar now, stores the answer and returns it. It needs a key, and spends one Live unit when the live read runs.
+
+<!-- example: check fixture -->
+```js
+import { check } from '@uniquedomains/domain-availability';
+
+const answer = await check('get.plumbing', { apiKey: process.env.UD_API_KEY });
+console.log(answer.status, answer.checked);
+```
+
+`checked` is `false` when the answer came from storage and no unit was spent. Without a key, the call throws a `PlanRequiredError`:
+
+<!-- example: refused -->
+```js
+import { check, PlanRequiredError } from '@uniquedomains/domain-availability';
+
+try {
+    await check('get.plumbing');
+} catch (error) {
+    if (error instanceof PlanRequiredError) console.log('Needs a key:', error.product);
+    else throw error;
+}
+```
+
+## Many names at once
+
+Up to 100 names, with their stored answers in the order you sent them. It needs a key on the Investor plan, makes no live read, and is billed one call per name sent, the refused ones included.
+
+<!-- example: batch fixture -->
+```js
+import { availabilityBatch } from '@uniquedomains/domain-availability';
+
+const answers = await availabilityBatch(['get.plumbing', 'zorbly.ai', 'foo@bar.com'], { apiKey: process.env.UD_API_KEY });
+for (const answer of answers) console.log(answer.name, answer.error ?? answer.status ?? 'not in the catalog');
+```
+
+## The command
+
+```bash
+ud-availability get.plumbing
+ud-availability get.plumbing --check --key ud_live_...
+ud-availability get.plumbing zorbly.ai --key ud_live_...
+```
+
+A table on a terminal, JSON in a pipe. `ud-availability --help` lists the flags.
+
+## Keys and limits
+
+Without a key you read the stored answer, within a limit per hour and per day from one address. Every function also takes a key, and reads `UD_API_KEY` from the environment when you pass none. Keep a key on a server: a page a visitor loads shows it to everyone.
+
+- **A member key.** The Founder and Investor plans include the API with a key of your own, and many names at once need the Investor plan. See [the plans](https://unique.domains/pricing).
+- **A RapidAPI subscription.** [Domain Availability on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-availability14) serves all three: pass `{ rapidApi: { key, listing: 'availability' } }`.
+
+The [Domain availability API page](https://unique.domains/api/availability) shows the answer and its fields, and you can run the call there.
+
+## License
+
+MIT

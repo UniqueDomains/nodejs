@@ -1,12 +1,16 @@
 {
   "name": "uniquedomains-nodejs",
   "private": true,
-  "description": "Node SDK and CLI for the Unique Domains API.",
+  "description": "Node SDK, CLI and use-case packages for the Unique Domains API.",
   "license": "MIT",
   "type": "module",
   "workspaces": [
     "packages/sdk",
-    "packages/cli"
+    "packages/cli",
+    "packages/whois",
+    "packages/domain-availability",
+    "packages/registrar-prices",
+    "packages/domain-appraisal"
   ],
   "engines": {
     "node": ">=20"
@@ -17,8 +21,8 @@
   },
   "scripts": {
     "generate": "node scripts/generate.mjs",
-    "build": "npm run build --workspace packages/sdk && npm run build --workspace packages/cli",
-    "typecheck": "tsc -p packages/sdk --noEmit && tsc -p packages/sdk/typetests && tsc -p packages/cli --noEmit",
+    "build": "npm run build --workspace packages/sdk && npm run build --workspace packages/cli --workspace packages/whois --workspace packages/domain-availability --workspace packages/registrar-prices --workspace packages/domain-appraisal",
+    "typecheck": "tsc -p packages/sdk --noEmit && tsc -p packages/sdk/typetests && tsc -p packages/cli --noEmit && tsc -p packages/whois --noEmit && tsc -p packages/domain-availability --noEmit && tsc -p packages/registrar-prices --noEmit && tsc -p packages/domain-appraisal --noEmit && tsc -p test/typetests",
     "test": "node --test packages/*/test/*.test.mjs scripts/test/*.test.mjs test/*.test.mjs",
     "check:text": "node scripts/check-text.mjs",
     "check:pack": "node scripts/check-pack.mjs",
@@ -27,6 +31,7 @@
   },
   "devDependencies": {
     "@types/node": "22.20.5",
+    "@types/react": "19.2.0",
     "openapi-typescript": "7.13.0",
     "tsup": "8.5.1",
     "typescript": "5.9.3"

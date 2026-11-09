@@ -7,7 +7,7 @@
  * Records the answers the tests replay: one free call per API (the document's tags), the three problem shapes a
  * keyless caller meets (400 `validation_failed`, 403 `keyed_only`, 404 `not_found`), one `.csv` form, and the calls the
  * README examples make that those do not cover. A `pages` entry follows `meta.cursor` to the end, one file a page.
- * About twenty keyless calls, so a whole run stays inside the keyless hourly window; `--only` records some. The 304,
+ * About thirty keyless calls, so a whole run stays inside the keyless hourly window; `--only` records some. The 304,
  * the 429s, the 202 and a member key's quota headers cannot be recorded without a key or without spending the window:
  * they live in `SYNTHETIC` of `test/support/fixture-server.mjs`, written by hand from the document's examples.
  *
@@ -41,6 +41,14 @@ const CALLS = [
     { name: 'csv-list-tlds', path: '/tlds.csv', query: 'limit=3' },
     { name: 'names-get-name-registry', path: '/names/harbor.io/registry' },
     { name: 'prices-list-tld-prices', path: '/prices/tlds/io' },
+    { name: 'usecase-registry', path: '/names/get.plumbing/registry' },
+    { name: 'usecase-dns', path: '/names/get.plumbing/dns' },
+    { name: 'usecase-availability', path: '/names/get.plumbing', query: 'fields=name,tracked,status,lifecycle,drop,ownableNow,price' },
+    { name: 'usecase-availability-untracked', path: '/names/harbor.io', query: 'fields=name,tracked,status,lifecycle,drop,ownableNow,price' },
+    { name: 'usecase-comps', path: '/names/get.plumbing/comps' },
+    { name: 'usecase-comps-untracked', path: '/names/harbor.io/comps' },
+    { name: 'usecase-price-traps', path: '/prices/traps' },
+    { name: 'usecase-price-changes', path: '/prices/changes' },
     { name: 'tlds-public-set', path: '/tlds', query: 'publicSet=true&limit=2&fields=tld,kind', pages: true },
 ];
 

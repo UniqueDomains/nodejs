@@ -1,0 +1,39 @@
+{
+  "name": "usecase-comps-untracked",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/names/harbor.io/comps",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"g4AHVZ7MYKWvn9DQoZC4Rx58hKE\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "31",
+      "x-ratelimit-reset": "2515"
+    },
+    "body": {
+      "data": {
+        "tier": null,
+        "count": 0,
+        "medianUsd": null,
+        "endingsSoldOn": 0
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/names/harbor.io/comps",
+        "next": null,
+        "register": null,
+        "product": "https://app.unique.domains/availability/harbor.io",
+        "dataset": null
+      }
+    }
+  }
+}

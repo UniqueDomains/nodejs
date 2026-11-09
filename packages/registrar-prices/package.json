@@ -1,0 +1,62 @@
+{
+  "name": "@uniquedomains/registrar-prices",
+  "version": "0.2.0",
+  "description": "Registrar price comparison for Node.js: every registrar's list price for an ending, renewal traps and price changes, from code or the ud-prices command.",
+  "license": "MIT",
+  "author": "Unique Domains (https://unique.domains)",
+  "homepage": "https://unique.domains/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniqueDomains/nodejs.git",
+    "directory": "packages/registrar-prices"
+  },
+  "bugs": "https://github.com/UniqueDomains/nodejs/issues",
+  "keywords": [
+    "registrar-prices",
+    "domain-prices",
+    "price-comparison",
+    "registrar",
+    "tld",
+    "domain",
+    "unique-domains"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "ud-prices": "dist/bin.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/copy-assets.mjs registrar-prices && tsup",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@uniquedomains/sdk": "0.2.0"
+  }
+}

@@ -41,7 +41,36 @@ const getNameBody = (name) => {
 // `X-Quota-Reset` is the first instant of the next UTC month in unix seconds: 2026-12-01T00:00:00Z.
 const QUOTA_RESET = String(Date.UTC(2026, 11, 1) / 1000);
 
+/** Any test's member key, the README run's included: the keyed fixtures below answer it, and refuse a call without one. */
+export const USECASE_KEY = /^Bearer ud_live_/;
+export const FOUNDER_KEY = 'ud_live_founder';
+
+const keyedOnly = (method, path) => problem('keyed_only', 403, `${method} ${path} needs a Pro, Ultra or Mega subscription, or a member key.`, { product: 'https://unique.domains/pricing' });
+
+/** A keyed call: the answer with a member key, and the free grade's refusal without one. The bodies are the document's examples. */
+const keyed = (name, method, path, query, data) => [
+    { name, request: { method, path, query, header: ['authorization', USECASE_KEY] }, response: json(200, envelope(data, path), { 'x-quota-limit': '10000', 'x-quota-remaining': '9000', 'x-quota-reset': QUOTA_RESET }) },
+    { name: `${name}-refused`, request: { method, path, query }, response: json(403, keyedOnly(method, path)) },
+];
+
+const VALUE = { current: { value: 4200, asOf: '2026-10-30T11:02:00.000Z' }, history: [{ value: 4200, date: '2026-10-30T11:02:00.000Z' }] };
+const KEYED_NAME = { ...getNameBody('get.plumbing').data, rating: { band: 'strong', score: 68 }, value: { value: 4200, upsidePercent: null, liquidity: 'medium' } };
+
 export const SYNTHETIC = [
+    ...keyed('usecase-registry-history', 'GET', '/names/get.plumbing/registry/history', '', { versions: [{ observedAt: '2025-06-02T04:10:00.000Z', registrar: 'GoDaddy.com, LLC', registered: true }], moves: [{ at: '2026-02-11T08:02:00.000Z', from: 'GoDaddy.com, LLC', to: 'Gandi SAS' }], transfers: [], lockChanges: [] }),
+    ...keyed('usecase-check', 'POST', '/names/get.plumbing/check', '', { ...KEYED_NAME, checked: true }),
+    ...keyed('usecase-cheapest', 'GET', '/prices/cheapest', 'tlds=ai,io', [{ ending: 'ai', cheapestYear1: { registrar: 'porkbun', price: 71.4 }, cheapestRenewal: { registrar: 'porkbun', price: 71.4 }, cheapestTransfer: { registrar: 'cloudflare', price: 80 }, trap: false }, { ending: 'io', cheapestYear1: { registrar: 'porkbun', price: 28.12 }, cheapestRenewal: { registrar: 'cloudflare', price: 38.5 }, cheapestTransfer: { registrar: 'cloudflare', price: 38.5 }, trap: false }]),
+    ...keyed('usecase-price-history', 'GET', '/prices/tlds/io/history', '', [{ registrar: 'namecheap', currency: 'USD', purchasePrice: 34.98, regularPurchasePrice: null, renewalPrice: 59.98, transferPrice: 54.98, isPromo: false, firstSeenAt: '2026-11-03T05:40:00.000Z', lastSeenAt: '2026-11-05T05:41:00.000Z', observations: 3 }]),
+    ...keyed('usecase-value', 'GET', '/names/get.plumbing/value', '', VALUE),
+    ...keyed('usecase-value-untracked', 'GET', '/names/harbor.io/value', '', { current: null, history: [] }),
+    // The Investor endpoints: a Founder key is refused by plan. Listed before the pair below, whose key pattern also fits it.
+    { name: 'usecase-appraise-founder', request: { method: 'POST', path: '/names/get.plumbing/appraise', query: '', header: ['authorization', `Bearer ${FOUNDER_KEY}`] }, response: json(403, problem('plan_required', 403, 'POST /names/{name}/appraise needs the Investor plan.', { product: 'https://app.unique.domains/settings/account' })) },
+    ...keyed('usecase-appraise', 'POST', '/names/get.plumbing/appraise', '', VALUE),
+    {
+        name: 'usecase-batch',
+        request: { method: 'POST', path: '/names/batch', query: '', header: ['authorization', USECASE_KEY] },
+        response: json(200, envelope([KEYED_NAME, { name: 'zorbly.ai', tracked: false }, { name: 'foo@bar.com', error: 'validation_failed' }], '/names/batch')),
+    },
     {
         name: 'member-get-key',
         request: { method: 'GET', path: '/meta/key', query: '' },
@@ -216,8 +245,12 @@ const routedPath = (path, headers) => {
 
 const keyOf = (method, path, query) => `${method} ${path}?${[...new URLSearchParams(query)].map(([key, value]) => `${key}=${value}`).sort().join('&')}`;
 
-/** A fixture with `request.header: [name, value]` answers only a request carrying that header, and wins over one without. */
-const matches = (fixture, headers) => !fixture.request.header || headers[fixture.request.header[0]] === fixture.request.header[1];
+/** A fixture with `request.header: [name, value or pattern]` answers only a request carrying that header, and wins over one without. */
+const matches = (fixture, headers) => {
+    if (!fixture.request.header) return true;
+    const [name, expected] = fixture.request.header;
+    return expected instanceof RegExp ? expected.test(headers[name] ?? '') : headers[name] === expected;
+};
 
 export const startFixtureServer = async (extra = []) => {
     const fixtures = new Map();

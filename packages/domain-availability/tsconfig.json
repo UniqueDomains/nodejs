@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@uniquedomains/sdk": ["../sdk/src/index.ts"]
+    }
+  },
+  "include": ["src", "tsup.config.ts"]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "usecase-availability",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/names/get.plumbing",
+    "query": "fields=name,tracked,status,lifecycle,drop,ownableNow,price"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"PyF-5Q2cBUGFziLEG175gheN70g\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "34",
+      "x-ratelimit-reset": "2516"
+    },
+    "body": {
+      "data": {
+        "name": "get.plumbing",
+        "tracked": true,
+        "status": "for_sale",
+        "lifecycle": "active",
+        "drop": {
+          "kind": "none"
+        },
+        "ownableNow": false,
+        "price": {
+          "kind": "aftermarket",
+          "firstYear": null,
+          "registrar": null,
+          "renewal": null,
+          "transfer": null,
+          "isPromo": null,
+          "renewalTrap": false
+        }
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/names/get.plumbing?fields=name%2Ctracked%2Cstatus%2Clifecycle%2Cdrop%2CownableNow%2Cprice",
+        "next": null,
+        "register": null,
+        "product": "https://app.unique.domains/availability/get.plumbing",
+        "dataset": null
+      }
+    }
+  }
+}

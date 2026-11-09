@@ -12,14 +12,20 @@ import { createClient as createSdkClient } from '../../packages/sdk/dist/index.j
 
 export * from '../../packages/sdk/dist/index.js';
 
-let target = null;
+let target;
 
-/** `{ base, origin }` of a fixture server, or null for the live API. */
+/** `{ base, origin }` of a fixture server, or null for the live API. Until one is set, an example refuses to call. */
 export const useTarget = (next) => { target = next; };
 
-export const createClient = (options = {}) => {
-    // Live: keyless unless the example passes a key itself; never a key from the environment of the run.
-    if (!target) return createSdkClient({ apiKey: null, ...options });
-    // Fixture: keyless unless the example passes a key, as live, so a README call that needs a key shows it.
-    return createSdkClient({ apiKey: null, ...options, baseUrl: options.rapidApi ? target.origin : target.base });
+/**
+ * Live: keyless unless the example passes a key itself; never a key from the environment of the run. Fixture: the same,
+ * so a README call that needs a key shows it, on the fixture server.
+ */
+export const connectionForReadme = (options = {}) => {
+    if (target === undefined) throw new Error('No target: call useTarget first. A README example never reaches the live API by accident.');
+    return target
+        ? { apiKey: null, ...options, baseUrl: options.rapidApi ? target.origin : target.base }
+        : { apiKey: null, ...options };
 };
+
+export const createClient = (options = {}) => createSdkClient(connectionForReadme(options));

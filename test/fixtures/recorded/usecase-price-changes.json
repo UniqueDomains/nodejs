@@ -1,0 +1,145 @@
+{
+  "name": "usecase-price-changes",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/prices/changes",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"E2EVKo9I_n0R_31ZWugfAKB5574\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "29",
+      "x-ratelimit-reset": "2514"
+    },
+    "body": {
+      "data": [
+        {
+          "id": "17618",
+          "extension": "cv",
+          "registrar": "porkbun",
+          "registrarName": "Porkbun",
+          "field": "transfer",
+          "oldPrice": 8.03,
+          "newPrice": 15.76,
+          "currency": "USD",
+          "confirmedAt": "2026-11-07T01:37:07.000Z"
+        },
+        {
+          "id": "16767",
+          "extension": "com",
+          "registrar": "namesilo",
+          "registrarName": "NameSilo",
+          "field": "renewal",
+          "oldPrice": 17.29,
+          "newPrice": 19.99,
+          "currency": "USD",
+          "confirmedAt": "2026-11-05T06:47:42.000Z"
+        },
+        {
+          "id": "16766",
+          "extension": "com",
+          "registrar": "name.com",
+          "registrarName": "Name.com",
+          "field": "transfer",
+          "oldPrice": 18.53,
+          "newPrice": 22.65,
+          "currency": "USD",
+          "confirmedAt": "2026-11-05T06:47:42.000Z"
+        },
+        {
+          "id": "16765",
+          "extension": "com",
+          "registrar": "name.com",
+          "registrarName": "Name.com",
+          "field": "renewal",
+          "oldPrice": 20.59,
+          "newPrice": 22.65,
+          "currency": "USD",
+          "confirmedAt": "2026-11-05T06:47:42.000Z"
+        },
+        {
+          "id": "16764",
+          "extension": "com",
+          "registrar": "name.com",
+          "registrarName": "Name.com",
+          "field": "purchase",
+          "oldPrice": 18.53,
+          "newPrice": 22.65,
+          "currency": "USD",
+          "confirmedAt": "2026-11-05T06:47:42.000Z"
+        },
+        {
+          "id": "16504",
+          "extension": "istanbul",
+          "registrar": "namesilo",
+          "registrarName": "NameSilo",
+          "field": "transfer",
+          "oldPrice": 16.5,
+          "newPrice": 24.99,
+          "currency": "USD",
+          "confirmedAt": "2026-11-02T04:47:20.000Z"
+        },
+        {
+          "id": "16503",
+          "extension": "istanbul",
+          "registrar": "namesilo",
+          "registrarName": "NameSilo",
+          "field": "renewal",
+          "oldPrice": 17.5,
+          "newPrice": 29.99,
+          "currency": "USD",
+          "confirmedAt": "2026-11-02T04:47:20.000Z"
+        },
+        {
+          "id": "16502",
+          "extension": "ist",
+          "registrar": "namesilo",
+          "registrarName": "NameSilo",
+          "field": "transfer",
+          "oldPrice": 14,
+          "newPrice": 19.99,
+          "currency": "USD",
+          "confirmedAt": "2026-11-02T04:47:20.000Z"
+        },
+        {
+          "id": "16501",
+          "extension": "ist",
+          "registrar": "namesilo",
+          "registrarName": "NameSilo",
+          "field": "renewal",
+          "oldPrice": 15,
+          "newPrice": 23.49,
+          "currency": "USD",
+          "confirmedAt": "2026-11-02T04:47:20.000Z"
+        },
+        {
+          "id": "14738",
+          "extension": "cv",
+          "registrar": "namesilo",
+          "registrarName": "NameSilo",
+          "field": "transfer",
+          "oldPrice": 9.49,
+          "newPrice": 0,
+          "currency": "USD",
+          "confirmedAt": "2026-10-29T04:48:39.000Z"
+        }
+      ],
+      "meta": {
+        "asOf": "2026-11-07T01:37:07.000Z",
+        "cursor": null,
+        "limit": 20
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/prices/changes",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

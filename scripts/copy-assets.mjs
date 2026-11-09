@@ -9,17 +9,17 @@
  * `ud openapi` prints it and the MCP server generates its tools from it). Both copies are git-ignored: the root files
  * stay the only sources.
  *
- * Usage: node scripts/copy-assets.mjs <sdk|cli>
+ * Usage: node scripts/copy-assets.mjs <package folder>
  */
 
+import { existsSync } from 'node:fs';
 import { copyFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const target = process.argv[2];
-if (target !== 'sdk' && target !== 'cli') throw new Error('Usage: copy-assets.mjs <sdk|cli>');
-
-const packageDir = join(ROOT, 'packages', target);
+const packageDir = target ? join(ROOT, 'packages', target) : '';
+if (!target || !existsSync(join(packageDir, 'package.json'))) throw new Error('Usage: copy-assets.mjs <package folder>');
 await copyFile(join(ROOT, 'LICENSE'), join(packageDir, 'LICENSE'));
 if (target === 'sdk') await copyFile(join(ROOT, 'openapi', 'v1.json'), join(packageDir, 'openapi.json'));

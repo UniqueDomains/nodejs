@@ -1,0 +1,62 @@
+{
+  "name": "@uniquedomains/whois",
+  "version": "0.2.0",
+  "description": "WHOIS lookup for Node.js, with history: a domain name's registry record, its DNS and its past records, from code or the ud-whois command.",
+  "license": "MIT",
+  "author": "Unique Domains (https://unique.domains)",
+  "homepage": "https://unique.domains/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniqueDomains/nodejs.git",
+    "directory": "packages/whois"
+  },
+  "bugs": "https://github.com/UniqueDomains/nodejs/issues",
+  "keywords": [
+    "whois",
+    "rdap",
+    "domain",
+    "registry",
+    "dns",
+    "whois-lookup",
+    "unique-domains"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "ud-whois": "dist/bin.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/copy-assets.mjs whois && tsup",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@uniquedomains/sdk": "0.2.0"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "usecase-dns",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/names/get.plumbing/dns",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"qMEl_8zfxKqo41yLcW-u8d2ZN0g\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "35",
+      "x-ratelimit-reset": "2517"
+    },
+    "body": {
+      "data": {
+        "read": true,
+        "ns": [
+          "ns6.afternic.com",
+          "ns5.afternic.com"
+        ],
+        "a": [
+          "76.223.54.146",
+          "13.248.169.48"
+        ],
+        "aaaa": [],
+        "cname": [],
+        "mx": [
+          {
+            "exchange": "",
+            "priority": 0
+          }
+        ],
+        "hasWebsite": true,
+        "parking": "afternic"
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/names/get.plumbing/dns",
+        "next": null,
+        "register": null,
+        "product": "https://app.unique.domains/availability/get.plumbing",
+        "dataset": null
+      }
+    }
+  }
+}
