@@ -2,7 +2,7 @@ name: Release
 
 # A tag `v<version>` publishes every package at that version through npm trusted publishing (plan decision 22): a
 # GitHub-hosted runner, Node 22, npm 11.5.1 or later, an OIDC token and no NODE_AUTH_TOKEN. The first version of each
-# package is published by hand; this workflow takes over once each package has a trusted-publishing configuration for
+# package is a placeholder published by hand (scripts/publish-placeholder.mjs); this workflow takes over once each package has a trusted-publishing configuration for
 # this repository and this file, with direct publishing switched on. A new configuration expires when no publish
 # succeeds within two days, so add it only when the next tag is ready.
 #

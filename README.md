@@ -70,6 +70,7 @@ npm test
 - `node scripts/record-fixtures.mjs --only <names>` records fixtures from the live free API, spending only their calls.
 - `npm run smoke` runs the built CLI against the live free API.
 - A tag `v<version>` publishes every package from GitHub Actions with provenance, the SDK first. The packages share one version, and a tag never carries a pre-release.
+- A new package first gets a placeholder `0.0.1` from `node scripts/publish-placeholder.mjs` (`--dry-run` to see it), since npm sets up trusted publishing only for a package that exists; the tag then publishes its real version with provenance.
 - A publish by hand, `npm publish --workspace packages/<folder>`, builds the package first through its `prepack` script. The SDK goes first: the others depend on it.
 - `shared/usecase/` is bundled into the four use-case packages by their builds; it is not a package of its own.
 

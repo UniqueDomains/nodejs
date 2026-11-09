@@ -3,6 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { manifestOf, packageFolders, placeholderManifest } from '../lib/packages.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -21,6 +22,29 @@ describe('scripts/release-notes.mjs over every package (plan lane N2)', () => {
         const result = spawnSync(process.execPath, [join(ROOT, 'scripts', 'release-notes.mjs'), 'v9.9.9'], { encoding: 'utf8' });
         assert.notEqual(result.status, 0);
         assert.match(result.stderr, /packages\/sdk is /);
+    });
+});
+
+describe('the placeholder of a new package (Gaetan\'s 1A)', () => {
+    const whois = manifestOf('whois');
+    const placeholder = placeholderManifest(whois);
+
+    it('names the package and holds nothing that runs', () => {
+        assert.equal(placeholder.name, '@uniquedomains/whois');
+        assert.equal(placeholder.version, '0.0.1');
+        assert.deepEqual(placeholder.repository, whois.repository);
+        assert.equal(placeholder.publishConfig.access, 'public');
+        for (const key of ['bin', 'dependencies', 'scripts', 'main', 'exports', 'files']) assert.equal(placeholder[key], undefined, key);
+    });
+
+    it('sits below every real version, so the tag\'s becomes latest', () => {
+        for (const folder of packageFolders()) assert.ok(Number(manifestOf(folder).version.split('.')[1]) > 0, folder);
+    });
+
+    it('refuses an unknown option before reading the registry', () => {
+        const result = spawnSync(process.execPath, [join(ROOT, 'scripts', 'publish-placeholder.mjs'), '--publish'], { encoding: 'utf8' });
+        assert.notEqual(result.status, 0);
+        assert.match(result.stderr, /Unknown option --publish/);
     });
 });
 
