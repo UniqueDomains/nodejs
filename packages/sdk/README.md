@@ -1,6 +1,6 @@
 # @uniquedomains/sdk
 
-A typed Node client for the [Unique Domains API](https://unique.domains/api): domain names, words, endings, registrar prices, the domain market, trends and the agenda. Every call is named by its operation id, and its parameters and answer are typed from the API's OpenAPI document.
+A typed Node client for the [Unique Domains API](https://unique.domains/api): domain names, words, endings, registrar prices, the domain market, trends and the agenda. Most of it answers without a key.
 
 ```bash
 npm install @uniquedomains/sdk
@@ -8,101 +8,194 @@ npm install @uniquedomains/sdk
 
 Node 20 or later. ESM and CommonJS.
 
-## The free call
+## The first call
 
+<!-- example: first-call -->
 ```js
 import { createClient } from '@uniquedomains/sdk';
 
 const ud = createClient();
-
-const name = await ud.request('get_name', { path: { name: 'harbor.io' } });
-console.log(name.data.status, name.data.price.firstYear);
-
-const endings = await ud.request('list_tlds', { query: { publicSet: true, limit: 20 } });
-console.log(endings.data.map((row) => row.tld));
+const name = await ud.names.get('harbor.io');
+console.log(name.status);
 ```
 
-Every answer is the API's envelope, `data`, `meta` and `links`, plus what its headers said: `status`, `etag`, `quota`, `rateLimit`, `retryAfter` and `location`. A list carries `meta.cursor`; pass it back as `query.cursor` for the next page.
+A method answers the API's `data`, typed from its OpenAPI document. The methods are grouped by what they read: `names`, `words`, `domains`, `tlds`, `prices` (registrars, venues and IANA too), `market`, `trends`, `agenda`, `editions` and `meta`. Your editor lists each group's methods, each with an example.
 
-The operation ids are the names on the [API reference](https://unique.domains/api). `OPERATIONS` lists them all with their method, path, parameters and access. A misspelled parameter is a compile error.
+Without a key you read the free endpoints, within a limit per hour and per day from one address. The [API page](https://unique.domains/api) gives the figures.
 
-When the operation id is only known at run time (a command or tool loop), use `requestOperation`. It makes the same call, and answers one of the three kinds to narrow. Before the call it checks the format, `fields`, `include` and dot path values against `OPERATIONS`. It does not check the other parameters: a misspelled, missing or wrongly typed one goes to the API, which answers 400 `validation_failed`. Check them yourself from `OPERATIONS[id].parameters` when you need to fail earlier.
+The examples below continue from this one: `ud` is the client created here.
 
+## A name's registry record
+
+<!-- example: registry -->
 ```js
-import { isOperationId } from '@uniquedomains/sdk';
+const record = await ud.names.registry('harbor.io');
+console.log(record.registrar, record.expiresAt);
+```
 
-if (isOperationId(id)) {
-    const answer = await ud.requestOperation(id, { path, query });
-    if (answer.notModified) { /* a 304 */ }
-    else if ('text' in answer) console.log(answer.text);
-    else console.log(answer.data);
+## What registrars charge for an ending
+
+<!-- example: tld-prices -->
+```js
+const prices = await ud.prices.tld('io');
+for (const row of prices) console.log(row.name, row.purchasePrice, row.renewalPrice);
+```
+
+## Every page of a list
+
+`await` on a list answers its first page. Loop over the call instead and the client fetches the next page when the rows of the current one run out, until the last page:
+
+<!-- example: every-row -->
+```js
+for await (const ending of ud.tlds.list({ publicSet: true, limit: 2, fields: ['tld', 'kind'] })) {
+    console.log(ending.tld, ending.kind);
 }
 ```
+
+`limit` is the size of a page. `maxRows` stops the loop after that many rows. `.pages()` walks whole pages, with their `meta`:
+
+<!-- example: pages -->
+```js
+for await (const page of ud.tlds.list({ publicSet: true, limit: 2, fields: ['tld', 'kind'], maxRows: 4 }).pages()) {
+    console.log(page.data.length, page.meta.cursor);
+}
+```
+
+## The whole answer
+
+`.withMeta()` answers everything the API sent: `data`, `meta` and `links`, plus what the headers said: `etag`, `rateLimit` (the keyless window), `quota` (a member key's month), `retryAfter`, `location` and `headers` itself.
+
+<!-- example: with-meta -->
+```js
+const { data, meta, links, etag, rateLimit } = await ud.names.get('harbor.io').withMeta();
+console.log(data.status, meta.asOf, links.self, etag, rateLimit?.remaining);
+```
+
+A call is sent once, when it is first awaited or looped over. Awaiting it again, or asking for `.withMeta()` after, reads the same answer.
+
+## Errors
+
+An answer that is not a success throws an `ApiProblemError`, or one of its kinds, chosen by the problem's code:
+
+<!-- example: errors -->
+```js
+import { ApiProblemError, PlanRequiredError, RateLimitError } from '@uniquedomains/sdk';
+
+try {
+    await ud.names.prices('harbor.io');
+} catch (error) {
+    if (error instanceof PlanRequiredError) console.log('Needs a key:', error.product);
+    else if (error instanceof RateLimitError) console.log('Wait', error.retryAfter, 'seconds');
+    else if (error instanceof ApiProblemError) console.log(error.status, error.code, error.detail);
+    else throw error;
+}
+```
+
+| Kind | Codes |
+|---|---|
+| `RateLimitError` | `rate_limited`: wait `retryAfter` seconds |
+| `QuotaError` | `quota_spent`, `budget_spent`, `consumer_day_cap`, `intake_day_cap` |
+| `PlanRequiredError` | `keyed_only`, `plan_required`: `product` says where to get it |
+| `NotFoundError` | `not_found` |
+| `ValidationError` | `validation_failed`, `cursor_invalid`, `unsupported_field`, `unsupported_format` |
+| `AuthError` | `invalid_key`, `invalid_proxy_secret`, `listing_mismatch` |
+| `NotReadyError` | `not_ready`, `check_unavailable`, `gate_unavailable` |
+| `WordRejectedError` | `invalid_word`, `disabled_in_catalog`, `not_a_word`, `brand`, `offensive` |
+
+Every kind is an `ApiProblemError`, with `status`, `code`, `detail`, `retryAfter`, `product`, `quota`, `rateLimit` and the whole problem body in `problem` (with members such as `reason` and `suggestion`). Any other code stays a plain `ApiProblemError`. `code` is `unexpected_response` when the answer was not the API's: an error without a problem body (a RapidAPI refusal, a proxy's page) or a success that is not the API's JSON. Its message is in `detail` and the body in `error.problem.raw`. A network failure stays the runtime's own error from `fetch`.
+
+## Retry
+
+<!-- example: retry -->
+```js
+const ud = createClient({ retry: true });
+const name = await ud.names.get('harbor.io');
+console.log(name.status);
+```
+
+With `retry`, the client tries a call again after a `rate_limited` answer whose `Retry-After` is short enough, a 503 `not_ready` or `check_unavailable`, a 5xx without a problem body, and a network failure. It waits the `Retry-After` when the answer gives one, otherwise a random time within a limit that doubles at each try. A POST is tried again only after the `rate_limited` answer, where the API refused the call without running it. `retry: true` tries a call up to 3 times and waits at most 30 seconds; `retry: { attempts: 5, maxDelayMs: 10_000 }` changes both.
+
+Without `retry`, the client tries again once, after a `rate_limited` answer with `Retry-After: 1`. Any other wait is yours to decide, so it throws.
 
 ## A member key
 
 The Founder and Investor plans include the API with a key of your own. Create it in the product under Settings, Account, API.
 
+<!-- example: member-key fixture -->
 ```js
-const ud = createClient({ apiKey: 'ud_live_...' });
+const ud = createClient({ apiKey: process.env.UD_API_KEY });
+const key = await ud.meta.key();
+console.log(key.plan, key.calls);
 ```
 
-Or set `UD_API_KEY` and call `createClient()`. Pass `apiKey: null` to call without a key even when `UD_API_KEY` is set.
+`createClient()` reads `UD_API_KEY` by itself; pass `apiKey: null` to call without a key even when it is set. Keep the key on a server: a page a visitor loads shows it to everyone.
 
-A member key's answers carry its month in `quota`: `limit`, `remaining`, `resetsAt`, and the metered unit a call spends (`unit`). `request('get_key')` reads the key's plan and month without spending a call.
+A member key's answers carry its month in `quota` (from `.withMeta()`): `limit`, `remaining`, `resetsAt`, and the metered unit a call spends (`unit`). `ud.meta.key()` reads the key's plan and month without spending a call.
 
 ## A RapidAPI key
 
 The API is also on RapidAPI as sixteen listings, each on its own host. Pass your RapidAPI key and the listing it subscribes to:
 
+<!-- example: rapidapi fixture -->
 ```js
 const ud = createClient({ rapidApi: { key: process.env.RAPIDAPI_KEY, listing: 'whois' } });
-const record = await ud.request('get_name_registry', { path: { name: 'harbor.io' } });
+const record = await ud.names.registry('harbor.io');
+console.log(record.registrar);
 ```
 
 A listing serves its own operations and the shared `/meta` and `/editions` paths. Calling another operation throws `ListingMismatchError` before any request, with the listings that serve it in `servedBy`. `LISTINGS` holds each listing's id, host and operations.
 
-## Errors
+## `request`, for tools and loops
 
-Every answer that is not a success throws `ApiProblemError`, read from the API's problem body:
+Every method is one operation of the API, and `request` calls an operation by its id, the name on the [API reference](https://unique.domains/api). It answers the whole envelope with its facts, as `.withMeta()` does. `OPERATIONS` lists every id with its method, path, parameters and access, and `NAMESPACE_METHODS` maps each method to its id.
 
+<!-- example: request -->
 ```js
-import { ApiProblemError } from '@uniquedomains/sdk';
+const answer = await ud.request('get_name', { path: { name: 'harbor.io' } });
+console.log(answer.data.status, answer.etag);
+```
 
-try {
-    await ud.request('get_name_prices', { path: { name: 'harbor.io' } });
-} catch (error) {
-    if (error instanceof ApiProblemError) {
-        console.log(error.status, error.code, error.detail);
-        // error.product: where to get what was refused, on a plan or tier refusal
-        // error.retryAfter: seconds to wait, on a 429 or a 503
-        // error.problem: the whole body, with members such as reason and suggestion
-    }
+When the id is only known at run time (a command or tool loop), use `requestOperation`. It makes the same call and answers one of three kinds to narrow. Before the call it checks the format, `fields`, `include` and dot path values against `OPERATIONS`. It does not check the other parameters: a misspelled, missing or wrongly typed one goes to the API, which answers 400 `validation_failed`.
+
+<!-- example: request-operation -->
+```js
+import { isOperationId } from '@uniquedomains/sdk';
+
+const id = 'list_tlds';
+if (isOperationId(id)) {
+    const answer = await ud.requestOperation(id, { query: { limit: 3 } });
+    if (answer.notModified) console.log('unchanged');
+    else if ('text' in answer) console.log(answer.text);
+    else console.log(answer.data);
 }
 ```
 
-`code` is one of the API's problem codes (`validation_failed`, `keyed_only`, `plan_required`, `rate_limited`, `quota_spent`, `not_found` and the rest), or `unexpected_response` when the answer was not the API's: an error without a problem body (a RapidAPI refusal, a proxy's page) or a success that is not the API's JSON. Its message is in `detail` and the body in `error.problem.raw`. A network failure stays the runtime's own error from `fetch`.
-
-The client retries once by itself, after a `rate_limited` answer with `Retry-After: 1`. Any other wait is yours to decide, so it throws.
-
 ## Formats, fields and caching
 
+`fields` keeps some top-level keys of an answer and `include` adds optional blocks, where the operation offers them. Both go in a method's options. With `fields`, the answer is still typed as the whole row: a key you did not keep is missing at run time.
+
+<!-- example: include fixture -->
 ```js
-// The .csv form, on the list endpoints that have one
-const csv = await ud.request('list_tlds', { query: { limit: 100 }, format: 'csv' });
-console.log(csv.text);
-
-// Keep some top-level keys, or add optional blocks, where the operation offers them
-await ud.request('get_name', { path: { name: 'harbor.io' }, fields: ['name', 'status', 'price'] });
-await ud.request('get_word_endings', { path: { word: 'harbor' }, include: ['cheapest'] });
-
-// Ask again only when the answer changed
-const first = await ud.request('get_name', { path: { name: 'harbor.io' } });
-const again = await ud.request('get_name', { path: { name: 'harbor.io' }, ifNoneMatch: first.etag });
-if (again.notModified) console.log('unchanged');
+const endings = await ud.words.endings('harbor', { include: ['cheapest'] });
+console.log(endings.endings);
 ```
 
-With `fields`, the answer is still typed as the whole row: a key you did not keep is missing at run time. `ifNoneMatch` is the one way to send `If-None-Match`; the header is removed from `headers`. The calendar feeds (`get_events_ics`, `get_agenda_ics`), `get_llms_txt` and `get_openapi` answer text in `text`.
+The `.csv` form of a list and the `If-None-Match` question go through `request`, since their answers carry no `data`:
+
+<!-- example: csv -->
+```js
+const csv = await ud.request('list_tlds', { query: { limit: 3 }, format: 'csv' });
+console.log(csv.text);
+```
+
+<!-- example: etag -->
+```js
+const first = await ud.names.get('harbor.io').withMeta();
+const again = await ud.request('get_name', { path: { name: 'harbor.io' }, ifNoneMatch: first.etag });
+console.log(again.notModified ? 'unchanged' : again.data.status);
+```
+
+`ifNoneMatch` is the one way to send `If-None-Match`; the header is removed from `headers`. The calendar feeds (`ud.meta.eventsIcs()`, `ud.meta.agendaIcs()`), `ud.meta.llmsTxt()` and `ud.meta.openapi()` answer their text.
 
 ## Links
 
@@ -110,7 +203,7 @@ An answer's `links` say where to go next. A name you can buy carries `links.regi
 
 ## The datasets
 
-Some lists are also public datasets on GitHub, refreshed by the same scanner (`request('list_meta_datasets')` reads this list):
+Some lists are also public datasets on GitHub, refreshed by the same scanner (`ud.meta.datasets()` reads this list):
 
 | Dataset | Endpoint |
 |---|---|

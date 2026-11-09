@@ -6,3 +6,5 @@ dist/
 packages/sdk/openapi.json
 # Copied from the root by each package's build so the tarball carries them.
 packages/*/LICENSE
+# Generated from the READMEs by scripts/readme-examples.mjs, on every `npm test`.
+test/readme/*.generated.mjs

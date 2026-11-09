@@ -19,10 +19,11 @@
     "generate": "node scripts/generate.mjs",
     "build": "npm run build --workspace packages/sdk && npm run build --workspace packages/cli",
     "typecheck": "tsc -p packages/sdk --noEmit && tsc -p packages/sdk/typetests && tsc -p packages/cli --noEmit",
-    "test": "node --test packages/*/test/*.test.mjs scripts/test/*.test.mjs",
+    "test": "node --test packages/*/test/*.test.mjs scripts/test/*.test.mjs test/*.test.mjs",
     "check:text": "node scripts/check-text.mjs",
     "check:pack": "node scripts/check-pack.mjs",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "examples:live": "node scripts/readme-examples.mjs --live"
   },
   "devDependencies": {
     "@types/node": "22.20.5",
