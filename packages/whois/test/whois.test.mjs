@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { createClient, dns, PlanRequiredError, whois, whoisHistory } from '../dist/index.js';
-import { loadRecorded, startFixtureServer } from '../../../test/support/fixture-server.mjs';
+import { FOUNDER_KEY, loadRecorded, startFixtureServer } from '../../../test/support/fixture-server.mjs';
 import { runBin } from '../../../test/support/run-bin.mjs';
 
 const KEY = 'ud_live_usecase';
@@ -38,6 +38,20 @@ describe('@uniquedomains/whois', () => {
             assert.equal(error.code, 'keyed_only');
             return true;
         });
+    });
+
+    it('throws PlanRequiredError on the history with a Founder key: it is an Investor endpoint', async () => {
+        await assert.rejects(whoisHistory('get.plumbing', { apiKey: FOUNDER_KEY, baseUrl: server.base }), (error) => {
+            assert.ok(error instanceof PlanRequiredError);
+            assert.equal(error.code, 'plan_required');
+            return true;
+        });
+    });
+
+    it('sends headers on the call when it is given a client', async () => {
+        const client = createClient({ apiKey: null, baseUrl: server.base });
+        await whois('get.plumbing', { client, headers: { 'x-trace': 'abc' } });
+        assert.equal(last().headers['x-trace'], 'abc');
     });
 
     it('reads a key from the environment, as the SDK does', async () => {
@@ -98,7 +112,7 @@ describe('ud-whois', () => {
 
     it('exits 2 on a usage error and makes no call', async () => {
         const before = server.requests.length;
-        for (const args of [['a.io', 'b.io'], ['a.io', '--nope'], ['a.io', '--key'], ['--key', 'k'], ['a.io', '--json=maybe'], ['a.io', '--base', 'ftp://x'], ['..'], [''], ['a.io', '--listing', 'whois']]) {
+        for (const args of [['a.io', 'b.io'], ['a.io', '--nope'], ['a.io', '--key'], ['--key', 'k'], ['a.io', '--json=maybe'], ['a.io', '--base', 'ftp://x'], ['..'], ['...'], [' '], [''], ['a.io', '--listing', 'whois']]) {
             const { code, stderr } = await runBin('whois', args);
             assert.equal(code, 2, args.join(' '));
             assert.match(stderr, /Run ud-whois --help/);

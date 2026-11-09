@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { cheapest, MAX_CHEAPEST_TLDS, PlanRequiredError, priceChanges, priceHistory, pricesForTld, renewalTraps } from '../dist/index.js';
-import { loadRecorded, startFixtureServer } from '../../../test/support/fixture-server.mjs';
+import { FOUNDER_KEY, loadRecorded, startFixtureServer } from '../../../test/support/fixture-server.mjs';
 import { runBin } from '../../../test/support/run-bin.mjs';
 
 const KEY = 'ud_live_usecase';
@@ -47,8 +47,13 @@ describe('@uniquedomains/registrar-prices', () => {
         assert.deepEqual(rows.map((row) => row.ending), ['ai', 'io']);
     });
 
-    it('refuses an empty list and one over the limit before any call', () => {
+    it('throws PlanRequiredError on the price history with a Founder key', async () => {
+        await assert.rejects(priceHistory('io', { apiKey: FOUNDER_KEY, baseUrl: server.base }), PlanRequiredError);
+    });
+
+    it('refuses a string, an empty list and one over the limit before any call', () => {
         const before = server.requests.length;
+        assert.throws(() => cheapest('ai,io', keyed()), TypeError);
         assert.throws(() => cheapest([], keyed()), RangeError);
         assert.throws(() => cheapest(Array.from({ length: MAX_CHEAPEST_TLDS + 1 }, () => 'io'), keyed()), /1 to 100 endings, not 101/);
         assert.equal(server.requests.length, before);
@@ -108,7 +113,7 @@ describe('ud-prices', () => {
     it('exits 1 on a keyed mode without a key, and 2 on arguments that cannot call', async () => {
         assert.equal((await runBin('registrar-prices', ['--cheapest', 'ai,io', ...base()])).code, 1);
         const before = server.requests.length;
-        for (const args of [['--traps', '--changes'], ['--traps', 'io'], ['--changes', 'io'], ['--cheapest', ' , ', '--key', KEY], ['a', 'b'], ['--history'], ['--cheapest', 'ai', 'io', '--key', KEY]]) {
+        for (const args of [['--traps', '--changes'], ['--traps', 'io'], ['--changes', 'io'], ['--cheapest', ' , ', '--key', KEY], ['a', 'b'], ['...'], ['--history'], ['--cheapest', 'ai', 'io', '--key', KEY]]) {
             assert.equal((await runBin('registrar-prices', [...args, ...base()])).code, 2, args.join(' '));
         }
         assert.equal(server.requests.length, before);

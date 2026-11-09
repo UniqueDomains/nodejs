@@ -15,9 +15,11 @@ const lookUp = async (name: string): Promise<Lookup> => {
     }
 };
 
-export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name?: string }> }) {
-    const name = (await searchParams).name?.trim();
-    const lookup = name ? await lookUp(name) : null;
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name?: string | string[] }> }) {
+    // The address is the visitor's: `?name=a&name=b` is a list, and a name of dots alone would change the API path.
+    const typed = (await searchParams).name;
+    const name = typeof typed === 'string' ? typed.trim() : undefined;
+    const lookup = name && !/^\.*$/.test(name) ? await lookUp(name) : null;
 
     return (
         <main>

@@ -1,6 +1,6 @@
 # Registrar price comparison for Node.js
 
-See what registrars charge for a domain ending, from Node.js or the command line. Every registrar's list price, the endings whose cheap first year hides a dear renewal, and the newest price changes are free and need no key. The cheapest registrar across many endings needs a key, and an ending's price history needs a key on the Investor plan.
+See what registrars charge for a domain ending, from Node.js or the command line. Every registrar's list price, the endings whose cheap first year hides a high renewal, and the newest price changes are free and need no key. The cheapest registrar across many endings needs a key, and an ending's price history needs a key on the Investor plan.
 
 ```bash
 npx @uniquedomains/registrar-prices io
@@ -48,7 +48,7 @@ const changes = await priceChanges();
 for (const change of changes) console.log(change.extension, change.registrarName, change.oldPrice, change.newPrice);
 ```
 
-With a key, `priceChanges` and `renewalTraps` read every row: pass the filters the API documents (`ending`, `registrar`, `since`), and loop with `for await` to walk the pages.
+With a key, `priceChanges` and `renewalTraps` read every row, and a `for await` loop walks the pages. `priceChanges` also takes the filters `ending`, `registrar`, `field` and `since`.
 
 ## With a key
 
@@ -104,7 +104,7 @@ A table on a terminal, JSON in a pipe. `ud-prices --help` lists the flags.
 Without a key you read the free calls, within a limit per hour and per day from one address. Every function also takes a key, and reads `UD_API_KEY` from the environment when you pass none. Keep a key on a server: a page a visitor loads shows it to everyone.
 
 - **A member key.** The Founder and Investor plans include the API with a key of your own, and the price history needs the Investor plan. See [the plans](https://unique.domains/pricing).
-- **A RapidAPI subscription.** [Domain Price Comparison on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-price-comparison) serves everything here but the history: pass `{ rapidApi: { key, listing: 'price-comparison' } }`. The history is on [Registrar Prices](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/registrar-prices), with `listing: 'registrars'`.
+- **A paid RapidAPI plan.** [Domain Price Comparison on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-price-comparison) serves everything here but the history: pass `{ rapidApi: { key, listing: 'price-comparison' } }`. The history is on [Registrar Prices](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/registrar-prices), with `listing: 'registrars'`. RapidAPI's free Basic plan reads the free calls only.
 
 The [Domain price comparison API page](https://unique.domains/api/price-comparison) shows the answer and its fields, and you can run the call there.
 

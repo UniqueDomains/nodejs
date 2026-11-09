@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { AVAILABILITY_FIELDS, availability, availabilityBatch, check, MAX_BATCH_NAMES, PlanRequiredError } from '../dist/index.js';
-import { loadRecorded, startFixtureServer } from '../../../test/support/fixture-server.mjs';
+import { FOUNDER_KEY, loadRecorded, startFixtureServer } from '../../../test/support/fixture-server.mjs';
 import { runBin } from '../../../test/support/run-bin.mjs';
 
 const KEY = 'ud_live_usecase';
@@ -55,8 +55,13 @@ describe('@uniquedomains/domain-availability', () => {
         assert.equal(answers[2].error, 'validation_failed');
     });
 
-    it('refuses an empty list and one over the limit before any call', () => {
+    it('throws PlanRequiredError on many names with a Founder key', async () => {
+        await assert.rejects(availabilityBatch(['get.plumbing'], { apiKey: FOUNDER_KEY, baseUrl: server.base }), PlanRequiredError);
+    });
+
+    it('refuses a string, an empty list and one over the limit before any call', () => {
         const before = server.requests.length;
+        assert.throws(() => availabilityBatch('get.plumbing', keyed()), TypeError);
         assert.throws(() => availabilityBatch([], keyed()), RangeError);
         assert.throws(() => availabilityBatch(Array.from({ length: MAX_BATCH_NAMES + 1 }, (_, index) => `n${index}.io`), keyed()), /1 to 100 names, not 101/);
         assert.equal(server.requests.length, before);

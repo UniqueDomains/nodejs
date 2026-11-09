@@ -15,7 +15,7 @@ import { createClient, type ClientOptions, type UniqueDomainsClient } from '@uni
 ----------------------------------*/
 
 export type ConnectionOptions = ClientOptions & {
-    /** A client already made with `createClient`: reuses it, and the other connection options are ignored. */
+    /** A client already made with `createClient`: reuses it. The other connection options are ignored, `headers` apart. */
     client?: UniqueDomainsClient;
 };
 
@@ -35,5 +35,7 @@ export const connect = <T extends ConnectionOptions>(options: T | undefined) => 
         ...(userAgent !== undefined ? { userAgent } : {}),
         ...(retry !== undefined ? { retry } : {}),
     };
-    return { ud: client ?? createClient(connection), call: call as Omit<T, keyof ConnectionOptions> };
+    // With a client already made, `headers` can only go on this call: the other connection options are the client's.
+    const callHeaders = client && headers !== undefined ? { headers } : {};
+    return { ud: client ?? createClient(connection), call: { ...call, ...callHeaders } as Omit<T, keyof ConnectionOptions> };
 };

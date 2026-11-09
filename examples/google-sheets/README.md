@@ -12,7 +12,7 @@ A custom function for Google Sheets, written in Apps Script with no library and 
 
 1. In your sheet, open Extensions, then Apps Script.
 2. Paste [`Code.gs`](Code.gs) and save.
-3. Type the formula in a cell. Google asks once for the permission to reach an outside address.
+3. Type the formula in a cell. A custom function asks for no permission.
 
 The field is any path in the answer of [`GET /names/{name}`](https://unique.domains/api/get-name). A name the catalog never stored answers `not_checked` as its status.
 

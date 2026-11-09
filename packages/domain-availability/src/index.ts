@@ -64,6 +64,7 @@ export const check = (name: string, options?: ConnectionOptions & CallOptions<'c
  * const answers = await availabilityBatch(['get.plumbing', 'domain.recipes'], { apiKey: process.env.UD_API_KEY });
  */
 export const availabilityBatch = (names: readonly string[], options?: BatchOptions): OperationCall<'batch_names'> => {
+    if (!Array.isArray(names)) throw new TypeError('availabilityBatch takes a list of names.');
     if (names.length === 0 || names.length > MAX_BATCH_NAMES) throw new RangeError(`availabilityBatch takes 1 to ${MAX_BATCH_NAMES} names, not ${names.length}.`);
     const { ud, call } = connect(options);
     return ud.names.batch({ ...call, names: [...names] });

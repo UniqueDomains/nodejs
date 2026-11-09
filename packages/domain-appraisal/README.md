@@ -52,14 +52,14 @@ try {
 
 ## A fresh appraisal
 
-Runs the appraisal when a stored name's estimate is missing, and answers the value. It needs a key on the Investor plan, and spends one Appraisal unit when this call starts a run; a fresh estimate spends none. The name must be stored already: [`check` in `@uniquedomains/domain-availability`](https://www.npmjs.com/package/@uniquedomains/domain-availability) stores it.
+Runs the appraisal when a stored name's estimate is missing, and answers the value. It needs a key on the Investor plan, and spends one Appraisal unit when this call starts a run; a fresh estimate spends none. When another call holds the run, the API answers 202 with what is stored so far, so `current` may be `null`: ask again in about 30 seconds. The name must be stored already: [`check` in `@uniquedomains/domain-availability`](https://www.npmjs.com/package/@uniquedomains/domain-availability) stores it.
 
 <!-- example: appraise fixture -->
 ```js
 import { appraise } from '@uniquedomains/domain-appraisal';
 
 const { current } = await appraise('get.plumbing', { apiKey: process.env.UD_API_KEY });
-console.log(current.value);
+console.log(current ? current.value : 'Still running: ask again in about 30 seconds.');
 ```
 
 ## The command
@@ -77,7 +77,7 @@ A table on a terminal, JSON in a pipe. `ud-appraise --help` lists the flags.
 Without a key you read the comparable sales, within a limit per hour and per day from one address. Every function also takes a key, and reads `UD_API_KEY` from the environment when you pass none. Keep a key on a server: a page a visitor loads shows it to everyone.
 
 - **A member key.** The Founder and Investor plans include the API with a key of your own, and a fresh appraisal needs the Investor plan. See [the plans](https://unique.domains/pricing).
-- **A RapidAPI subscription.** [Domain Appraisal on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-appraisal3) serves all three: pass `{ rapidApi: { key, listing: 'appraisal' } }`.
+- **A paid RapidAPI plan.** [Domain Appraisal on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-appraisal3) serves all three: pass `{ rapidApi: { key, listing: 'appraisal' } }`. RapidAPI's free Basic plan reads the free calls only.
 
 The [Domain appraisal API page](https://unique.domains/api/appraisal) shows the answer and its fields, and you can run the free call there.
 

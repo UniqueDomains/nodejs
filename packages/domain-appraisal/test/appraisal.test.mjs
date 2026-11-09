@@ -42,6 +42,12 @@ describe('@uniquedomains/domain-appraisal', () => {
         assert.equal(current.value, 4200);
     });
 
+    it('answers current null and status 202 on a run another call holds', async () => {
+        const answer = await appraise('running.io', keyed()).withMeta();
+        assert.equal(answer.status, 202);
+        assert.equal(answer.data.current, null);
+    });
+
     it('throws PlanRequiredError on a fresh appraisal with a Founder key or none', async () => {
         await assert.rejects(appraise('get.plumbing', { apiKey: FOUNDER_KEY, baseUrl: server.base }), (error) => {
             assert.ok(error instanceof PlanRequiredError);
@@ -58,6 +64,13 @@ describe('@uniquedomains/domain-appraisal', () => {
 
 describe('ud-appraise', () => {
     const base = () => ['--base', server.base];
+
+    it('on a run still going, says where the answer will be, never that no value is stored', async () => {
+        const { code, stdout, stderr } = await runBin('domain-appraisal', ['running.io', '--run', '--no-json', '--key', KEY, ...base()]);
+        assert.equal(code, 0);
+        assert.doesNotMatch(stdout, /No value is stored/);
+        assert.match(stderr, /Accepted: the full answer will be at https:\/\/api\.unique\.domains\/v1\/names\/running\.io\/value in about 30 seconds/);
+    });
 
     it('prints the comparable sales first, as JSON in a pipe and as a table with --no-json', async () => {
         const json = await runBin('domain-appraisal', ['get.plumbing', ...base()]);

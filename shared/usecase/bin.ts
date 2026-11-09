@@ -208,7 +208,8 @@ const printAnswer = (answer: Answer, action: BinAction, asJson: boolean, io: Io)
     if (asJson) {
         io.stdout.write(`${JSON.stringify(answer.data, null, 2)}\n`);
     } else {
-        const sentence = action.empty?.(answer.data as never) ?? null;
+        // A 202 is a run still going: its empty answer says nothing yet, and the line below says what to do.
+        const sentence = answer.status === 202 ? null : action.empty?.(answer.data as never) ?? null;
         io.stdout.write(line(sentence ?? renderData(answer.data, { width: io.columns })));
         if (answer.links?.register) io.stdout.write(line(`\nRegister: ${answer.links.register}`));
     }
@@ -231,8 +232,9 @@ export const runBin = async (spec: BinSpec, argv: readonly string[], io: Io): Pr
             io.stdout.write(renderHelp(spec));
             return 0;
         }
-        // The URL parser would resolve these away and call another path; the SDK throws a bare TypeError on them.
-        const unusable = args.positionals.find((value) => value === '' || value === '.' || value === '..');
+        // Only dots or spaces: the URL parser would resolve them away and the SDK throws a bare TypeError, also after
+        // `registrar-prices` takes a leading dot off an ending (`...`, `' '`).
+        const unusable = args.positionals.find((value) => /^[.\s]*$/.test(value));
         if (unusable !== undefined) throw new UsageError(`An argument cannot be "${unusable}".`);
         const action = spec.plan(args, resolveConnection(args, spec, io.env));
         const answer = await action.call.withMeta() as Answer;

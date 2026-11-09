@@ -75,7 +75,7 @@ A table on a terminal, JSON in a pipe. The bin is `ud-whois`, so it never shadow
 Without a key you read the free calls, within a limit per hour and per day from one address. Every function also takes a key, and reads `UD_API_KEY` from the environment when you pass none. Keep a key on a server: a page a visitor loads shows it to everyone.
 
 - **A member key.** The Founder and Investor plans include the API with a key of your own, and the history needs the Investor plan. See [the plans](https://unique.domains/pricing).
-- **A RapidAPI subscription.** [WHOIS Lookup on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/whois-lookup24) serves the record and the history: pass `{ rapidApi: { key, listing: 'whois' } }`. `dns` is not part of that listing; it is on [Domain Check](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-check18).
+- **A paid RapidAPI plan.** [WHOIS Lookup on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/whois-lookup24) serves the record and the history: pass `{ rapidApi: { key, listing: 'whois' } }`. `dns` is not part of that listing; it is on [Domain Check](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-check18). RapidAPI's free Basic plan reads the free calls only.
 
 The [WHOIS API page](https://unique.domains/api/whois) shows the record and its fields, and you can run the call there.
 

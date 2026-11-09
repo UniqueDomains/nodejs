@@ -2,7 +2,7 @@
 - @uniquedomains/registrar-prices
 ----------------------------------*/
 
-/** What registrars charge for an ending, where a first year hides a dear renewal, and what moved. */
+/** What registrars charge for an ending, where a first year hides a high renewal, and what moved. */
 
 import type { CallOptions, OperationCall } from '@uniquedomains/sdk';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
@@ -71,6 +71,7 @@ export const priceChanges = (options?: ConnectionOptions & CallOptions<'list_pri
  * const rows = await cheapest(['ai', 'io'], { apiKey: process.env.UD_API_KEY });
  */
 export const cheapest = (tlds: readonly string[], options?: ConnectionOptions & Omit<CallOptions<'list_cheapest_prices'>, 'tlds'>): OperationCall<'list_cheapest_prices'> => {
+    if (!Array.isArray(tlds)) throw new TypeError('cheapest takes a list of endings.');
     if (tlds.length === 0 || tlds.length > MAX_CHEAPEST_TLDS) throw new RangeError(`cheapest takes 1 to ${MAX_CHEAPEST_TLDS} endings, not ${tlds.length}.`);
     const { ud, call } = connect(options);
     return ud.prices.cheapest({ ...call, tlds: tlds.map(endingOf).join(',') });

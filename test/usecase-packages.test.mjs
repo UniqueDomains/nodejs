@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LISTINGS, OPERATIONS } from '../packages/sdk/dist/index.js';
+import { LISTINGS, NAMESPACE_METHODS, OPERATIONS } from '../packages/sdk/dist/index.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const HUB = 'https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/';
@@ -103,11 +103,16 @@ describe('the use-case packages (plan decision 18)', () => {
                 const source = read(spec.dir, 'src/index.ts');
                 for (const [name, id] of Object.entries(spec.functions)) {
                     assert.ok(OPERATIONS[id], id);
-                    assert.match(source, new RegExp(`export const ${name} = [\\s\\S]*?'${id}'`), `${name} reads ${id}`);
+                    const called = new RegExp(`export const ${name} = [\\s\\S]*?return ud\\.(\\w+)\\.(\\w+)\\(`).exec(source);
+                    assert.ok(called, `${name} calls a namespaced method`);
+                    assert.equal(NAMESPACE_METHODS[called[1]][called[2]], id, `${name} calls ud.${called[1]}.${called[2]}`);
                     const operation = operationOf(id);
+                    // The words right before the function's first call: its own section, up to that call.
                     const words = sectionOfFunction(readme, name);
-                    if (operation['x-tier'] === 'keyed') assert.match(`${words} ${readme.split('\n')[2]}`, /needs? a key|with a key/i, `${name} needs a key`);
-                    if (operation['x-plan'] === 'investor') assert.match(readme, new RegExp(`Investor`), name);
+                    if (operation['x-tier'] === 'keyed') assert.match(words, /needs? a key|## With a key/i, `${name} needs a key`);
+                    else assert.doesNotMatch(words, /needs? a key/i, `${name} is free`);
+                    if (operation['x-plan'] === 'investor') assert.match(words, /Investor plan/, `${name} needs the Investor plan`);
+                    else assert.doesNotMatch(words, /Investor plan/, `${name} needs no Investor plan`);
                 }
             });
 

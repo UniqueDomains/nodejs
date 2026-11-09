@@ -36,7 +36,7 @@ const answer = await check('get.plumbing', { apiKey: process.env.UD_API_KEY });
 console.log(answer.status, answer.checked);
 ```
 
-`checked` is `false` when the answer came from storage and no unit was spent. Without a key, the call throws a `PlanRequiredError`:
+`checked` is `false` when the answer came from storage and no unit was spent. When the registry was asked and did not conclude, the API answers 202 with what is stored so far, and `.withMeta()` carries that `status`. Without a key, the call throws a `PlanRequiredError`:
 
 <!-- example: refused -->
 ```js
@@ -77,7 +77,7 @@ A table on a terminal, JSON in a pipe. `ud-availability --help` lists the flags.
 Without a key you read the stored answer, within a limit per hour and per day from one address. Every function also takes a key, and reads `UD_API_KEY` from the environment when you pass none. Keep a key on a server: a page a visitor loads shows it to everyone.
 
 - **A member key.** The Founder and Investor plans include the API with a key of your own, and many names at once need the Investor plan. See [the plans](https://unique.domains/pricing).
-- **A RapidAPI subscription.** [Domain Availability on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-availability14) serves all three: pass `{ rapidApi: { key, listing: 'availability' } }`.
+- **A paid RapidAPI plan.** [Domain Availability on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-availability14) serves all three: pass `{ rapidApi: { key, listing: 'availability' } }`. RapidAPI's free Basic plan reads the free calls only.
 
 The [Domain availability API page](https://unique.domains/api/availability) shows the answer and its fields, and you can run the call there.
 
