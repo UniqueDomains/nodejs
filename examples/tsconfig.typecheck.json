@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "preserve",
+    "allowJs": true,
+    "checkJs": true,
+    "types": ["node", "react"],
+    "paths": {
+      "@uniquedomains/sdk": ["../packages/sdk/src/index.ts"]
+    }
+  },
+  "include": ["nextjs-domain-search/app", "availability-widget/widget.js"]
+}

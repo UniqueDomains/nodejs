@@ -1,5 +1,8 @@
 node_modules/
 dist/
+# The Next.js example's build, when it runs from this folder.
+.next/
+next-env.d.ts
 *.tgz
 .DS_Store
 # Copied from openapi/v1.json by the SDK build so the package ships the snapshot (`@uniquedomains/sdk/openapi.json`).

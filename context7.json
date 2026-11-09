@@ -1,0 +1,12 @@
+{
+  "projectTitle": "Unique Domains API (Node SDK)",
+  "description": "Node.js clients for the Unique Domains API: domain names, registry records, availability, registrar prices, comparable sales and the domain market.",
+  "folders": ["packages", "examples"],
+  "excludeFolders": ["test", "typetests", "generated", "dist", "node_modules"],
+  "rules": [
+    "The API works without a key on its free endpoints: 60 calls an hour and 100 a UTC day from one address.",
+    "A key belongs on a server, never in a page a visitor loads.",
+    "Prefer the namespaced methods of @uniquedomains/sdk (ud.names.get) over request, and the use-case packages for WHOIS, availability, registrar prices and appraisal.",
+    "A method answers the API's data directly; .withMeta() adds the meta, the links and the rate-limit facts."
+  ]
+}
