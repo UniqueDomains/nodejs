@@ -54,7 +54,7 @@ export type ClientOptions = {
     /**
      * Retries what is worth retrying, with backoff and jitter: a `rate_limited` answer with a short `Retry-After`, a
      * 503 `not_ready` or `check_unavailable`, a 5xx without a problem body, a network failure. A POST is retried only
-     * on the 429. `true` tries a call up to 3 times and waits at most 30 seconds. Off by default, where the client
+     * on the 429. `true` tries a call up to 3 times and waits at most 30 seconds before each new try. Off by default, where the client
      * retries once, after a `rate_limited` answer with `Retry-After: 1`.
      */
     retry?: boolean | RetryOptions;

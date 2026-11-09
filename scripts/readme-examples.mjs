@@ -46,7 +46,9 @@ const runLive = async (readmes) => {
                 console.log(`ok ${relative(ROOT, readme.file)} ${example.name}`);
             } catch (error) {
                 if (error?.code === 'rate_limited') {
-                    console.warn(`The keyless window is spent (${error.detail}); ${ran} examples ran, the rest wait for the next run.`);
+                    const message = `The keyless window is spent (${error.detail}); ${ran} examples ran, the rest wait for the next run.`;
+                    // An annotation on the run's page, so nights that ran nothing do not pass unseen.
+                    console.warn(process.env.GITHUB_ACTIONS ? `::warning title=README examples::${message}` : message);
                     return;
                 }
                 throw new Error(`${relative(ROOT, readme.file)} ${example.name}: ${error.message}`, { cause: error });

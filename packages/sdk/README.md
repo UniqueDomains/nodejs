@@ -23,7 +23,7 @@ A method answers the API's `data`, typed from its OpenAPI document. The methods 
 
 Without a key you read the free endpoints, within a limit per hour and per day from one address. The [API page](https://unique.domains/api) gives the figures.
 
-The examples below continue from this one: `ud` is the client created here.
+The examples below continue from this one: `ud` is the client created here. Those that need another client give it its own name.
 
 ## A name's registry record
 
@@ -71,7 +71,7 @@ const { data, meta, links, etag, rateLimit } = await ud.names.get('harbor.io').w
 console.log(data.status, meta.asOf, links.self, etag, rateLimit?.remaining);
 ```
 
-A call is sent once, when it is first awaited or looped over. Awaiting it again, or asking for `.withMeta()` after, reads the same answer.
+A call is sent once, when it is first awaited or looped over. Awaiting it again, or asking for `.withMeta()` after, reads the same answer. A call never awaited is never sent, a POST included.
 
 ## Errors
 
@@ -102,18 +102,18 @@ try {
 | `NotReadyError` | `not_ready`, `check_unavailable`, `gate_unavailable` |
 | `WordRejectedError` | `invalid_word`, `disabled_in_catalog`, `not_a_word`, `brand`, `offensive` |
 
-Every kind is an `ApiProblemError`, with `status`, `code`, `detail`, `retryAfter`, `product`, `quota`, `rateLimit` and the whole problem body in `problem` (with members such as `reason` and `suggestion`). Any other code stays a plain `ApiProblemError`. `code` is `unexpected_response` when the answer was not the API's: an error without a problem body (a RapidAPI refusal, a proxy's page) or a success that is not the API's JSON. Its message is in `detail` and the body in `error.problem.raw`. A network failure stays the runtime's own error from `fetch`.
+Every kind is an `ApiProblemError`, with `status`, `code`, `detail`, `retryAfter`, `product`, `quota`, `rateLimit` and the whole problem body in `problem` (with members such as `reason` and `suggestion`). Any other code stays a plain `ApiProblemError`. An app that loads the SDK both with `import` and with `require` holds two copies of each class, so `instanceof` fails across them: compare `error.code` there. `code` is `unexpected_response` when the answer was not the API's: an error without a problem body (a RapidAPI refusal, a proxy's page) or a success that is not the API's JSON. Its message is in `detail` and the body in `error.problem.raw`. A network failure stays the runtime's own error from `fetch`.
 
 ## Retry
 
 <!-- example: retry -->
 ```js
-const ud = createClient({ retry: true });
-const name = await ud.names.get('harbor.io');
-console.log(name.status);
+const patient = createClient({ retry: true });
+const answer = await patient.names.get('harbor.io');
+console.log(answer.status);
 ```
 
-With `retry`, the client tries a call again after a `rate_limited` answer whose `Retry-After` is short enough, a 503 `not_ready` or `check_unavailable`, a 5xx without a problem body, and a network failure. It waits the `Retry-After` when the answer gives one, otherwise a random time within a limit that doubles at each try. A POST is tried again only after the `rate_limited` answer, where the API refused the call without running it. `retry: true` tries a call up to 3 times and waits at most 30 seconds; `retry: { attempts: 5, maxDelayMs: 10_000 }` changes both.
+With `retry`, the client tries a call again after a `rate_limited` answer whose `Retry-After` is short enough, a 503 `not_ready` or `check_unavailable`, a 5xx without a problem body, and a network failure. It waits the `Retry-After` when the answer gives one, otherwise a random time within a limit that doubles at each try. A POST is tried again only after the `rate_limited` answer, where the API refused the call without running it. `retry: true` tries a call up to 3 times and waits at most 30 seconds before each new try; `retry: { attempts: 5, maxDelayMs: 10_000 }` changes both.
 
 Without `retry`, the client tries again once, after a `rate_limited` answer with `Retry-After: 1`. Any other wait is yours to decide, so it throws.
 
@@ -123,8 +123,8 @@ The Founder and Investor plans include the API with a key of your own. Create it
 
 <!-- example: member-key fixture -->
 ```js
-const ud = createClient({ apiKey: process.env.UD_API_KEY });
-const key = await ud.meta.key();
+const member = createClient({ apiKey: process.env.UD_API_KEY });
+const key = await member.meta.key();
 console.log(key.plan, key.calls);
 ```
 
@@ -138,9 +138,9 @@ The API is also on RapidAPI as sixteen listings, each on its own host. Pass your
 
 <!-- example: rapidapi fixture -->
 ```js
-const ud = createClient({ rapidApi: { key: process.env.RAPIDAPI_KEY, listing: 'whois' } });
-const record = await ud.names.registry('harbor.io');
-console.log(record.registrar);
+const rapid = createClient({ rapidApi: { key: process.env.RAPIDAPI_KEY, listing: 'whois' } });
+const listed = await rapid.names.registry('harbor.io');
+console.log(listed.registrar);
 ```
 
 A listing serves its own operations and the shared `/meta` and `/editions` paths. Calling another operation throws `ListingMismatchError` before any request, with the listings that serve it in `servedBy`. `LISTINGS` holds each listing's id, host and operations.

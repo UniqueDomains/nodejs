@@ -182,6 +182,14 @@ export const SYNTHETIC = [
         ],
     },
     {
+        name: 'not-ready-then-ok-for-retry',
+        request: { method: 'GET', path: '/names/retry.io', query: '' },
+        responses: [
+            json(503, problem('not_ready', 503, 'The answer is being prepared.')),
+            json(200, getNameBody('retry.io')),
+        ],
+    },
+    {
         name: 'llms-txt',
         request: { method: 'GET', path: '/meta/llms.txt', query: '' },
         response: { status: 200, headers: { 'content-type': 'text/plain; charset=utf-8' }, body: '# Unique Domains API\n' },

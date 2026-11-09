@@ -130,7 +130,7 @@ export type NamespacedClient = {
         /**
          * The keyed name resource for up to 100 names in one call.
          *
-         * Needs a key on the Investor plan.
+         * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan.
          *
          * @example
          * const answer = await ud.names.batch({ names: ['lantern.io', 'zorbly.ai'] });
@@ -139,7 +139,7 @@ export type NamespacedClient = {
         /**
          * Reads one name live from its registry and a registrar, stores the answer and returns the keyed name resource.
          *
-         * Needs a key. Spends one Live unit when it runs.
+         * Sent when awaited: a call never awaited never runs. Needs a key. Spends one Live unit when it runs.
          *
          * @example
          * const answer = await ud.names.check('lantern.io');
@@ -207,7 +207,7 @@ export type NamespacedClient = {
         /**
          * Runs the appraisal of one stored name when its estimate is missing, and returns the value resource.
          *
-         * Needs a key on the Investor plan. Spends one Appraisal unit when it runs.
+         * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan. Spends one Appraisal unit when it runs.
          *
          * @example
          * const answer = await ud.names.appraise('lantern.io');
@@ -246,7 +246,7 @@ export type NamespacedClient = {
         /**
          * Up to 100 word profiles in one call.
          *
-         * Needs a key on the Investor plan.
+         * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan.
          *
          * @example
          * const answer = await ud.words.batch({ words: ['harbor', 'wrd_48214'] });
@@ -334,7 +334,7 @@ export type NamespacedClient = {
         /**
          * Brings a word into the catalog: checks it now and queues an accepted word for the intake.
          *
-         * Needs a key on the Investor plan. Spends one Intake unit when it runs.
+         * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan. Spends one Intake unit when it runs.
          *
          * @example
          * const answer = await ud.words.request('glimmerly');
@@ -378,7 +378,7 @@ export type NamespacedClient = {
          * Names dropping on one day: counts free, names keyed.
          *
          * @example
-         * for await (const row of ud.domains.drops()) console.log(row);
+         * const answer = await ud.domains.drops();
          */
         drops: (options?: CallOptions<'get_domain_drops'>) => OperationCall<'get_domain_drops'>;
         /**

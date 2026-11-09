@@ -527,8 +527,12 @@ describe('the retry option (plan decision 16)', () => {
 
     it('retries a 503 then succeeds, against the fixture server', async (t) => {
         fakeTimers(t, 0);
+        // Its own path: the typed-errors test spends the 503 of ready.io (review of 2026-11-09, finding 1).
         const client = createClient({ apiKey: null, baseUrl: server.base, retry: true });
-        assert.equal((await client.names.get('ready.io')).name, 'ready.io');
+        const count = server.requests.length;
+        assert.equal((await client.names.get('retry.io')).name, 'retry.io');
+        assert.equal(server.requests.filter((request) => request.path === '/v1/names/retry.io').length, 2);
+        assert.equal(server.requests.length, count + 2);
     });
 
     it('backs off with full jitter, doubling, up to the attempts', async (t) => {

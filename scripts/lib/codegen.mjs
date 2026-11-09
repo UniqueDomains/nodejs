@@ -327,8 +327,16 @@ const methodCallOf = (document, operation, entry) => {
     return `ud.${entry.namespace}.${entry.method}(${args.join(', ')})`;
 };
 
+/** The 200 answer's `data` is a list in every grade (`domains.drops` answers a summary on the free grade). */
+const answersList = (document, operation) => {
+    const schema = resolveRef(document, document.paths[operation.path][operation.method.toLowerCase()].responses?.['200']?.content?.['application/json']?.schema ?? {});
+    return resolveRef(document, schema.properties?.data ?? {}).type === 'array';
+};
+
 const accessLineOf = (operation) => {
     const lines = [];
+    // A call is sent when it is awaited: a POST left without `await` never runs (review of 2026-11-09).
+    if (operation.method !== 'GET') lines.push('Sent when awaited: a call never awaited never runs.');
     if (operation.plan === 'investor') lines.push('Needs a key on the Investor plan.');
     else if (operation.tier === 'keyed') lines.push('Needs a key.');
     if (operation.metered) lines.push(`Spends one ${operation.metered} unit when it runs.`);
@@ -338,7 +346,7 @@ const accessLineOf = (operation) => {
 /** The method's JSDoc: the document's summary, what it needs, and an example built from the document's values. */
 const jsDocOf = (document, operation, entry, indent) => {
     const call = methodCallOf(document, operation, entry);
-    const example = entry.paged ? [`for await (const row of ${call}) console.log(row);`] : [`const answer = await ${call};`];
+    const example = entry.paged && answersList(document, operation) ? [`for await (const row of ${call}) console.log(row);`] : [`const answer = await ${call};`];
     const summary = operation.summary.replace(/\s+/g, ' ').replace(/\*\//g, '*\\/').trim();
     const access = accessLineOf(operation);
     const lines = [summary, ...(access ? ['', access] : []), '', '@example', ...example];
