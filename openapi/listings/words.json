@@ -1,6 +1,6 @@
 {
   "id": "words",
-  "title": "Word Intelligence",
+  "title": "Word Intelligence API",
   "host": "word-intelligence.p.rapidapi.com",
   "operations": [
     "resolve_word",

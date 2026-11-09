@@ -731,7 +731,7 @@ export interface paths {
         };
         /**
          * One TLD in full: registry facts, phases, market, quality band and registrar prices.
-         * @description A public-set TLD with a rollup carries the website insight bundle without its name sample, news, description words and topics. Any other TLD answers its registry facts and phases, and its market on a paid subscription. A removed or terminated TLD is 404.
+         * @description A public-set TLD with its figures computed carries the website insight bundle without its name sample, news, description words and topics. Any other TLD answers its registry facts and phases, and its market on a paid subscription. A removed or terminated TLD is 404.
          */
         get: operations["get_tld"];
         put?: never;
@@ -750,7 +750,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The ending's latest market rollup, and with history its last daily rows.
+         * The ending's latest market figures, and with history its last daily rows.
          * @description Free for a public-set TLD (the website page carries these aggregates), keyed outside it. Scored rows only.
          */
         get: operations["get_tld_stats"];
@@ -951,7 +951,7 @@ export interface paths {
         };
         /**
          * Names tracked under the registrar on the latest footprint day, rounded, with its top endings.
-         * @description From the scanner's footprint rollup, keyed by IANA id; 404 for a registrar with no IANA id or no row.
+         * @description From the scanner's footprint figures, keyed by IANA id; 404 for a registrar with no IANA id or no row.
          */
         get: operations["get_registrar_footprint"];
         put?: never;
@@ -1231,7 +1231,7 @@ export interface paths {
         };
         /**
          * Up to ten words whose sales moved over the last 30 days.
-         * @description Words with three sales or more in 30 days against the 30 before, in the rollup's stored order, words with a deny class left out. Never the sold names.
+         * @description Words with three sales or more in 30 days against the 30 before, in the stored order, words with a deny class left out. Never the sold names.
          */
         get: operations["list_market_sales_movers"];
         put?: never;
@@ -1290,7 +1290,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The day's frozen sample of up to 20 single-word names at auction, by deadline.
+         * The day's fixed sample of up to 20 single-word names at auction, by deadline.
          * @description Drawn once per UTC day from single base-form words on the public TLD set closing that day, at most ten of them with a bid. Never sorted, filtered or paged. No rows while the day has no sample.
          */
         get: operations["list_market_auctions_sample"];
@@ -1691,7 +1691,7 @@ export interface paths {
         };
         /**
          * The OpenAPI document of the API, whole or for one listing, in its 3.1 or 3.0 form.
-         * @description Built from the typed endpoint catalog, served bare (no envelope). Each RapidAPI listing imports its own document with `listing`, in the 3.0 form (`oas=3.0`), the one RapidAPI's import accepts.
+         * @description Built from the typed endpoint catalog, served bare (no envelope). Each RapidAPI listing imports its own document with `listing`, in the 3.0 form (`oas=3.0`), the one RapidAPI's import accepts. Not counted against the free tier's per-address limits.
          */
         get: operations["get_openapi"];
         put?: never;
@@ -1711,7 +1711,7 @@ export interface paths {
         };
         /**
          * The free endpoints as plain text for language models.
-         * @description `text/plain`, generated from the catalog, served bare (no envelope).
+         * @description `text/plain`, generated from the catalog, served bare (no envelope). Not counted against the free tier's per-address limits.
          */
         get: operations["get_llms_txt"];
         put?: never;
@@ -1731,7 +1731,7 @@ export interface paths {
         };
         /**
          * Liveness, with no database read.
-         * @description Answers `ok` with the server time.
+         * @description Answers `ok` with the server time. Not counted against the free tier's per-address limits.
          */
         get: operations["get_health"];
         put?: never;
@@ -1873,7 +1873,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -2285,7 +2285,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -2666,7 +2666,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -2746,7 +2746,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -2864,7 +2864,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -2975,7 +2975,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -3063,7 +3063,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -3152,7 +3152,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -3219,7 +3219,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -3294,7 +3294,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -3402,7 +3402,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -3470,7 +3470,7 @@ export interface operations {
             path: {
                 /**
                  * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 name: string;
             };
@@ -3749,7 +3749,7 @@ export interface operations {
                                 name: string | null;
                             }[];
                             /**
-                             * @description Why the word stays off public lists (ADR-0111); null when none.
+                             * @description Why the word stays off public lists; null when none.
                              * @enum {string|null}
                              */
                             denyClass?: "brand" | "trademark" | "person" | "harm" | "vice" | "politics" | "controversy" | null;
@@ -4012,7 +4012,7 @@ export interface operations {
                                 name: string | null;
                             }[];
                             /**
-                             * @description Why the word stays off public lists (ADR-0111); null when none.
+                             * @description Why the word stays off public lists; null when none.
                              * @enum {string|null}
                              */
                             denyClass?: "brand" | "trademark" | "person" | "harm" | "vice" | "politics" | "controversy" | null;
@@ -5023,7 +5023,7 @@ export interface operations {
             path: {
                 /**
                  * @description A lowercase name or `dom_<uuid>`.
-                 * @example lantern.io
+                 * @example get.plumbing
                  */
                 nameOrId: string;
             };
@@ -5851,7 +5851,7 @@ export interface operations {
                                 market: {
                                     /**
                                      * Format: date-time
-                                     * @description Timestamp of the rollup.
+                                     * @description When these figures were computed.
                                      */
                                     computedAt: string;
                                     /** @description One-word names available on the ending. */
@@ -6068,7 +6068,7 @@ export interface operations {
                             market: {
                                 /**
                                  * Format: date-time
-                                 * @description Timestamp of the rollup.
+                                 * @description When these figures were computed.
                                  */
                                 computedAt: string;
                                 /** @description One-word names available on the ending. */
@@ -6156,7 +6156,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The ending's latest market rollup, and with history its last daily rows. */
+            /** @description The ending's latest market figures, and with history its last daily rows. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6216,7 +6216,7 @@ export interface operations {
                             tld: string;
                             /**
                              * Format: date
-                             * @description The rollup's day.
+                             * @description The day of these figures.
                              */
                             day: string;
                             computedAt: string | null;
@@ -6255,7 +6255,7 @@ export interface operations {
                                 tld: string;
                                 /**
                                  * Format: date
-                                 * @description The rollup's day.
+                                 * @description The day of these figures.
                                  */
                                 day: string;
                                 computedAt: string | null;
@@ -8575,7 +8575,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The day's frozen sample of up to 20 single-word names at auction, by deadline. */
+            /** @description The day's fixed sample of up to 20 single-word names at auction, by deadline. */
             200: {
                 headers: {
                     [name: string]: unknown;

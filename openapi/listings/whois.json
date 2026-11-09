@@ -1,6 +1,6 @@
 {
   "id": "whois",
-  "title": "WHOIS Lookup",
+  "title": "WHOIS Lookup API",
   "host": "whois-lookup24.p.rapidapi.com",
   "operations": [
     "get_name_registry",

@@ -1,6 +1,6 @@
 {
   "id": "trends",
-  "title": "Trends",
+  "title": "Domain Trends API",
   "host": "trends10.p.rapidapi.com",
   "operations": [
     "get_meta_tlds",

@@ -1,6 +1,6 @@
 {
   "id": "expired",
-  "title": "Expired Domains",
+  "title": "Expired Domains API",
   "host": "expired-domains5.p.rapidapi.com",
   "operations": [
     "list_expiring_domains",

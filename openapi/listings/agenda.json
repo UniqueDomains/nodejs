@@ -1,6 +1,6 @@
 {
   "id": "agenda",
-  "title": "Agenda",
+  "title": "TLD Launch Calendar API",
   "host": "agenda6.p.rapidapi.com",
   "operations": [
     "get_meta_tlds",

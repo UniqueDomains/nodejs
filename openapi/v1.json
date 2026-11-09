@@ -13,35 +13,35 @@
   "tags": [
     {
       "name": "names",
-      "description": "Domain Check: Any domain name: status, registry record, DNS, prices, value, past sales and its open auction."
+      "description": "Domain Check API: Any domain name: status, registry record, DNS, prices, value, past sales and its open auction."
     },
     {
       "name": "words",
-      "description": "Word Intelligence: The one-word catalog: profiles, endings, names, trademarks, notability, market and the word intake."
+      "description": "Word Intelligence API: The one-word catalog: profiles, endings, names, trademarks, notability, market and the word intake."
     },
     {
       "name": "catalog",
-      "description": "Domain Catalog: The tracked one-word names: filtered lists, expiring names, drops, hacks, the change feed and catalog totals."
+      "description": "One-Word Domains API: The tracked one-word names: filtered lists, expiring names, drops, hacks, the change feed and catalog totals."
     },
     {
       "name": "tlds",
-      "description": "TLD Intelligence: Every ending: registry facts, phases, market statistics, changes, keywords and the ICANN applications."
+      "description": "TLD Intelligence API: Every ending: registry facts, phases, market statistics, changes, keywords and the ICANN applications."
     },
     {
       "name": "registrars",
-      "description": "Registrar Prices: Registrar price lists, price changes, renewal traps, cheapest registrars, venues and the IANA registrar list."
+      "description": "Registrar Prices API: Registrar price lists, price changes, renewal traps, cheapest registrars, venues and the IANA registrar list."
     },
     {
       "name": "market",
-      "description": "Domain Market: Domain sales as aggregates and the day's domain auctions."
+      "description": "Domain Market API: Domain sales as aggregates and the day's domain auctions."
     },
     {
       "name": "trends",
-      "description": "Trends: The trends behind the daily editions: definitions, searches, growth and categories."
+      "description": "Domain Trends API: The trends behind the daily editions: definitions, searches, growth and categories."
     },
     {
       "name": "agenda",
-      "description": "Agenda: Industry events and the dated agenda of TLD phases and registry changes, in JSON or iCalendar."
+      "description": "TLD Launch Calendar API: Industry events and the dated agenda of TLD phases and registry changes, in JSON or iCalendar."
     },
     {
       "name": "shared",
@@ -66,7 +66,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -1192,7 +1192,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -2231,7 +2231,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -2412,7 +2412,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -2682,7 +2682,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -2901,7 +2901,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -3080,7 +3080,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "types",
@@ -3302,7 +3302,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -3447,7 +3447,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -3593,7 +3593,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -3814,7 +3814,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -3955,7 +3955,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -4636,7 +4636,7 @@
                                   "controversy",
                                   null
                                 ],
-                                "description": "Why the word stays off public lists (ADR-0111); null when none."
+                                "description": "Why the word stays off public lists; null when none."
                               },
                               "origin": {
                                 "type": "string",
@@ -5436,7 +5436,7 @@
                             "controversy",
                             null
                           ],
-                          "description": "Why the word stays off public lists (ADR-0111); null when none."
+                          "description": "Why the word stays off public lists; null when none."
                         },
                         "origin": {
                           "type": "string",
@@ -7864,7 +7864,7 @@
             "schema": {
               "type": "string"
             },
-            "example": "lantern.io"
+            "example": "get.plumbing"
           },
           {
             "name": "fields",
@@ -9974,7 +9974,7 @@
                                           "computedAt": {
                                             "type": "string",
                                             "format": "date-time",
-                                            "description": "Timestamp of the rollup."
+                                            "description": "When these figures were computed."
                                           },
                                           "availableOneWord": {
                                             "type": "integer",
@@ -10287,7 +10287,7 @@
       "get": {
         "operationId": "get_tld",
         "summary": "One TLD in full: registry facts, phases, market, quality band and registrar prices.",
-        "description": "A public-set TLD with a rollup carries the website insight bundle without its name sample, news, description words and topics. Any other TLD answers its registry facts and phases, and its market on a paid subscription. A removed or terminated TLD is 404.",
+        "description": "A public-set TLD with its figures computed carries the website insight bundle without its name sample, news, description words and topics. Any other TLD answers its registry facts and phases, and its market on a paid subscription. A removed or terminated TLD is 404.",
         "tags": [
           "tlds"
         ],
@@ -10513,7 +10513,7 @@
                                 "computedAt": {
                                   "type": "string",
                                   "format": "date-time",
-                                  "description": "Timestamp of the rollup."
+                                  "description": "When these figures were computed."
                                 },
                                 "availableOneWord": {
                                   "type": "integer",
@@ -10859,7 +10859,7 @@
     "/tlds/{tld}/stats": {
       "get": {
         "operationId": "get_tld_stats",
-        "summary": "The ending's latest market rollup, and with history its last daily rows.",
+        "summary": "The ending's latest market figures, and with history its last daily rows.",
         "description": "Free for a public-set TLD (the website page carries these aggregates), keyed outside it. Scored rows only.",
         "tags": [
           "tlds"
@@ -10898,7 +10898,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The ending's latest market rollup, and with history its last daily rows.",
+            "description": "The ending's latest market figures, and with history its last daily rows.",
             "content": {
               "application/json": {
                 "schema": {
@@ -10919,14 +10919,14 @@
                         "day": {
                           "type": "string",
                           "format": "date",
-                          "description": "The rollup's day."
+                          "description": "The day of these figures."
                         },
                         "computedAt": {
                           "oneOf": [
                             {
                               "type": "string",
                               "format": "date-time",
-                              "description": "Rollup timestamp, keyed; null on free, which reads `day` (as `/catalog/stats`)."
+                              "description": "When these figures were computed, keyed; null on free, which reads `day` (as `/catalog/stats`)."
                             },
                             {
                               "type": "null"
@@ -11109,14 +11109,14 @@
                               "day": {
                                 "type": "string",
                                 "format": "date",
-                                "description": "The rollup's day."
+                                "description": "The day of these figures."
                               },
                               "computedAt": {
                                 "oneOf": [
                                   {
                                     "type": "string",
                                     "format": "date-time",
-                                    "description": "Rollup timestamp, keyed; null on free, which reads `day` (as `/catalog/stats`)."
+                                    "description": "When these figures were computed, keyed; null on free, which reads `day` (as `/catalog/stats`)."
                                   },
                                   {
                                     "type": "null"
@@ -13533,7 +13533,7 @@
       "get": {
         "operationId": "get_registrar_footprint",
         "summary": "Names tracked under the registrar on the latest footprint day, rounded, with its top endings.",
-        "description": "From the scanner's footprint rollup, keyed by IANA id; 404 for a registrar with no IANA id or no row.",
+        "description": "From the scanner's footprint figures, keyed by IANA id; 404 for a registrar with no IANA id or no row.",
         "tags": [
           "registrars"
         ],
@@ -16556,7 +16556,7 @@
       "get": {
         "operationId": "list_market_sales_movers",
         "summary": "Up to ten words whose sales moved over the last 30 days.",
-        "description": "Words with three sales or more in 30 days against the 30 before, in the rollup's stored order, words with a deny class left out. Never the sold names.",
+        "description": "Words with three sales or more in 30 days against the 30 before, in the stored order, words with a deny class left out. Never the sold names.",
         "tags": [
           "market"
         ],
@@ -17159,7 +17159,7 @@
     "/market/auctions/sample": {
       "get": {
         "operationId": "list_market_auctions_sample",
-        "summary": "The day's frozen sample of up to 20 single-word names at auction, by deadline.",
+        "summary": "The day's fixed sample of up to 20 single-word names at auction, by deadline.",
         "description": "Drawn once per UTC day from single base-form words on the public TLD set closing that day, at most ten of them with a bid. Never sorted, filtered or paged. No rows while the day has no sample.",
         "tags": [
           "market"
@@ -17177,7 +17177,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The day's frozen sample of up to 20 single-word names at auction, by deadline.",
+            "description": "The day's fixed sample of up to 20 single-word names at auction, by deadline.",
             "content": {
               "application/json": {
                 "schema": {
@@ -21920,7 +21920,7 @@
       "get": {
         "operationId": "get_openapi",
         "summary": "The OpenAPI document of the API, whole or for one listing, in its 3.1 or 3.0 form.",
-        "description": "Built from the typed endpoint catalog, served bare (no envelope). Each RapidAPI listing imports its own document with `listing`, in the 3.0 form (`oas=3.0`), the one RapidAPI's import accepts.",
+        "description": "Built from the typed endpoint catalog, served bare (no envelope). Each RapidAPI listing imports its own document with `listing`, in the 3.0 form (`oas=3.0`), the one RapidAPI's import accepts. Not counted against the free tier's per-address limits.",
         "tags": [
           "shared"
         ],
@@ -22048,7 +22048,7 @@
       "get": {
         "operationId": "get_llms_txt",
         "summary": "The free endpoints as plain text for language models.",
-        "description": "`text/plain`, generated from the catalog, served bare (no envelope).",
+        "description": "`text/plain`, generated from the catalog, served bare (no envelope). Not counted against the free tier's per-address limits.",
         "tags": [
           "shared"
         ],
@@ -22127,7 +22127,7 @@
       "get": {
         "operationId": "get_health",
         "summary": "Liveness, with no database read.",
-        "description": "Answers `ok` with the server time.",
+        "description": "Answers `ok` with the server time. Not counted against the free tier's per-address limits.",
         "tags": [
           "shared"
         ],

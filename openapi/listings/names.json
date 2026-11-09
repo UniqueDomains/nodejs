@@ -1,6 +1,6 @@
 {
   "id": "names",
-  "title": "Domain Check",
+  "title": "Domain Check API",
   "host": "domain-check18.p.rapidapi.com",
   "operations": [
     "get_name",

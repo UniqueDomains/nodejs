@@ -124,7 +124,7 @@ export type NamespacedClient = {
          * The stored answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.
          *
          * @example
-         * const answer = await ud.names.get('lantern.io');
+         * const answer = await ud.names.get('get.plumbing');
          */
         get: (name: PathParamsOf<'get_name'>['name'], options?: CallOptions<'get_name'>) => OperationCall<'get_name'>;
         /**
@@ -142,7 +142,7 @@ export type NamespacedClient = {
          * Sent when awaited: a call never awaited never runs. Needs a key. Spends one Live unit when it runs.
          *
          * @example
-         * const answer = await ud.names.check('lantern.io');
+         * const answer = await ud.names.check('get.plumbing');
          */
         check: (name: PathParamsOf<'check_name'>['name'], options?: CallOptions<'check_name'>) => OperationCall<'check_name'>;
         /**
@@ -151,14 +151,14 @@ export type NamespacedClient = {
          * Needs a key.
          *
          * @example
-         * const answer = await ud.names.prices('lantern.io');
+         * const answer = await ud.names.prices('get.plumbing');
          */
         prices: (name: PathParamsOf<'get_name_prices'>['name'], options?: CallOptions<'get_name_prices'>) => OperationCall<'get_name_prices'>;
         /**
          * The latest stored registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder.
          *
          * @example
-         * const answer = await ud.names.registry('lantern.io');
+         * const answer = await ud.names.registry('get.plumbing');
          */
         registry: (name: PathParamsOf<'get_name_registry'>['name'], options?: CallOptions<'get_name_registry'>) => OperationCall<'get_name_registry'>;
         /**
@@ -167,14 +167,14 @@ export type NamespacedClient = {
          * Needs a key on the Investor plan.
          *
          * @example
-         * const answer = await ud.names.registryHistory('lantern.io');
+         * const answer = await ud.names.registryHistory('get.plumbing');
          */
         registryHistory: (name: PathParamsOf<'get_name_registry_history'>['name'], options?: CallOptions<'get_name_registry_history'>) => OperationCall<'get_name_registry_history'>;
         /**
          * The latest stored DNS reading of one name, with its parking venue.
          *
          * @example
-         * const answer = await ud.names.dns('lantern.io');
+         * const answer = await ud.names.dns('get.plumbing');
          */
         dns: (name: PathParamsOf<'get_name_dns'>['name'], options?: CallOptions<'get_name_dns'>) => OperationCall<'get_name_dns'>;
         /**
@@ -183,7 +183,7 @@ export type NamespacedClient = {
          * Needs a key on the Investor plan.
          *
          * @example
-         * for await (const row of ud.names.changes('lantern.io')) console.log(row);
+         * for await (const row of ud.names.changes('get.plumbing')) console.log(row);
          */
         changes: (name: PathParamsOf<'list_name_changes'>['name'], options?: CallOptions<'list_name_changes'>) => OperationCall<'list_name_changes'>;
         /**
@@ -192,7 +192,7 @@ export type NamespacedClient = {
          * Needs a key on the Investor plan.
          *
          * @example
-         * const answer = await ud.names.history('lantern.io');
+         * const answer = await ud.names.history('get.plumbing');
          */
         history: (name: PathParamsOf<'get_name_history'>['name'], options?: CallOptions<'get_name_history'>) => OperationCall<'get_name_history'>;
         /**
@@ -201,7 +201,7 @@ export type NamespacedClient = {
          * Needs a key.
          *
          * @example
-         * const answer = await ud.names.value('lantern.io');
+         * const answer = await ud.names.value('get.plumbing');
          */
         value: (name: PathParamsOf<'get_name_value'>['name'], options?: CallOptions<'get_name_value'>) => OperationCall<'get_name_value'>;
         /**
@@ -210,21 +210,21 @@ export type NamespacedClient = {
          * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan. Spends one Appraisal unit when it runs.
          *
          * @example
-         * const answer = await ud.names.appraise('lantern.io');
+         * const answer = await ud.names.appraise('get.plumbing');
          */
         appraise: (name: PathParamsOf<'appraise_name'>['name'], options?: CallOptions<'appraise_name'>) => OperationCall<'appraise_name'>;
         /**
          * The similar-sales aggregate of one name and the endings its word sold on.
          *
          * @example
-         * const answer = await ud.names.comps('lantern.io');
+         * const answer = await ud.names.comps('get.plumbing');
          */
         comps: (name: PathParamsOf<'get_name_comps'>['name'], options?: CallOptions<'get_name_comps'>) => OperationCall<'get_name_comps'>;
         /**
          * The open auction of one name, if any: venue, deadline, bid and the first-year cost.
          *
          * @example
-         * const answer = await ud.names.auction('lantern.io');
+         * const answer = await ud.names.auction('get.plumbing');
          */
         auction: (name: PathParamsOf<'get_name_auction'>['name'], options?: CallOptions<'get_name_auction'>) => OperationCall<'get_name_auction'>;
     };
@@ -362,7 +362,7 @@ export type NamespacedClient = {
          * One catalog name, by name or id.
          *
          * @example
-         * const answer = await ud.domains.get('lantern.io');
+         * const answer = await ud.domains.get('get.plumbing');
          */
         get: (nameOrId: PathParamsOf<'get_domain'>['nameOrId'], options?: CallOptions<'get_domain'>) => OperationCall<'get_domain'>;
         /**
@@ -421,7 +421,7 @@ export type NamespacedClient = {
          */
         get: (tld: PathParamsOf<'get_tld'>['tld'], options?: CallOptions<'get_tld'>) => OperationCall<'get_tld'>;
         /**
-         * The ending's latest market rollup, and with history its last daily rows.
+         * The ending's latest market figures, and with history its last daily rows.
          *
          * @example
          * const answer = await ud.tlds.stats('ai');
@@ -620,7 +620,7 @@ export type NamespacedClient = {
          */
         auctions: (options?: CallOptions<'get_market_auctions'>) => OperationCall<'get_market_auctions'>;
         /**
-         * The day's frozen sample of up to 20 single-word names at auction, by deadline.
+         * The day's fixed sample of up to 20 single-word names at auction, by deadline.
          *
          * @example
          * const answer = await ud.market.auctionsSample();

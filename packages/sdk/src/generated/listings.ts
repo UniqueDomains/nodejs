@@ -6,7 +6,7 @@ import type { ListingDefinition } from '../listing';
 export const LISTINGS = [
     {
         id: "names",
-        title: "Domain Check",
+        title: "Domain Check API",
         host: "domain-check18.p.rapidapi.com",
         operations: [
             "get_name",
@@ -38,7 +38,7 @@ export const LISTINGS = [
     },
     {
         id: "words",
-        title: "Word Intelligence",
+        title: "Word Intelligence API",
         host: "word-intelligence.p.rapidapi.com",
         operations: [
             "resolve_word",
@@ -71,7 +71,7 @@ export const LISTINGS = [
     },
     {
         id: "catalog",
-        title: "Domain Catalog",
+        title: "One-Word Domains API",
         host: "domain-catalog.p.rapidapi.com",
         operations: [
             "list_domains",
@@ -97,7 +97,7 @@ export const LISTINGS = [
     },
     {
         id: "tlds",
-        title: "TLD Intelligence",
+        title: "TLD Intelligence API",
         host: "tld-intelligence.p.rapidapi.com",
         operations: [
             "list_tlds",
@@ -125,7 +125,7 @@ export const LISTINGS = [
     },
     {
         id: "registrars",
-        title: "Registrar Prices",
+        title: "Registrar Prices API",
         host: "registrar-prices.p.rapidapi.com",
         operations: [
             "get_meta_tlds",
@@ -157,7 +157,7 @@ export const LISTINGS = [
     },
     {
         id: "market",
-        title: "Domain Market",
+        title: "Domain Market API",
         host: "domain-market.p.rapidapi.com",
         operations: [
             "get_meta_tlds",
@@ -186,7 +186,7 @@ export const LISTINGS = [
     },
     {
         id: "trends",
-        title: "Trends",
+        title: "Domain Trends API",
         host: "trends10.p.rapidapi.com",
         operations: [
             "get_meta_tlds",
@@ -209,7 +209,7 @@ export const LISTINGS = [
     },
     {
         id: "agenda",
-        title: "Agenda",
+        title: "TLD Launch Calendar API",
         host: "agenda6.p.rapidapi.com",
         operations: [
             "get_meta_tlds",
@@ -233,7 +233,7 @@ export const LISTINGS = [
     },
     {
         id: "availability",
-        title: "Domain Availability",
+        title: "Domain Availability API",
         host: "domain-availability14.p.rapidapi.com",
         operations: [
             "get_name",
@@ -255,7 +255,7 @@ export const LISTINGS = [
     },
     {
         id: "whois",
-        title: "WHOIS Lookup",
+        title: "WHOIS Lookup API",
         host: "whois-lookup24.p.rapidapi.com",
         operations: [
             "get_name_registry",
@@ -276,7 +276,7 @@ export const LISTINGS = [
     },
     {
         id: "appraisal",
-        title: "Domain Appraisal",
+        title: "Domain Appraisal API",
         host: "domain-appraisal3.p.rapidapi.com",
         operations: [
             "get_name_value",
@@ -298,7 +298,7 @@ export const LISTINGS = [
     },
     {
         id: "expired",
-        title: "Expired Domains",
+        title: "Expired Domains API",
         host: "expired-domains5.p.rapidapi.com",
         operations: [
             "list_expiring_domains",
@@ -319,7 +319,7 @@ export const LISTINGS = [
     },
     {
         id: "auctions",
-        title: "Domain Auctions",
+        title: "Domain Auctions API",
         host: "domain-auctions.p.rapidapi.com",
         operations: [
             "get_name_auction",
@@ -343,7 +343,7 @@ export const LISTINGS = [
     },
     {
         id: "sales-history",
-        title: "Domain Sales History",
+        title: "Domain Sales History API",
         host: "domain-sales-history1.p.rapidapi.com",
         operations: [
             "get_name_comps",
@@ -366,7 +366,7 @@ export const LISTINGS = [
     },
     {
         id: "price-comparison",
-        title: "Domain Price Comparison",
+        title: "Domain Price Comparison API",
         host: "domain-price-comparison.p.rapidapi.com",
         operations: [
             "get_name_prices",
@@ -390,7 +390,7 @@ export const LISTINGS = [
     },
     {
         id: "trending-topics",
-        title: "Trending Topics",
+        title: "Startup Trending Topics API",
         host: "trending-topics1.p.rapidapi.com",
         operations: [
             "get_meta_tlds",

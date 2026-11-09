@@ -1,6 +1,6 @@
 {
   "id": "registrars",
-  "title": "Registrar Prices",
+  "title": "Registrar Prices API",
   "host": "registrar-prices.p.rapidapi.com",
   "operations": [
     "get_meta_tlds",

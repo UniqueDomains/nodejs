@@ -209,7 +209,7 @@ describe('ud: problems and usage', () => {
         const count = server.requests.length;
         const { code, stderr } = await ud(['--rapidapi-key', 'rk', '--listing', 'whois', 'get-name', 'harbor.io']);
         assert.equal(code, 1);
-        assert.match(stderr, /not part of the WHOIS Lookup listing/);
+        assert.match(stderr, /not part of the WHOIS Lookup API listing/);
         assert.equal(server.requests.length, count);
     });
 
@@ -292,7 +292,7 @@ describe('ud: help, version, openapi', () => {
     it('lists commands by API with summaries', async () => {
         const { code, stdout } = await ud(['--help']);
         assert.equal(code, 0);
-        assert.match(stdout, /Domain Check\n\s+get-name <name>\s+The stored answer for one domain name/);
+        assert.match(stdout, /Domain Check API\n\s+get-name <name>\s+The stored answer for one domain name/);
         assert.match(stdout, /whoami/);
     });
 

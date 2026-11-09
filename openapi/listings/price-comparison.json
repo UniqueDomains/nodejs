@@ -1,6 +1,6 @@
 {
   "id": "price-comparison",
-  "title": "Domain Price Comparison",
+  "title": "Domain Price Comparison API",
   "host": "domain-price-comparison.p.rapidapi.com",
   "operations": [
     "get_name_prices",

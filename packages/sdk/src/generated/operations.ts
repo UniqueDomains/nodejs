@@ -12,42 +12,42 @@ export const API_PUBLIC_BASE = "https://api.unique.domains/v1";
 export const TAGS = [
     {
         id: "names",
-        title: "Domain Check",
+        title: "Domain Check API",
         description: "Any domain name: status, registry record, DNS, prices, value, past sales and its open auction."
     },
     {
         id: "words",
-        title: "Word Intelligence",
+        title: "Word Intelligence API",
         description: "The one-word catalog: profiles, endings, names, trademarks, notability, market and the word intake."
     },
     {
         id: "catalog",
-        title: "Domain Catalog",
+        title: "One-Word Domains API",
         description: "The tracked one-word names: filtered lists, expiring names, drops, hacks, the change feed and catalog totals."
     },
     {
         id: "tlds",
-        title: "TLD Intelligence",
+        title: "TLD Intelligence API",
         description: "Every ending: registry facts, phases, market statistics, changes, keywords and the ICANN applications."
     },
     {
         id: "registrars",
-        title: "Registrar Prices",
+        title: "Registrar Prices API",
         description: "Registrar price lists, price changes, renewal traps, cheapest registrars, venues and the IANA registrar list."
     },
     {
         id: "market",
-        title: "Domain Market",
+        title: "Domain Market API",
         description: "Domain sales as aggregates and the day's domain auctions."
     },
     {
         id: "trends",
-        title: "Trends",
+        title: "Domain Trends API",
         description: "The trends behind the daily editions: definitions, searches, growth and categories."
     },
     {
         id: "agenda",
-        title: "Agenda",
+        title: "TLD Launch Calendar API",
         description: "Industry events and the dated agenda of TLD phases and registry changes, in JSON or iCalendar."
     },
     {
@@ -75,7 +75,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -144,7 +144,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -197,7 +197,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -229,7 +229,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -261,7 +261,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -293,7 +293,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -325,7 +325,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -382,7 +382,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -414,7 +414,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -446,7 +446,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -478,7 +478,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -510,7 +510,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
@@ -1352,7 +1352,7 @@ export const OPERATIONS = {
                 in: "path",
                 required: true,
                 type: "string",
-                example: "lantern.io",
+                example: "get.plumbing",
                 description: "A lowercase name or `dom_<uuid>`."
             },
             {
@@ -1848,7 +1848,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "One TLD in full: registry facts, phases, market, quality band and registrar prices.",
-        description: "A public-set TLD with a rollup carries the website insight bundle without its name sample, news, description words and topics. Any other TLD answers its registry facts and phases, and its market on a paid subscription. A removed or terminated TLD is 404.",
+        description: "A public-set TLD with its figures computed carries the website insight bundle without its name sample, news, description words and topics. Any other TLD answers its registry facts and phases, and its market on a paid subscription. A removed or terminated TLD is 404.",
         parameters: [
             {
                 name: "tld",
@@ -1879,7 +1879,7 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The ending's latest market rollup, and with history its last daily rows.",
+        summary: "The ending's latest market figures, and with history its last daily rows.",
         description: "Free for a public-set TLD (the website page carries these aggregates), keyed outside it. Scored rows only.",
         parameters: [
             {
@@ -2409,7 +2409,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Names tracked under the registrar on the latest footprint day, rounded, with its top endings.",
-        description: "From the scanner's footprint rollup, keyed by IANA id; 404 for a registrar with no IANA id or no row.",
+        description: "From the scanner's footprint figures, keyed by IANA id; 404 for a registrar with no IANA id or no row.",
         parameters: [
             {
                 name: "registrar",
@@ -2949,7 +2949,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Up to ten words whose sales moved over the last 30 days.",
-        description: "Words with three sales or more in 30 days against the 30 before, in the rollup's stored order, words with a deny class left out. Never the sold names.",
+        description: "Words with three sales or more in 30 days against the 30 before, in the stored order, words with a deny class left out. Never the sold names.",
         parameters: [
             {
                 name: "fields",
@@ -3028,7 +3028,7 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The day's frozen sample of up to 20 single-word names at auction, by deadline.",
+        summary: "The day's fixed sample of up to 20 single-word names at auction, by deadline.",
         description: "Drawn once per UTC day from single base-form words on the public TLD set closing that day, at most ten of them with a bid. Never sorted, filtered or paged. No rows while the day has no sample.",
         parameters: [
             {
@@ -3776,7 +3776,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The OpenAPI document of the API, whole or for one listing, in its 3.1 or 3.0 form.",
-        description: "Built from the typed endpoint catalog, served bare (no envelope). Each RapidAPI listing imports its own document with `listing`, in the 3.0 form (`oas=3.0`), the one RapidAPI's import accepts.",
+        description: "Built from the typed endpoint catalog, served bare (no envelope). Each RapidAPI listing imports its own document with `listing`, in the 3.0 form (`oas=3.0`), the one RapidAPI's import accepts. Not counted against the free tier's per-address limits.",
         parameters: [
             {
                 name: "listing",
@@ -3830,7 +3830,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The free endpoints as plain text for language models.",
-        description: "`text/plain`, generated from the catalog, served bare (no envelope).",
+        description: "`text/plain`, generated from the catalog, served bare (no envelope). Not counted against the free tier's per-address limits.",
         parameters: [],
         body: null,
         csv: false,
@@ -3846,7 +3846,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Liveness, with no database read.",
-        description: "Answers `ok` with the server time.",
+        description: "Answers `ok` with the server time. Not counted against the free tier's per-address limits.",
         parameters: [
             {
                 name: "fields",

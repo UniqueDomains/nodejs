@@ -1,6 +1,6 @@
 {
   "id": "trending-topics",
-  "title": "Trending Topics",
+  "title": "Startup Trending Topics API",
   "host": "trending-topics1.p.rapidapi.com",
   "operations": [
     "get_meta_tlds",

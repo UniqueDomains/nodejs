@@ -1,6 +1,6 @@
 {
   "id": "tlds",
-  "title": "TLD Intelligence",
+  "title": "TLD Intelligence API",
   "host": "tld-intelligence.p.rapidapi.com",
   "operations": [
     "list_tlds",

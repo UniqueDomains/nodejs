@@ -1,6 +1,6 @@
 {
   "id": "sales-history",
-  "title": "Domain Sales History",
+  "title": "Domain Sales History API",
   "host": "domain-sales-history1.p.rapidapi.com",
   "operations": [
     "get_name_comps",

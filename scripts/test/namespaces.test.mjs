@@ -83,7 +83,7 @@ describe('namespaces (plan decision 13)', () => {
         const withThings = { ...document, paths: { ...document.paths, '/things/{name}': { get: document.paths['/names/{name}'].get } } };
         const source = buildNamespacesSource(withThings, [...operations, { ...operations[0], id: 'get_thing', tag: 'things', path: '/things/{name}' }]);
         assert.match(source, /^ {4}things: \{\n {8}get: "get_thing"/m);
-        assert.match(source, /ud\.things\.get\('lantern\.io'\)/);
+        assert.match(source, /ud\.things\.get\('get\.plumbing'\)/);
     });
 
     it('refuse an override outside the namespaces, or without a method (review m8)', () => {
@@ -127,7 +127,7 @@ describe('namespaces (plan decision 13)', () => {
     it('write a JSDoc example for every method', () => {
         const source = buildNamespacesSource(document, operations);
         assert.equal(source.match(/@example/g).length, operations.length);
-        assert.match(source, /const answer = await ud\.names\.get\('lantern\.io'\);/);
+        assert.match(source, /const answer = await ud\.names\.get\('get\.plumbing'\);/);
         assert.match(source, /for await \(const row of ud\.tlds\.list\(\)\) console\.log\(row\);/);
         assert.match(source, /ud\.prices\.ianaRegistrar\(1861\)/);
     });

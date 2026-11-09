@@ -1,6 +1,6 @@
 {
   "id": "auctions",
-  "title": "Domain Auctions",
+  "title": "Domain Auctions API",
   "host": "domain-auctions.p.rapidapi.com",
   "operations": [
     "get_name_auction",

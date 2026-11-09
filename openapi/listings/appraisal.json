@@ -1,6 +1,6 @@
 {
   "id": "appraisal",
-  "title": "Domain Appraisal",
+  "title": "Domain Appraisal API",
   "host": "domain-appraisal3.p.rapidapi.com",
   "operations": [
     "get_name_value",

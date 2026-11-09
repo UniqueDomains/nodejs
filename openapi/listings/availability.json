@@ -1,6 +1,6 @@
 {
   "id": "availability",
-  "title": "Domain Availability",
+  "title": "Domain Availability API",
   "host": "domain-availability14.p.rapidapi.com",
   "operations": [
     "get_name",

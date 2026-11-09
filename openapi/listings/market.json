@@ -1,6 +1,6 @@
 {
   "id": "market",
-  "title": "Domain Market",
+  "title": "Domain Market API",
   "host": "domain-market.p.rapidapi.com",
   "operations": [
     "get_meta_tlds",
