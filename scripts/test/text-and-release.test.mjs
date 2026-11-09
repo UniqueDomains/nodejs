@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -59,18 +59,6 @@ describe('scripts/list-packages.mjs (plan lane N2)', () => {
         const folders = execFileSync(process.execPath, [join(ROOT, 'scripts', 'list-packages.mjs')], { encoding: 'utf8' }).trim().split('\n');
         assert.equal(folders[0], 'sdk');
         assert.deepEqual([...folders].sort(), readdirSync(join(ROOT, 'packages')).filter((folder) => existsSync(join(ROOT, 'packages', folder, 'package.json'))).sort());
-    });
-});
-
-describe('the nightly\'s live calls (review N2-17)', () => {
-    it('stay inside the keyless hourly window', async () => {
-        const { findReadmes } = await import('../lib/readme.mjs');
-        const runExamples = findReadmes(ROOT).flatMap((readme) => readme.examples).filter((example) => example.mode === 'run').length;
-        const SNAPSHOT_READS = 17;
-        const SMOKE_CALLS = (readFileSync(join(ROOT, 'scripts', 'smoke.mjs'), 'utf8').match(/await ud\(/g) ?? []).length;
-        const HOURLY_WINDOW = 60;
-        assert.ok(SMOKE_CALLS > 0);
-        assert.ok(SNAPSHOT_READS + SMOKE_CALLS + runExamples <= HOURLY_WINDOW, `${SNAPSHOT_READS} + ${SMOKE_CALLS} + ${runExamples} live calls in one night`);
     });
 });
 

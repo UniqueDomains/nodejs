@@ -68,7 +68,7 @@ export const availabilityBatch = (names: readonly string[], options?: BatchOptio
     names.forEach((name, index) => {
         if (typeof name !== 'string') throw new TypeError(`availabilityBatch: entry ${index} is not a name.`);
     });
-    if (names.length === 0 || names.length > MAX_BATCH_NAMES) throw new RangeError(`availabilityBatch takes 1 to ${MAX_BATCH_NAMES} names, not ${names.length}.`);
+    if (names.length === 0 || names.length > MAX_BATCH_NAMES) throw new RangeError(`Give 1 to ${MAX_BATCH_NAMES} names, not ${names.length}.`);
     const { ud, call } = connect(options);
     return ud.names.batch({ ...call, names: [...names] });
 };

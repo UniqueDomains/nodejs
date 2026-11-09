@@ -82,7 +82,7 @@ export const priceChanges = (options?: ConnectionOptions & CallOptions<'list_pri
  */
 export const cheapest = (tlds: readonly string[], options?: ConnectionOptions & Omit<CallOptions<'list_cheapest_prices'>, 'tlds'>): OperationCall<'list_cheapest_prices'> => {
     const endings = endingsOf(tlds);
-    if (endings.length === 0 || endings.length > MAX_CHEAPEST_TLDS) throw new RangeError(`cheapest takes 1 to ${MAX_CHEAPEST_TLDS} endings, not ${endings.length}.`);
+    if (endings.length === 0 || endings.length > MAX_CHEAPEST_TLDS) throw new RangeError(`Give 1 to ${MAX_CHEAPEST_TLDS} endings, not ${endings.length}.`);
     const { ud, call } = connect(options);
     return ud.prices.cheapest({ ...call, tlds: endings.join(',') });
 };

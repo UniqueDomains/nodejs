@@ -99,7 +99,9 @@ describe('ud-availability', () => {
         assert.equal(refused.code, 1);
         const before = server.requests.length;
         assert.equal((await runBin('domain-availability', ['a.io', 'b.io', '--check', '--key', KEY, ...base()])).code, 2);
-        assert.equal((await runBin('domain-availability', [...Array.from({ length: 101 }, (_, index) => `n${index}.io`), '--key', KEY, ...base()])).code, 2);
+        const overLimit = await runBin('domain-availability', [...Array.from({ length: 101 }, (_, index) => `n${index}.io`), '--key', KEY, ...base()]);
+        assert.equal(overLimit.code, 2);
+        assert.equal(overLimit.stderr, 'Give 1 to 100 names, not 101. Run ud-availability --help.\n');
         assert.equal((await runBin('domain-availability', ['--json'])).code, 2);
         assert.equal(server.requests.length, before);
     });

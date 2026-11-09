@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { after, before, describe, it } from 'node:test';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { LISTINGS } from '../packages/sdk/dist/index.js';
 import { writeGenerated } from '../scripts/readme-examples.mjs';
 import { runExample } from '../scripts/lib/readme.mjs';
 import { loadRecorded, startFixtureServer } from './support/fixture-server.mjs';
@@ -101,6 +103,31 @@ describe('the README examples, on the fixture server', () => {
             const printed = await runExample(examples[0]);
             const status = loadRecorded().find((fixture) => fixture.name === 'names-get-name').response.body.data.status;
             assert.deepEqual(printed, [[status]]);
+        });
+    });
+
+    // Here rather than with the other scripts' tests: the generated modules and the server are this file's, and a
+    // second process writing those modules would race with the import above.
+    describe('the nightly\'s live calls (review N2-17)', () => {
+        it('stay inside the keyless hourly window, an example counted by the requests it makes', async () => {
+            const callsOf = new Map();
+            for (const { readme, examples } of loaded) {
+                for (const example of examples.filter((entry) => entry.mode === 'run')) {
+                    const start = server.requests.length;
+                    await runExample(example);
+                    callsOf.set(`${readme.slug}/${example.name}`, server.requests.length - start);
+                }
+            }
+            for (const [example, calls] of callsOf) assert.ok(calls > 0, `${example} made no call`);
+            const publicSetPages = loadRecorded().filter((fixture) => fixture.name.startsWith('tlds-public-set-')).length;
+            assert.equal(callsOf.get('root/every-row'), publicSetPages);
+
+            const exampleCalls = [...callsOf.values()].reduce((sum, calls) => sum + calls, 0);
+            const SNAPSHOT_READS = LISTINGS.length + 1;
+            const SMOKE_CALLS = (readFileSync(join(ROOT, 'scripts', 'smoke.mjs'), 'utf8').match(/await ud\(/g) ?? []).length;
+            const HOURLY_WINDOW = 60;
+            assert.ok(SMOKE_CALLS > 0);
+            assert.ok(SNAPSHOT_READS + SMOKE_CALLS + exampleCalls <= HOURLY_WINDOW, `${SNAPSHOT_READS} + ${SMOKE_CALLS} + ${exampleCalls} live calls in one night`);
         });
     });
 });

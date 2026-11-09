@@ -84,18 +84,17 @@ describe('@uniquedomains/registrar-prices', () => {
             request: { method: 'GET', path: '/prices/tlds/ai/history', query, header: ['authorization', /./] },
             response: { status: 200, headers: { 'content-type': 'application/json' }, body: { data: rows, meta: { asOf: null, cursor, limit: 2 }, links: {} } },
         });
-        const extra = await startFixtureServer([page('', [row('a'), row('b')], 'c2'), page('cursor=c2', [row('c')], null)]);
+        const extra = await startFixtureServer([page('', [row('a'), row('b')], 'c2'), page('cursor=c2', [row('c'), row('d')], null)]);
+        const walk = async (limits) => {
+            const start = extra.requests.length;
+            const rows = [];
+            for await (const entry of priceHistory('ai', { apiKey: KEY, baseUrl: extra.base, ...limits })) rows.push(entry.registrar);
+            return { rows, requests: extra.requests.length - start };
+        };
         try {
-            const options = { apiKey: KEY, baseUrl: extra.base };
-            const all = [];
-            for await (const entry of priceHistory('ai', options)) all.push(entry.registrar);
-            assert.deepEqual(all, ['a', 'b', 'c']);
-            const cut = [];
-            for await (const entry of priceHistory('ai', { ...options, maxRows: 3 })) cut.push(entry.registrar);
-            assert.deepEqual(cut, ['a', 'b', 'c']);
-            const short = [];
-            for await (const entry of priceHistory('ai', { ...options, maxRows: 1 })) short.push(entry.registrar);
-            assert.deepEqual(short, ['a']);
+            assert.deepEqual(await walk({}), { rows: ['a', 'b', 'c', 'd'], requests: 2 });
+            assert.deepEqual(await walk({ maxRows: 3 }), { rows: ['a', 'b', 'c'], requests: 2 });
+            assert.deepEqual(await walk({ maxRows: 1 }), { rows: ['a'], requests: 1 });
         } finally {
             await extra.close();
         }
@@ -168,6 +167,9 @@ describe('ud-prices', () => {
         for (const args of [['--traps', '--changes'], ['--traps', 'io'], ['--changes', 'io'], ['--cheapest', ' , ', '--key', KEY], ['a', 'b'], ['...'], ['--history'], ['--cheapest', 'ai', 'io', '--key', KEY]]) {
             assert.equal((await runBin('registrar-prices', [...args, ...base()])).code, 2, args.join(' '));
         }
+        const overLimit = await runBin('registrar-prices', ['--cheapest', Array.from({ length: 101 }, (_, index) => `e${index}`).join(','), '--key', KEY, ...base()]);
+        assert.equal(overLimit.code, 2);
+        assert.equal(overLimit.stderr, 'Give 1 to 100 endings, not 101. Run ud-prices --help.\n');
         assert.equal(server.requests.length, before);
     });
 });
