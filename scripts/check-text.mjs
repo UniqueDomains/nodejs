@@ -15,11 +15,11 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', 'generated']);
+const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', '.next', 'generated']);
 const SKIP_FILES = new Set(['package-lock.json', 'openapi.json']);
 const SKIP_PATHS = [join(ROOT, 'openapi'), join(ROOT, 'test', 'fixtures', 'recorded')];
 // Every hand-written text file type, `.gitignore` included (review R1-13).
-const TEXT = /\.([mc]?[jt]s|json|md|ya?ml|txt|html|sh)$|^(LICENSE|\.gitignore)$/;
+const TEXT = /\.([mc]?[jt]s|[jt]sx|gs|json|md|ya?ml|txt|html|css|sh)$|^(LICENSE|\.gitignore)$/;
 
 // Built from parts so this file does not trip its own check.
 const BANNED = [

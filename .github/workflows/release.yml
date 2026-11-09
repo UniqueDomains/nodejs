@@ -1,6 +1,6 @@
 name: Release
 
-# A tag `v<version>` publishes both packages at that version through npm trusted publishing (plan decision 22): a
+# A tag `v<version>` publishes every package at that version through npm trusted publishing (plan decision 22): a
 # GitHub-hosted runner, Node 22, npm 11.5.1 or later, an OIDC token and no NODE_AUTH_TOKEN. The first version of each
 # package is published by hand; this workflow takes over once each package has a trusted-publishing configuration for
 # this repository and this file, with direct publishing switched on. A new configuration expires when no publish
@@ -31,7 +31,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # Fails when the tag does not match both packages' versions, or carries a pre-release (review R1-4).
+      # Fails when the tag does not match every package's version, or carries a pre-release (review R1-4).
       - run: node scripts/release-notes.mjs "$GITHUB_REF_NAME" > release-notes.md
       # A release ships the live document's shape: regenerate and commit first when this fails (plan decision 7).
       - run: npm run generate -- --check
@@ -47,11 +47,9 @@ jobs:
           if-no-files-found: error
           path: |
             release-notes.md
-            packages/sdk/dist
+            packages/*/dist
+            packages/*/LICENSE
             packages/sdk/openapi.json
-            packages/sdk/LICENSE
-            packages/cli/dist
-            packages/cli/LICENSE
 
   publish:
     needs: build
@@ -69,10 +67,10 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - run: npm install -g npm@^11.5.1
-      - name: Publish @uniquedomains/sdk, then @uniquedomains/cli
+      - name: Publish @uniquedomains/sdk, then every other package
         run: |
           version="${GITHUB_REF_NAME#v}"
-          for package in sdk cli; do
+          for package in $(node scripts/list-packages.mjs); do
             name="@uniquedomains/${package}"
             # A re-run after a partial publish skips what is already on the registry.
             if npm view "${name}@${version}" version >/dev/null 2>&1; then

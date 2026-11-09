@@ -4,10 +4,12 @@
 ----------------------------------*/
 
 /**
- * Packs both packages, installs the two tarballs into an empty project in a temporary folder, then requires and
- * imports the SDK, runs the SDK README's first example against the local fixture server, requires the CLI, and runs
- * both bins with `--version` and `--help`. Fails on a tarball without its code (review R1-1: a pack from an unbuilt
- * tree shipped two files), without its namespaced methods or without its bins. Offline: no API call.
+ * Packs every package, installs the tarballs into an empty project in a temporary folder, then requires and imports
+ * the SDK, runs the SDK README's first example against the local fixture server, requires the CLI, and runs its bins
+ * with `--version` and `--help`. Each use-case package is loaded in both module formats, its first function runs
+ * against the fixture server, and its bin runs too, by its bin name and through `npx`. Fails on a tarball without its
+ * code (review R1-1: a pack from an unbuilt tree shipped two files), without its namespaced methods or without its
+ * bins. Offline: no API call.
  *
  * Usage: npm run check:pack   (packs the tree as it is: `prepack` builds it first)
  */
@@ -17,9 +19,16 @@ import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { packageFolders } from './lib/packages.mjs';
 import { loadRecorded, startFixtureServer } from '../test/support/fixture-server.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const USE_CASES = [
+    { name: 'whois', bin: 'ud-whois', call: 'whois', fn: ['whois', 'dns', 'whoisHistory'], arg: 'get.plumbing', read: 'registrar.name' },
+    { name: 'domain-availability', bin: 'ud-availability', call: 'availability', fn: ['availability', 'check', 'availabilityBatch'], arg: 'get.plumbing', read: 'status' },
+    { name: 'registrar-prices', bin: 'ud-prices', call: 'pricesForTld', fn: ['pricesForTld', 'renewalTraps', 'priceChanges', 'cheapest', 'priceHistory'], arg: 'io', read: 'length' },
+    { name: 'domain-appraisal', bin: 'ud-appraise', call: 'comparableSales', fn: ['comparableSales', 'appraisal', 'appraise'], arg: 'get.plumbing', read: 'count' },
+];
 const work = mkdtempSync(join(tmpdir(), 'ud-pack-'));
 const run = (command, args, cwd) => execFileSync(command, args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 // The fixture server runs in this process, so a child that calls it must not block the event loop.
@@ -31,9 +40,10 @@ try {
     const tarballs = join(work, 'tarballs');
     const project = join(work, 'project');
     run('mkdir', ['-p', tarballs], ROOT);
-    run('npm', ['pack', '--workspace', 'packages/sdk', '--workspace', 'packages/cli', '--pack-destination', tarballs], ROOT);
+    const folders = packageFolders();
+    run('npm', ['pack', ...folders.flatMap((folder) => ['--workspace', `packages/${folder}`]), '--pack-destination', tarballs], ROOT);
     const files = readdirSync(tarballs).filter((file) => file.endsWith('.tgz')).map((file) => join(tarballs, file));
-    if (files.length !== 2) throw new Error(`expected two tarballs, found ${files.length}`);
+    if (files.length !== folders.length) throw new Error(`expected ${folders.length} tarballs, found ${files.length}`);
 
     run('mkdir', ['-p', project], ROOT);
     writeFileSync(join(project, 'package.json'), '{ "name": "ud-pack-check", "private": true }\n');
@@ -49,6 +59,23 @@ try {
         const printed = await runAsync(process.execPath, ['--input-type=module', '-e', firstExample, server.base], project);
         const status = loadRecorded().find((fixture) => fixture.name === 'names-get-name').response.body.data.status;
         if (printed.trim() !== status) throw new Error(`the README's first example printed "${printed.trim()}", not "${status}"`);
+
+        for (const useCase of USE_CASES) {
+            const specifier = `@uniquedomains/${useCase.name}`;
+            const names = JSON.stringify(useCase.fn);
+            run(process.execPath, ['-e', `const p = require("${specifier}"); if (!${names}.every((name) => typeof p[name] === "function") || typeof p.PlanRequiredError !== "function") process.exit(1);`], project);
+            const script = `import { ${useCase.call}, PlanRequiredError } from "${specifier}"; import { PlanRequiredError as FromSdk } from "@uniquedomains/sdk"; if (PlanRequiredError !== FromSdk) process.exit(3); const answer = await ${useCase.call}(process.argv[1], { apiKey: null, baseUrl: process.argv[2] }); console.log(${useCase.read.split('.').reduce((path, key) => `${path}?.${key}`, 'answer')});`;
+            const answer = (await runAsync(process.execPath, ['--input-type=module', '-e', script, useCase.arg, server.base], project)).trim();
+            if (!answer || answer === 'undefined') throw new Error(`${specifier} printed "${answer}"`);
+
+            const binPath = join(project, 'node_modules', '.bin', useCase.bin);
+            if (!/^\d+\.\d+\.\d+$/.test(run(binPath, ['--version'], project).trim())) throw new Error(`${useCase.bin} --version`);
+            if (!run(binPath, ['--help'], project).includes(`${useCase.bin} <`)) throw new Error(`${useCase.bin} --help shows no usage`);
+            JSON.parse(await runAsync(binPath, [useCase.arg, '--base', server.base], project));
+            // What the plan's first line promises: `npx @uniquedomains/<package> ...` finds the one bin. Offline here.
+            const viaNpx = await runAsync('npx', ['--offline', '--no', specifier, useCase.arg, '--base', server.base], project);
+            if (!viaNpx.trim()) throw new Error(`npx ${specifier} printed nothing`);
+        }
     } finally {
         await server.close();
     }
