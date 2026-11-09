@@ -38,7 +38,7 @@ export const dns = (name: string, options?: ConnectionOptions & CallOptions<'get
  * paid RapidAPI subscription.
  *
  * @example
- * const history = await whoisHistory('get.plumbing', { apiKey: process.env.UD_API_KEY });
+ * const history = await whoisHistory('zorbly.io', { apiKey: process.env.UD_API_KEY });
  */
 export const whoisHistory = (name: string, options?: ConnectionOptions & CallOptions<'get_name_registry_history'>): OperationCall<'get_name_registry_history'> => {
     const { ud, call } = connect(options);

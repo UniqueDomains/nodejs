@@ -24,13 +24,23 @@ export const MAX_CHEAPEST_TLDS = 100;
 /** `.IO` and `io` are one ending. */
 const endingOf = (tld: string): string => tld.trim().replace(/^\./, '').toLowerCase();
 
+/** The distinct endings of a list, as the API reads it: an entry may hold several, separated by commas. */
+const endingsOf = (tlds: readonly string[]): string[] => {
+    if (!Array.isArray(tlds)) throw new TypeError('cheapest takes a list of endings.');
+    const entries = tlds.flatMap((tld, index) => {
+        if (typeof tld !== 'string') throw new TypeError(`cheapest: entry ${index} is not an ending.`);
+        return tld.split(',');
+    });
+    return [...new Set(entries.map(endingOf).filter(Boolean))];
+};
+
 /*----------------------------------
 - PUBLIC API
 ----------------------------------*/
 
 /**
  * Every registrar's list price for an ending, with the cheapest and renewal-trap marks. Free on the public set of
- * endings; outside it, the free tier reads one ending a UTC day.
+ * endings (`publicSet` in the API's TLD list); outside it, the free tier reads one ending a UTC day.
  *
  * @example
  * const prices = await pricesForTld('io');
@@ -71,10 +81,10 @@ export const priceChanges = (options?: ConnectionOptions & CallOptions<'list_pri
  * const rows = await cheapest(['ai', 'io'], { apiKey: process.env.UD_API_KEY });
  */
 export const cheapest = (tlds: readonly string[], options?: ConnectionOptions & Omit<CallOptions<'list_cheapest_prices'>, 'tlds'>): OperationCall<'list_cheapest_prices'> => {
-    if (!Array.isArray(tlds)) throw new TypeError('cheapest takes a list of endings.');
-    if (tlds.length === 0 || tlds.length > MAX_CHEAPEST_TLDS) throw new RangeError(`cheapest takes 1 to ${MAX_CHEAPEST_TLDS} endings, not ${tlds.length}.`);
+    const endings = endingsOf(tlds);
+    if (endings.length === 0 || endings.length > MAX_CHEAPEST_TLDS) throw new RangeError(`cheapest takes 1 to ${MAX_CHEAPEST_TLDS} endings, not ${endings.length}.`);
     const { ud, call } = connect(options);
-    return ud.prices.cheapest({ ...call, tlds: tlds.map(endingOf).join(',') });
+    return ud.prices.cheapest({ ...call, tlds: endings.join(',') });
 };
 
 /**

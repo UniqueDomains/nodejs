@@ -32,8 +32,8 @@ The stored value of a name and its last 20 estimates. It needs a key. `current` 
 ```js
 import { appraisal } from '@uniquedomains/domain-appraisal';
 
-const { current } = await appraisal('get.plumbing', { apiKey: process.env.UD_API_KEY });
-console.log(current.value, current.asOf);
+const { current } = await appraisal('zorbly.io', { apiKey: process.env.UD_API_KEY });
+console.log(current ? current.value : 'No estimate is stored yet.');
 ```
 
 Without a key, the call throws a `PlanRequiredError`:
@@ -43,7 +43,7 @@ Without a key, the call throws a `PlanRequiredError`:
 import { appraisal, PlanRequiredError } from '@uniquedomains/domain-appraisal';
 
 try {
-    await appraisal('get.plumbing');
+    await appraisal('zorbly.io');
 } catch (error) {
     if (error instanceof PlanRequiredError) console.log('Needs a key:', error.product);
     else throw error;
@@ -52,13 +52,13 @@ try {
 
 ## A fresh appraisal
 
-Runs the appraisal when a stored name's estimate is missing, and answers the value. It needs a key on the Investor plan, and spends one Appraisal unit when this call starts a run; a fresh estimate spends none. When another call holds the run, the API answers 202 with what is stored so far, so `current` may be `null`: ask again in about 30 seconds. The name must be stored already: [`check` in `@uniquedomains/domain-availability`](https://www.npmjs.com/package/@uniquedomains/domain-availability) stores it.
+Runs the appraisal when a stored name's estimate is missing or out of date, and answers the value. It needs a key on the Investor plan. Appraisals are counted apart from your calls, in Appraisal units your plan or RapidAPI subscription includes each month: this spends one when this call starts a run, and none on a fresh estimate. When another call holds the run, the API answers 202 with what is stored so far, so `current` may be `null`: ask again in about 30 seconds. The name must be stored already: [`check` in `@uniquedomains/domain-availability`](https://www.npmjs.com/package/@uniquedomains/domain-availability) stores it.
 
 <!-- example: appraise fixture -->
 ```js
 import { appraise } from '@uniquedomains/domain-appraisal';
 
-const { current } = await appraise('get.plumbing', { apiKey: process.env.UD_API_KEY });
+const { current } = await appraise('zorbly.io', { apiKey: process.env.UD_API_KEY });
 console.log(current ? current.value : 'Still running: ask again in about 30 seconds.');
 ```
 
@@ -66,8 +66,8 @@ console.log(current ? current.value : 'Still running: ask again in about 30 seco
 
 ```bash
 ud-appraise get.plumbing
-ud-appraise get.plumbing --value --key ud_live_...
-ud-appraise get.plumbing --run --key ud_live_...
+ud-appraise zorbly.io --value --key ud_live_...
+ud-appraise zorbly.io --run --key ud_live_...
 ```
 
 A table on a terminal, JSON in a pipe. `ud-appraise --help` lists the flags.

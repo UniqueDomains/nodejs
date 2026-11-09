@@ -84,7 +84,7 @@ describe('the README examples, on the fixture server', () => {
                 assert.equal(server.requests.at(-1).method, 'GET');
             });
 
-            it(`${slug}: no example is skipped, and each one that passes no key stays free`, () => {
+            it(`${slug}: no example is skipped, and each fixture-only example shows a key`, () => {
                 const readme = readmes.find((entry) => entry.slug === slug);
                 assert.equal(readme.examples.filter((example) => example.mode === 'skip').length, 0);
                 for (const example of readme.examples.filter((entry) => entry.mode === 'fixture')) assert.match(example.code, /process\.env\.UD_API_KEY/, example.name);

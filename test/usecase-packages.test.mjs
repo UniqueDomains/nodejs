@@ -42,9 +42,40 @@ const sectionOfFunction = (readme, name) => {
     return readme.slice(start, at);
 };
 
+/** What a README states in words, against the document's text or a recorded answer. */
+const FIGURES = [
+    { dir: 'registrar-prices', says: 'you read eight rows', holds: () => recordedData('usecase-price-traps').length === 8 && /8 rows/.test(operationOf('list_price_traps').description) },
+    { dir: 'registrar-prices', says: 'you read the ten newest', holds: () => recordedData('usecase-price-changes').length === 10 && /10 newest/.test(operationOf('list_price_changes').description) },
+    { dir: 'domain-appraisal', says: 'its last 20 estimates', holds: () => /last 20 estimates/.test(operationOf('get_name_value').summary) },
+    { dir: 'domain-appraisal', says: 'in about 30 seconds', holds: () => /Retry-After: 30/.test(operationOf('appraise_name').description) },
+    { dir: 'domain-availability', says: 'Up to 100 names', holds: () => /up to 100 names/.test(operationOf('batch_names').summary) },
+    { dir: 'registrar-prices', says: 'up to 100 endings', holds: () => /up to 100 endings/.test(operationOf('list_cheapest_prices').summary) },
+];
+
+const recordedData = (name) => JSON.parse(readFileSync(join(ROOT, 'test', 'fixtures', 'recorded', `${name}.json`), 'utf8')).response.body.data;
+
+describe('the figures the READMEs state (review N2-21)', () => {
+    for (const figure of FIGURES) {
+        it(`${figure.dir}: "${figure.says}"`, () => {
+            assert.ok(read(figure.dir, 'README.md').includes(figure.says), 'the README says it');
+            assert.ok(figure.holds(), 'the document or a recorded answer agrees');
+        });
+    }
+});
+
 describe('the use-case packages (plan decision 18)', () => {
     const root = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
     const version = JSON.parse(read('sdk', 'package.json')).version;
+
+    it('the root scripts and the pack check name every package (review N2-15)', () => {
+        const pack = readFileSync(join(ROOT, 'scripts', 'check-pack.mjs'), 'utf8');
+        for (const workspace of root.workspaces) {
+            assert.ok(root.scripts.build.includes(`--workspace ${workspace}`), `build: ${workspace}`);
+            assert.ok(root.scripts.typecheck.includes(`tsc -p ${workspace}`), `typecheck: ${workspace}`);
+        }
+        for (const spec of PACKAGES) assert.ok(pack.includes(`name: '${spec.dir}'`), `check-pack: ${spec.dir}`);
+        assert.deepEqual(PACKAGES.map((spec) => `packages/${spec.dir}`), root.workspaces.filter((workspace) => !/\/(sdk|cli)$/.test(workspace)));
+    });
 
     it('every package folder is a workspace, the SDK first', () => {
         assert.deepEqual([...root.workspaces].sort(), readdirSync(join(ROOT, 'packages')).filter((dir) => existsSync(join(ROOT, 'packages', dir, 'package.json'))).map((dir) => `packages/${dir}`).sort());
@@ -69,9 +100,12 @@ describe('the use-case packages (plan decision 18)', () => {
                 assert.equal(manifest.engines.node, '>=20');
             });
 
-            it('has one bin, ud-prefixed, so it shadows no system command', () => {
+            it('has one bin, ud-prefixed, so it shadows no system command, and its source says the same name and listing', () => {
                 assert.deepEqual(manifest.bin, { [spec.bin]: 'dist/bin.js' });
                 assert.match(spec.bin, /^ud-/);
+                const bin = read(spec.dir, 'src/bin.ts');
+                assert.ok(bin.includes(`bin: '${spec.bin}'`), 'the name in --help and errors');
+                assert.ok(bin.includes(`listing: '${spec.listing}'`), 'the listing of a --rapidapi-key');
             });
 
             it('carries the searched phrase in its title, its description and its keywords', () => {

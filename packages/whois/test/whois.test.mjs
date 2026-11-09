@@ -27,13 +27,13 @@ describe('@uniquedomains/whois', () => {
     });
 
     it('sends the key on the history, and answers its data', async () => {
-        const history = await whoisHistory('get.plumbing', { apiKey: KEY, baseUrl: server.base });
+        const history = await whoisHistory('zorbly.io', { apiKey: KEY, baseUrl: server.base });
         assert.equal(last().headers.authorization, `Bearer ${KEY}`);
         assert.equal(history.moves[0].to, 'Gandi SAS');
     });
 
     it('throws PlanRequiredError on the history without a key', async () => {
-        await assert.rejects(whoisHistory('get.plumbing', free()), (error) => {
+        await assert.rejects(whoisHistory('zorbly.io', free()), (error) => {
             assert.ok(error instanceof PlanRequiredError);
             assert.equal(error.code, 'keyed_only');
             return true;
@@ -41,7 +41,7 @@ describe('@uniquedomains/whois', () => {
     });
 
     it('throws PlanRequiredError on the history with a Founder key: it is an Investor endpoint', async () => {
-        await assert.rejects(whoisHistory('get.plumbing', { apiKey: FOUNDER_KEY, baseUrl: server.base }), (error) => {
+        await assert.rejects(whoisHistory('zorbly.io', { apiKey: FOUNDER_KEY, baseUrl: server.base }), (error) => {
             assert.ok(error instanceof PlanRequiredError);
             assert.equal(error.code, 'plan_required');
             return true;
@@ -54,10 +54,18 @@ describe('@uniquedomains/whois', () => {
         assert.equal(last().headers['x-trace'], 'abc');
     });
 
+    it('refuses a client with a connection option beside it, before any call', () => {
+        const client = createClient({ apiKey: null, baseUrl: server.base });
+        const before = server.requests.length;
+        assert.throws(() => whois('get.plumbing', { client, apiKey: KEY }), /either client or apiKey, not both/);
+        assert.throws(() => whois('get.plumbing', { client, baseUrl: server.base, retry: true }), /either client or baseUrl, retry, not both/);
+        assert.equal(server.requests.length, before);
+    });
+
     it('reads a key from the environment, as the SDK does', async () => {
         process.env.UD_API_KEY = KEY;
         try {
-            await whoisHistory('get.plumbing', { baseUrl: server.base });
+            await whoisHistory('zorbly.io', { baseUrl: server.base });
             assert.equal(last().headers.authorization, `Bearer ${KEY}`);
         } finally {
             delete process.env.UD_API_KEY;
@@ -95,15 +103,15 @@ describe('ud-whois', () => {
     });
 
     it('sends --key on --history, and reads UD_API_KEY', async () => {
-        const flag = await runBin('whois', ['get.plumbing', '--history', '--key', KEY, ...base()]);
+        const flag = await runBin('whois', ['zorbly.io', '--history', '--key', KEY, ...base()]);
         assert.equal(flag.code, 0);
         assert.equal(last().headers.authorization, `Bearer ${KEY}`);
-        const env = await runBin('whois', ['get.plumbing', '--history', ...base()], { UD_API_KEY: KEY });
+        const env = await runBin('whois', ['zorbly.io', '--history', ...base()], { UD_API_KEY: KEY });
         assert.equal(env.code, 0);
     });
 
     it('exits 1 with the detail and the link when the API refuses', async () => {
-        const { code, stdout, stderr } = await runBin('whois', ['get.plumbing', '--history', ...base()]);
+        const { code, stdout, stderr } = await runBin('whois', ['zorbly.io', '--history', ...base()]);
         assert.equal(code, 1);
         assert.equal(stdout, '');
         assert.match(stderr, /needs a Pro, Ultra or Mega subscription, or a member key/);
@@ -132,6 +140,9 @@ describe('ud-whois', () => {
         assert.equal(code, 0, stdout);
         assert.equal(last().headers['x-rapidapi-host'], 'whois-lookup24.p.rapidapi.com');
         assert.equal(last().headers['x-rapidapi-key'], 'rk');
+        const fromEnv = await runBin('whois', ['harbor.io', '--rapidapi-key', 'rk', '--base', server.origin], { UD_RAPIDAPI_LISTING: 'registrars' });
+        assert.equal(fromEnv.code, 0, 'a listing set for ud in the environment never reaches this command');
+        assert.equal(last().headers['x-rapidapi-host'], 'whois-lookup24.p.rapidapi.com');
         const unknown = await runBin('whois', ['harbor.io', '--rapidapi-key', 'rk', '--listing', 'nope']);
         assert.equal(unknown.code, 2);
     });
@@ -154,7 +165,7 @@ describe('ud-whois', () => {
     });
 
     it('never prints the key', async () => {
-        const { stdout, stderr } = await runBin('whois', ['get.plumbing', '--history', '--key', KEY, ...base()]);
+        const { stdout, stderr } = await runBin('whois', ['zorbly.io', '--history', '--key', KEY, ...base()]);
         assert.doesNotMatch(stdout + stderr, new RegExp(KEY));
     });
 });

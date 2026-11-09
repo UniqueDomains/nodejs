@@ -19,7 +19,7 @@ Node 20 or later. ESM and CommonJS. Built on [`@uniquedomains/sdk`](https://www.
 import { whois } from '@uniquedomains/whois';
 
 const record = await whois('get.plumbing');
-console.log(record.registrar.name, record.expiresAt);
+console.log(record.registrar?.name ?? 'no registrar on file', record.expiresAt);
 ```
 
 The answer is the latest record stored in the Unique Domains catalog, not a query sent to the registry at that moment. A name with no stored record answers `read: false` and empty facts, never an error.
@@ -42,7 +42,7 @@ Every stored version of the record, the registrar moves between them, the transf
 ```js
 import { whoisHistory } from '@uniquedomains/whois';
 
-const history = await whoisHistory('get.plumbing', { apiKey: process.env.UD_API_KEY });
+const history = await whoisHistory('zorbly.io', { apiKey: process.env.UD_API_KEY });
 for (const move of history.moves) console.log(move.at, move.from, move.to);
 ```
 
@@ -53,7 +53,7 @@ Without a key, or with a key on a plan that does not include it, the call throws
 import { PlanRequiredError, whoisHistory } from '@uniquedomains/whois';
 
 try {
-    await whoisHistory('get.plumbing');
+    await whoisHistory('zorbly.io');
 } catch (error) {
     if (error instanceof PlanRequiredError) console.log('Needs a key:', error.product);
     else throw error;
@@ -65,7 +65,7 @@ try {
 ```bash
 ud-whois get.plumbing
 ud-whois get.plumbing --json
-ud-whois get.plumbing --history --key ud_live_...
+ud-whois zorbly.io --history --key ud_live_...
 ```
 
 A table on a terminal, JSON in a pipe. The bin is `ud-whois`, so it never shadows your system's `whois`. `ud-whois --help` lists the flags.

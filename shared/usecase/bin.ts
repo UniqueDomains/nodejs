@@ -37,8 +37,10 @@ export type BinAction = {
     call: AnyCall;
     /** A sentence to print on a terminal instead of an empty table. */
     empty?: (data: never) => string | null;
-    /** The `ud` command that reads the next page; `--cursor <cursor>` is added after it. */
+    /** The `ud` command that reads the next page; `--cursor <cursor>` and the key's flags are added after it. */
     nextPage?: string;
+    /** The connection the call used, when the command changed it (another RapidAPI listing). */
+    connection?: ClientOptions;
 };
 
 export type BinSpec = {
@@ -159,7 +161,8 @@ const resolveConnection = (args: Parsed, spec: BinSpec, env: Io['env']): ClientO
     const rapidEnv = nonEmpty(env.UD_RAPIDAPI_KEY);
     if (!memberFlag && !rapidFlag && memberEnv && rapidEnv) throw new UsageError('UD_API_KEY and UD_RAPIDAPI_KEY are both set: pass --key or --rapidapi-key to choose.');
     const rapidKey = rapidFlag ?? (memberFlag ? undefined : rapidEnv);
-    const listing = nonEmpty(args.listing) ?? nonEmpty(env.UD_RAPIDAPI_LISTING) ?? spec.listing;
+    // A use-case command is one listing by construction: `UD_RAPIDAPI_LISTING`, set for `ud`, would send another's here.
+    const listing = nonEmpty(args.listing) ?? spec.listing;
     if (!rapidKey && nonEmpty(args.listing)) throw new UsageError('--listing goes with a RapidAPI key (--rapidapi-key or UD_RAPIDAPI_KEY).');
     if (rapidKey && !isListingId(listing)) throw new UsageError(`Unknown listing "${listing}". Listings: ${LISTINGS.map((entry) => entry.id).join(', ')}.`);
     // A base left set from member work never receives a RapidAPI key, as in `ud`; an explicit --base may.
@@ -204,7 +207,13 @@ type Answer = {
     retryAfter?: number | null;
 };
 
-const printAnswer = (answer: Answer, action: BinAction, asJson: boolean, io: Io): void => {
+/** The flags the next page's command needs, as placeholders: never a key's value. */
+const keyPlaceholder = (connection: ClientOptions): string => {
+    if (connection.rapidApi) return ` --rapidapi-key <your key> --listing ${connection.rapidApi.listing}`;
+    return connection.apiKey ? ' --key <your key>' : '';
+};
+
+const printAnswer = (answer: Answer, action: BinAction, connection: ClientOptions, asJson: boolean, io: Io): void => {
     if (asJson) {
         io.stdout.write(`${JSON.stringify(answer.data, null, 2)}\n`);
     } else {
@@ -213,8 +222,18 @@ const printAnswer = (answer: Answer, action: BinAction, asJson: boolean, io: Io)
         io.stdout.write(line(sentence ?? renderData(answer.data, { width: io.columns })));
         if (answer.links?.register) io.stdout.write(line(`\nRegister: ${answer.links.register}`));
     }
-    if (answer.meta?.cursor && action.nextPage) io.stderr.write(line(`More rows: npx @uniquedomains/cli ${action.nextPage} --cursor ${answer.meta.cursor}`));
+    if (answer.meta?.cursor && action.nextPage) io.stderr.write(line(`More rows: npx @uniquedomains/cli ${action.nextPage} --cursor ${answer.meta.cursor}${keyPlaceholder(action.connection ?? connection)}`));
     if (answer.status === 202 && answer.location) io.stderr.write(line(`Accepted: the full answer will be at ${answer.location}${answer.retryAfter ? ` in about ${answer.retryAfter} seconds` : ''}.`));
+};
+
+/** The library's refusal of a list's size (a `RangeError` before any call) is the caller's typo, not a crash. */
+const planAction = (spec: BinSpec, args: BinArgs, connection: ClientOptions): BinAction => {
+    try {
+        return spec.plan(args, connection);
+    } catch (error) {
+        if (error instanceof RangeError) throw new UsageError(error.message);
+        throw error;
+    }
 };
 
 /*----------------------------------
@@ -236,9 +255,10 @@ export const runBin = async (spec: BinSpec, argv: readonly string[], io: Io): Pr
         // `registrar-prices` takes a leading dot off an ending (`...`, `' '`).
         const unusable = args.positionals.find((value) => /^[.\s]*$/.test(value));
         if (unusable !== undefined) throw new UsageError(`An argument cannot be "${unusable}".`);
-        const action = spec.plan(args, resolveConnection(args, spec, io.env));
+        const connection = resolveConnection(args, spec, io.env);
+        const action = planAction(spec, args, connection);
         const answer = await action.call.withMeta() as Answer;
-        printAnswer(answer, action, args.json ?? !io.isTTY, io);
+        printAnswer(answer, action, connection, args.json ?? !io.isTTY, io);
         return 0;
     } catch (error) {
         if (error instanceof UsageError) {

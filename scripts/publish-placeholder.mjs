@@ -9,6 +9,9 @@
  * in the release's order, the SDK first. Publishing the real version by hand instead would leave it without provenance,
  * and unable to install until the SDK's version is out (Gaetan's 1A of 2026-11-09).
  *
+ * Run it in the same sitting as the trusted-publisher setup and shortly before the tag: until the tag, installing one of
+ * these names gets a package with no code.
+ *
  * Reads the registry for each workspace and publishes only the packages it does not know, so a second run does nothing.
  * Publishing needs `npm login` and asks for the account's second factor.
  *

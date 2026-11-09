@@ -1,4 +1,4 @@
-import { createClient, RateLimitError, ValidationError } from '@uniquedomains/sdk';
+import { ApiProblemError, createClient, RateLimitError, ValidationError } from '@uniquedomains/sdk';
 
 // This page renders on the server, so the call and any key stay there: UD_API_KEY, when set, never reaches the browser.
 const ud = createClient();
@@ -11,6 +11,8 @@ const lookUp = async (name: string): Promise<Lookup> => {
     } catch (error) {
         if (error instanceof ValidationError) return { problem: error.detail };
         if (error instanceof RateLimitError) return { problem: `The free limit is reached for now. Try again in ${error.retryAfter ?? 'a few'} seconds.` };
+        // Any other refusal from the API: its short title, on the page. A network failure goes to Next.js's error page.
+        if (error instanceof ApiProblemError) return { problem: error.title };
         throw error;
     }
 };

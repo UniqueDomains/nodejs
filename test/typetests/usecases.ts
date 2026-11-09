@@ -18,6 +18,9 @@ export const answers = async () => {
     const status: string = stored.status;
     // @ts-expect-error availability's answer holds the fields it asks for, and `length` is not one of them.
     void stored.length;
+    // @ts-expect-error the whole answer holds the same fields: `.withMeta()` does not widen them.
+    void (await availability('get.plumbing').withMeta()).data.length;
+    const meta = (await availability('get.plumbing').withMeta()).meta;
     // @ts-expect-error availability chooses its fields.
     await availability('get.plumbing', { fields: ['name'] });
 
@@ -35,5 +38,5 @@ export const answers = async () => {
 
     const count: number = (await comparableSales('get.plumbing')).count;
     const value = (await appraisal('get.plumbing', { apiKey: 'k' })).current;
-    return { read, moved, status, first, count, value };
+    return { read, moved, status, meta, first, count, value };
 };

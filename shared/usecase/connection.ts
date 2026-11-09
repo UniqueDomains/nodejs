@@ -15,7 +15,7 @@ import { createClient, type ClientOptions, type UniqueDomainsClient } from '@uni
 ----------------------------------*/
 
 export type ConnectionOptions = ClientOptions & {
-    /** A client already made with `createClient`: reuses it. The other connection options are ignored, `headers` apart. */
+    /** A client already made with `createClient`: reuses it. It carries its own key and base, so only `headers` may come beside it. */
     client?: UniqueDomainsClient;
 };
 
@@ -26,6 +26,8 @@ export type ConnectionOptions = ClientOptions & {
 /** The client to call with, and the options that belong to the call. A key defaults to `UD_API_KEY`, as in the SDK. */
 export const connect = <T extends ConnectionOptions>(options: T | undefined) => {
     const { client, apiKey, rapidApi, baseUrl, headers, fetch, userAgent, retry, ...call } = (options ?? {}) as T;
+    const beside = Object.entries({ apiKey, rapidApi, baseUrl, fetch, userAgent, retry }).filter(([, value]) => value !== undefined).map(([name]) => name);
+    if (client && beside.length > 0) throw new TypeError(`Pass either client or ${beside.join(', ')}, not both: the client carries its own.`);
     const connection: ClientOptions = {
         ...(apiKey !== undefined ? { apiKey } : {}),
         ...(rapidApi !== undefined ? { rapidApi } : {}),

@@ -39,17 +39,17 @@ export const MAX_BATCH_NAMES = 100;
  * @example
  * const answer = await availability('get.plumbing');
  */
-export const availability = (name: string, options?: ConnectionOptions & Omit<CallOptions<'get_name'>, 'fields'>): ApiCall<Availability, ApiResult<EnvelopeOf<'get_name'>>> => {
+export const availability = (name: string, options?: ConnectionOptions & Omit<CallOptions<'get_name'>, 'fields'>): ApiCall<Availability, Omit<ApiResult<EnvelopeOf<'get_name'>>, 'data'> & { data: Availability }> => {
     const { ud, call } = connect(options);
     return ud.names.get(name, { ...call, fields: AVAILABILITY_FIELDS });
 };
 
 /**
  * Reads a name live from its registry and a registrar, stores the answer and returns it. Needs a key, and spends one
- * Live unit when the live read runs.
+ * Live unit when the live read runs, also when the registry was asked and did not conclude (status 202).
  *
  * @example
- * const answer = await check('get.plumbing', { apiKey: process.env.UD_API_KEY });
+ * const answer = await check('zorbly.io', { apiKey: process.env.UD_API_KEY });
  */
 export const check = (name: string, options?: ConnectionOptions & CallOptions<'check_name'>): OperationCall<'check_name'> => {
     const { ud, call } = connect(options);
@@ -61,10 +61,13 @@ export const check = (name: string, options?: ConnectionOptions & CallOptions<'c
  * plan, and is billed one call per name sent. No live read.
  *
  * @example
- * const answers = await availabilityBatch(['get.plumbing', 'domain.recipes'], { apiKey: process.env.UD_API_KEY });
+ * const answers = await availabilityBatch(['zorbly.io', 'zorbly.ai'], { apiKey: process.env.UD_API_KEY });
  */
 export const availabilityBatch = (names: readonly string[], options?: BatchOptions): OperationCall<'batch_names'> => {
     if (!Array.isArray(names)) throw new TypeError('availabilityBatch takes a list of names.');
+    names.forEach((name, index) => {
+        if (typeof name !== 'string') throw new TypeError(`availabilityBatch: entry ${index} is not a name.`);
+    });
     if (names.length === 0 || names.length > MAX_BATCH_NAMES) throw new RangeError(`availabilityBatch takes 1 to ${MAX_BATCH_NAMES} names, not ${names.length}.`);
     const { ud, call } = connect(options);
     return ud.names.batch({ ...call, names: [...names] });

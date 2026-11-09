@@ -26,24 +26,24 @@ console.log(answer.status, answer.ownableNow, answer.price.firstYear);
 
 ## The live check
 
-Reads the name from its registry and a registrar now, stores the answer and returns it. It needs a key, and spends one Live unit when the live read runs.
+Reads the name from its registry and a registrar now, stores the answer and returns it. It needs a key. Live checks are counted apart from your calls, in Live units your plan or RapidAPI subscription includes each month: this spends one when the live read runs, also when the registry was asked and did not conclude.
 
 <!-- example: check fixture -->
 ```js
 import { check } from '@uniquedomains/domain-availability';
 
-const answer = await check('get.plumbing', { apiKey: process.env.UD_API_KEY });
+const answer = await check('zorbly.io', { apiKey: process.env.UD_API_KEY });
 console.log(answer.status, answer.checked);
 ```
 
-`checked` is `false` when the answer came from storage and no unit was spent. When the registry was asked and did not conclude, the API answers 202 with what is stored so far, and `.withMeta()` carries that `status`. Without a key, the call throws a `PlanRequiredError`:
+`checked` is `false` when the answer came from storage and no unit was spent. When the registry did not conclude, the API answers 202 with what is stored so far, and `.withMeta()` carries that `status`. Without a key, the call throws a `PlanRequiredError`:
 
 <!-- example: refused -->
 ```js
 import { check, PlanRequiredError } from '@uniquedomains/domain-availability';
 
 try {
-    await check('get.plumbing');
+    await check('zorbly.io');
 } catch (error) {
     if (error instanceof PlanRequiredError) console.log('Needs a key:', error.product);
     else throw error;
@@ -58,7 +58,7 @@ Up to 100 names, with their stored answers in the order you sent them. It needs 
 ```js
 import { availabilityBatch } from '@uniquedomains/domain-availability';
 
-const answers = await availabilityBatch(['get.plumbing', 'zorbly.ai', 'foo@bar.com'], { apiKey: process.env.UD_API_KEY });
+const answers = await availabilityBatch(['zorbly.io', 'zorbly.ai', 'foo@bar.com'], { apiKey: process.env.UD_API_KEY });
 for (const answer of answers) console.log(answer.name, answer.error ?? answer.status ?? 'not in the catalog');
 ```
 
@@ -66,8 +66,8 @@ for (const answer of answers) console.log(answer.name, answer.error ?? answer.st
 
 ```bash
 ud-availability get.plumbing
-ud-availability get.plumbing --check --key ud_live_...
-ud-availability get.plumbing zorbly.ai --key ud_live_...
+ud-availability zorbly.io --check --key ud_live_...
+ud-availability zorbly.io zorbly.ai --key ud_live_...
 ```
 
 A table on a terminal, JSON in a pipe. `ud-availability --help` lists the flags.

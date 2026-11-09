@@ -26,7 +26,7 @@ const version = tag.slice(1);
 for (const name of packageFolders()) {
     const manifest = manifestOf(name);
     if (manifest.version !== version) throw new Error(`packages/${name} is ${manifest.version}, the tag says ${version}`);
-    if (name !== 'sdk' && manifest.dependencies['@uniquedomains/sdk'] !== version) throw new Error(`packages/${name} depends on @uniquedomains/sdk ${manifest.dependencies['@uniquedomains/sdk']}, not ${version}`);
+    if (name !== 'sdk' && manifest.dependencies?.['@uniquedomains/sdk'] !== version) throw new Error(`packages/${name} depends on @uniquedomains/sdk ${manifest.dependencies?.['@uniquedomains/sdk']}, not ${version}`);
 }
 
 // stderr is dropped: on the first tag `git describe` finds no previous tag, which is expected, not an error to show.

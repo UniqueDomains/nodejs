@@ -28,17 +28,17 @@ describe('@uniquedomains/domain-appraisal', () => {
     });
 
     it('sends the key on the stored value, by GET: it never starts a run', async () => {
-        const { current } = await appraisal('get.plumbing', keyed());
+        const { current } = await appraisal('zorbly.io', keyed());
         assert.equal(last().method, 'GET');
-        assert.equal(last().path, '/v1/names/get.plumbing/value');
+        assert.equal(last().path, '/v1/names/zorbly.io/value');
         assert.equal(last().headers.authorization, `Bearer ${KEY}`);
         assert.equal(current.value, 4200);
     });
 
     it('posts a fresh appraisal, with the key', async () => {
-        const { current } = await appraise('get.plumbing', keyed());
+        const { current } = await appraise('zorbly.io', keyed());
         assert.equal(last().method, 'POST');
-        assert.equal(last().path, '/v1/names/get.plumbing/appraise');
+        assert.equal(last().path, '/v1/names/zorbly.io/appraise');
         assert.equal(current.value, 4200);
     });
 
@@ -49,12 +49,12 @@ describe('@uniquedomains/domain-appraisal', () => {
     });
 
     it('throws PlanRequiredError on a fresh appraisal with a Founder key or none', async () => {
-        await assert.rejects(appraise('get.plumbing', { apiKey: FOUNDER_KEY, baseUrl: server.base }), (error) => {
+        await assert.rejects(appraise('zorbly.io', { apiKey: FOUNDER_KEY, baseUrl: server.base }), (error) => {
             assert.ok(error instanceof PlanRequiredError);
             assert.equal(error.code, 'plan_required');
             return true;
         });
-        await assert.rejects(appraise('get.plumbing', free()), (error) => {
+        await assert.rejects(appraise('zorbly.io', free()), (error) => {
             assert.ok(error instanceof PlanRequiredError);
             assert.equal(error.code, 'keyed_only');
             return true;
@@ -88,14 +88,14 @@ describe('ud-appraise', () => {
     });
 
     it('runs --value and --run with a key', async () => {
-        assert.equal((await runBin('domain-appraisal', ['get.plumbing', '--value', '--key', KEY, ...base()])).code, 0);
+        assert.equal((await runBin('domain-appraisal', ['zorbly.io', '--value', '--key', KEY, ...base()])).code, 0);
         assert.equal(last().method, 'GET');
-        assert.equal((await runBin('domain-appraisal', ['get.plumbing', '--run', '--key', KEY, ...base()])).code, 0);
+        assert.equal((await runBin('domain-appraisal', ['zorbly.io', '--run', '--key', KEY, ...base()])).code, 0);
         assert.equal(last().method, 'POST');
     });
 
     it('exits 1 on --value without a key, and 2 on both modes at once', async () => {
-        assert.equal((await runBin('domain-appraisal', ['get.plumbing', '--value', ...base()])).code, 1);
-        assert.equal((await runBin('domain-appraisal', ['get.plumbing', '--value', '--run', ...base()])).code, 2);
+        assert.equal((await runBin('domain-appraisal', ['zorbly.io', '--value', ...base()])).code, 1);
+        assert.equal((await runBin('domain-appraisal', ['zorbly.io', '--value', '--run', ...base()])).code, 2);
     });
 });

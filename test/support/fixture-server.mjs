@@ -47,7 +47,10 @@ export const FOUNDER_KEY = 'ud_live_founder';
 
 const keyedOnly = (method, path) => problem('keyed_only', 403, `${method} ${path} needs a Pro, Ultra or Mega subscription, or a member key.`, { product: 'https://unique.domains/pricing' });
 
-/** A keyed call: the answer with a member key, and the free grade's refusal without one. The bodies are the document's examples. */
+/**
+ * A keyed call: the answer with a member key, and the free grade's refusal without one. The bodies are the document's
+ * examples, on a made-up name, so nobody reads them as facts about a real one.
+ */
 const keyed = (name, method, path, query, data, plan = null) => [
     // An Investor endpoint: a Founder key is refused by plan. First, since the pattern below also fits that key.
     ...(plan === 'investor' ? [{ name: `${name}-founder`, request: { method, path, query, header: ['authorization', `Bearer ${FOUNDER_KEY}`] }, response: json(403, problem('plan_required', 403, `${method} ${path} needs the Investor plan.`, { product: 'https://app.unique.domains/settings/account' })) }] : []),
@@ -56,16 +59,16 @@ const keyed = (name, method, path, query, data, plan = null) => [
 ];
 
 const VALUE = { current: { value: 4200, asOf: '2026-10-30T11:02:00.000Z' }, history: [{ value: 4200, date: '2026-10-30T11:02:00.000Z' }] };
-const KEYED_NAME = { ...getNameBody('get.plumbing').data, rating: { band: 'strong', score: 68 }, value: { value: 4200, upsidePercent: null, liquidity: 'medium' } };
+const KEYED_NAME = { ...getNameBody('zorbly.io').data, rating: { band: 'strong', score: 68 }, value: { value: 4200, upsidePercent: null, liquidity: 'medium' } };
 
 export const SYNTHETIC = [
-    ...keyed('usecase-registry-history', 'GET', '/names/get.plumbing/registry/history', '', { versions: [{ observedAt: '2025-06-02T04:10:00.000Z', registrar: 'GoDaddy.com, LLC', registered: true }], moves: [{ at: '2026-02-11T08:02:00.000Z', from: 'GoDaddy.com, LLC', to: 'Gandi SAS' }], transfers: [], lockChanges: [] }, 'investor'),
-    ...keyed('usecase-check', 'POST', '/names/get.plumbing/check', '', { ...KEYED_NAME, checked: true }),
+    ...keyed('usecase-registry-history', 'GET', '/names/zorbly.io/registry/history', '', { versions: [{ observedAt: '2025-06-02T04:10:00.000Z', registrar: 'GoDaddy.com, LLC', registered: true }], moves: [{ at: '2026-02-11T08:02:00.000Z', from: 'GoDaddy.com, LLC', to: 'Gandi SAS' }], transfers: [], lockChanges: [] }, 'investor'),
+    ...keyed('usecase-check', 'POST', '/names/zorbly.io/check', '', { ...KEYED_NAME, checked: true }),
     ...keyed('usecase-cheapest', 'GET', '/prices/cheapest', 'tlds=ai,io', [{ ending: 'ai', cheapestYear1: { registrar: 'porkbun', price: 71.4 }, cheapestRenewal: { registrar: 'porkbun', price: 71.4 }, cheapestTransfer: { registrar: 'cloudflare', price: 80 }, trap: false }, { ending: 'io', cheapestYear1: { registrar: 'porkbun', price: 28.12 }, cheapestRenewal: { registrar: 'cloudflare', price: 38.5 }, cheapestTransfer: { registrar: 'cloudflare', price: 38.5 }, trap: false }]),
     ...keyed('usecase-price-history', 'GET', '/prices/tlds/io/history', '', [{ registrar: 'namecheap', currency: 'USD', purchasePrice: 34.98, regularPurchasePrice: null, renewalPrice: 59.98, transferPrice: 54.98, isPromo: false, firstSeenAt: '2026-11-03T05:40:00.000Z', lastSeenAt: '2026-11-05T05:41:00.000Z', observations: 3 }], 'investor'),
-    ...keyed('usecase-value', 'GET', '/names/get.plumbing/value', '', VALUE),
+    ...keyed('usecase-value', 'GET', '/names/zorbly.io/value', '', VALUE),
     ...keyed('usecase-value-untracked', 'GET', '/names/harbor.io/value', '', { current: null, history: [] }),
-    ...keyed('usecase-appraise', 'POST', '/names/get.plumbing/appraise', '', VALUE, 'investor'),
+    ...keyed('usecase-appraise', 'POST', '/names/zorbly.io/appraise', '', VALUE, 'investor'),
     {
         name: 'usecase-appraise-running',
         request: { method: 'POST', path: '/names/running.io/appraise', query: '', header: ['authorization', USECASE_KEY] },

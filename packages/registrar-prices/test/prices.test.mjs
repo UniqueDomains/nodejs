@@ -55,7 +55,7 @@ describe('@uniquedomains/registrar-prices', () => {
         const before = server.requests.length;
         assert.throws(() => cheapest('ai,io', keyed()), TypeError);
         assert.throws(() => cheapest([], keyed()), RangeError);
-        assert.throws(() => cheapest(Array.from({ length: MAX_CHEAPEST_TLDS + 1 }, () => 'io'), keyed()), /1 to 100 endings, not 101/);
+        assert.throws(() => cheapest(Array.from({ length: MAX_CHEAPEST_TLDS + 1 }, (_, index) => `e${index}`), keyed()), /1 to 100 endings, not 101/);
         assert.equal(server.requests.length, before);
     });
 
@@ -65,6 +65,40 @@ describe('@uniquedomains/registrar-prices', () => {
         assert.equal(last().path, '/v1/prices/tlds/io/history');
         assert.equal(last().headers.authorization, `Bearer ${KEY}`);
         assert.equal(rows[0].registrar, 'namecheap');
+    });
+
+    it('counts the endings the API would read: split, normalized and distinct', async () => {
+        await cheapest(['ai,IO', '.ai', ' io '], keyed());
+        assert.equal(new URLSearchParams(last().query).get('tlds'), 'ai,io');
+        const before = server.requests.length;
+        assert.throws(() => cheapest(['a,b', ...Array.from({ length: 100 }, (_, index) => `e${index}`)], keyed()), /not 102/);
+        assert.throws(() => cheapest(['ai', 7], keyed()), /entry 1 is not an ending/);
+        assert.throws(() => cheapest([' , '], keyed()), /not 0/);
+        assert.equal(server.requests.length, before);
+    });
+
+    it('walks every page of the price history with a loop, and maxRows stops across a page', async () => {
+        const row = (registrar) => ({ registrar, currency: 'USD', purchasePrice: 30, regularPurchasePrice: null, renewalPrice: 60, transferPrice: 55, isPromo: false, firstSeenAt: '2026-11-03T05:40:00.000Z', lastSeenAt: '2026-11-05T05:41:00.000Z', observations: 1 });
+        const page = (query, rows, cursor) => ({
+            name: `history-${query || 'first'}`,
+            request: { method: 'GET', path: '/prices/tlds/ai/history', query, header: ['authorization', /./] },
+            response: { status: 200, headers: { 'content-type': 'application/json' }, body: { data: rows, meta: { asOf: null, cursor, limit: 2 }, links: {} } },
+        });
+        const extra = await startFixtureServer([page('', [row('a'), row('b')], 'c2'), page('cursor=c2', [row('c')], null)]);
+        try {
+            const options = { apiKey: KEY, baseUrl: extra.base };
+            const all = [];
+            for await (const entry of priceHistory('ai', options)) all.push(entry.registrar);
+            assert.deepEqual(all, ['a', 'b', 'c']);
+            const cut = [];
+            for await (const entry of priceHistory('ai', { ...options, maxRows: 3 })) cut.push(entry.registrar);
+            assert.deepEqual(cut, ['a', 'b', 'c']);
+            const short = [];
+            for await (const entry of priceHistory('ai', { ...options, maxRows: 1 })) short.push(entry.registrar);
+            assert.deepEqual(short, ['a']);
+        } finally {
+            await extra.close();
+        }
     });
 
     it('throws PlanRequiredError on the keyed calls without a key', async () => {
@@ -96,18 +130,36 @@ describe('ud-prices', () => {
         assert.equal(last().path, '/v1/prices/tlds/io/history');
     });
 
-    it('points at the CLI for a next page', async () => {
+    it('points at the CLI for a next page, with the key\'s flags as placeholders and never its value', async () => {
         const extra = await startFixtureServer([{
             name: 'traps-paged',
             request: { method: 'GET', path: '/prices/traps', query: '' },
             response: { status: 200, headers: { 'content-type': 'application/json' }, body: { data: [{ tld: 'xyz' }], meta: { asOf: null, cursor: 'c2', limit: 1 }, links: {} } },
-        }]);
+        }, ...[{ header: 'authorization' }, { header: 'x-rapidapi-key' }].map(({ header }) => ({
+            name: `history-paged-${header}`,
+            request: { method: 'GET', path: '/prices/tlds/io/history', query: '', header: [header, /./] },
+            response: { status: 200, headers: { 'content-type': 'application/json' }, body: { data: [{ registrar: 'namecheap' }], meta: { asOf: null, cursor: 'c2', limit: 1 }, links: {} } },
+        }))]);
         try {
-            const { stderr } = await runBin('registrar-prices', ['--traps', '--base', extra.base]);
-            assert.match(stderr, /More rows: npx @uniquedomains\/cli list-price-traps --cursor c2/);
+            const free = await runBin('registrar-prices', ['--traps', '--base', extra.base]);
+            assert.match(free.stderr, /More rows: npx @uniquedomains\/cli list-price-traps --cursor c2$/m);
+            const member = await runBin('registrar-prices', ['io', '--history', '--key', KEY, '--base', extra.base]);
+            assert.match(member.stderr, /list-tld-price-history io --cursor c2 --key <your key>$/m);
+            assert.doesNotMatch(member.stderr, new RegExp(KEY));
+            const rapid = await runBin('registrar-prices', ['io', '--history', '--rapidapi-key', 'rk', '--base', extra.origin]);
+            assert.match(rapid.stderr, /--cursor c2 --rapidapi-key <your key> --listing registrars$/m);
+            assert.doesNotMatch(rapid.stderr, /\brk\b/);
         } finally {
             await extra.close();
         }
+    });
+
+    it('sends --history with a RapidAPI key to the listing that serves it', async () => {
+        const { stderr } = await runBin('registrar-prices', ['io', '--history', '--rapidapi-key', 'rk', '--base', server.origin]);
+        assert.equal(last().headers['x-rapidapi-host'], 'registrar-prices.p.rapidapi.com');
+        assert.doesNotMatch(stderr, /does not serve|listing/i);
+        await runBin('registrar-prices', ['io', '--rapidapi-key', 'rk', '--base', server.origin]);
+        assert.equal(last().headers['x-rapidapi-host'], 'domain-price-comparison.p.rapidapi.com');
     });
 
     it('exits 1 on a keyed mode without a key, and 2 on arguments that cannot call', async () => {

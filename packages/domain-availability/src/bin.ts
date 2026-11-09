@@ -19,7 +19,6 @@ main({
         if (name === undefined) throw new UsageError('Give a name.');
         if (others.length > 0) {
             if (args.flags.check) throw new UsageError('--check takes one name.');
-            if (args.positionals.length > 100) throw new UsageError(`Give at most 100 names, not ${args.positionals.length}.`);
             return { call: availabilityBatch(args.positionals, connection) };
         }
         if (args.flags.check) return { call: check(name, connection) };

@@ -22,7 +22,7 @@ const prices = await pricesForTld('io');
 for (const row of prices) console.log(row.name, row.purchasePrice, row.renewalPrice);
 ```
 
-`.io` and `io` read the same ending. Each row also carries the transfer price, the currency, and the marks `cheapest`, `cheapestRenewal`, `cheapestTransfer`, `isPromo` and `renewalTrap`. The free tier answers every ending of the public set; outside it, one ending a UTC day.
+`.io` and `io` read the same ending. Each row also carries the transfer price, the currency, and the marks `cheapest`, `cheapestRenewal`, `cheapestTransfer`, `isPromo` and `renewalTrap`. The free tier answers every ending of the public set, the short list that `GET /tlds?publicSet=true` gives; outside it, one ending a UTC day.
 
 ## Renewal traps
 
@@ -59,7 +59,7 @@ The cheapest registrar for each of up to 100 endings:
 import { cheapest } from '@uniquedomains/registrar-prices';
 
 const rows = await cheapest(['ai', 'io'], { apiKey: process.env.UD_API_KEY });
-for (const row of rows) console.log(row.ending, row.cheapestYear1.registrar, row.cheapestYear1.price);
+for (const row of rows) console.log(row.ending, row.cheapestYear1?.registrar ?? 'no price', row.cheapestYear1?.price ?? '');
 ```
 
 How an ending's prices changed, newest first, on the Investor plan. A loop walks the pages:
