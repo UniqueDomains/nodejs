@@ -45,7 +45,7 @@ Arguments and flags are checked before any call: a missing required flag, a numb
 
 ## Keys
 
-Without a key you read the free endpoints. A member key, included in the Founder and Investor plans, opens the rest:
+Without a key you read the free endpoints. A member key, included in the Founder and Investor plans, also reads the keyed endpoints its plan includes; the [API page](https://unique.domains/api) lists them:
 
 ```bash
 export UD_API_KEY=ud_live_...
@@ -53,7 +53,7 @@ ud whoami
 ud get-name-registry harbor.io --verbose
 ```
 
-Create the key in the product under Settings, Account, API. `--key` passes one for a single command.
+Create the key in the product under Settings, Account, API, and keep it on your machine or a server, never in a page a visitor loads. `--key` passes one for a single command.
 
 A RapidAPI subscription works too, with the listing it subscribes to:
 

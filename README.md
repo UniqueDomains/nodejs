@@ -22,7 +22,7 @@ const name = await ud.names.get('harbor.io');
 console.log(name.status);
 ```
 
-A list loops over every page by itself:
+Continuing with that `ud`, a list loops over every page by itself:
 
 <!-- example: every-row -->
 ```js
