@@ -2,12 +2,18 @@
 
 The Unique Domains API answers questions about domain names: whether a name is free, its registry record, what registrars charge for each ending, and what the domain market did. It covers names, words, endings, registrar prices, the market, trends and the industry agenda, and most of it works without a key.
 
-This repository holds two packages, generated from the API's OpenAPI document:
+This repository holds six packages. The first two are generated from the API's OpenAPI document and cover all of it; the other four each answer one question, from code or as a command:
 
 | Package | What it is |
 |---|---|
 | [`@uniquedomains/sdk`](packages/sdk) | A typed client. Methods grouped by what they read (`ud.names.get`, `ud.prices.tld`, ...), each answering the API's data. |
 | [`@uniquedomains/cli`](packages/cli) | The `ud` command. Every operation is a command: `get_name` is `ud get-name`. |
+| [`@uniquedomains/whois`](packages/whois) | WHOIS lookup: a name's registry record and DNS for free, its past records with a key. The `ud-whois` command. |
+| [`@uniquedomains/domain-availability`](packages/domain-availability) | Availability check: a name's stored status and price for free, a live check with a key. The `ud-availability` command. |
+| [`@uniquedomains/registrar-prices`](packages/registrar-prices) | Price comparison: every registrar's price for an ending, renewal traps and changes for free, the cheapest across endings with a key. The `ud-prices` command. |
+| [`@uniquedomains/domain-appraisal`](packages/domain-appraisal) | Appraisal: comparable sales for free, the value with a key. The `ud-appraise` command. |
+
+[`examples/`](examples) holds three starters: a [Next.js page](examples/nextjs-domain-search), a [Google Sheets function](examples/google-sheets) and an [availability widget](examples/availability-widget).
 
 ```bash
 npx @uniquedomains/cli get-name harbor.io
@@ -58,13 +64,14 @@ npm test
 
 - `npm run generate` fetches the live document and the sixteen listing documents into `openapi/` and regenerates `packages/sdk/src/generated/`. `npm run generate -- --check` fails when the snapshot differs from the live document; `--offline` regenerates from the snapshot alone.
 - `npm run check:text` holds the repository to its writing rules.
-- `npm run check:pack` packs both packages, installs them in an empty folder, loads them and runs the SDK README's first example against the fixture server.
+- `npm run check:pack` packs every package, installs them in an empty folder, loads them, and runs the SDK README's first example, each use-case package's first function and each bin against the fixture server.
 - `npm test` also runs every README example against the fixture server (`test/support/fixture-server.mjs`). Every `js` block of a README follows a marker, `<!-- example: <name> -->`; `fixture` after the name runs it against the fixture server only (a key the nightly job does not hold), `skip` never runs it (at most three a README). `scripts/readme-examples.mjs` extracts them into `test/readme/`.
 - `npm run examples:live` runs the README examples not marked `fixture` against the live free API, keyless.
 - `node scripts/record-fixtures.mjs --only <names>` records fixtures from the live free API, spending only their calls.
 - `npm run smoke` runs the built CLI against the live free API.
-- A tag `v<version>` publishes both packages from GitHub Actions with provenance. The two packages share one version, and a tag never carries a pre-release.
-- A publish by hand, `npm publish --workspace packages/sdk` then `--workspace packages/cli`, builds each package first through its `prepack` script.
+- A tag `v<version>` publishes every package from GitHub Actions with provenance, the SDK first. The packages share one version, and a tag never carries a pre-release.
+- A publish by hand, `npm publish --workspace packages/<folder>`, builds the package first through its `prepack` script. The SDK goes first: the others depend on it.
+- `shared/usecase/` is bundled into the four use-case packages by their builds; it is not a package of its own.
 
 ## License
 
