@@ -28,6 +28,7 @@ import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildListingsSource, buildNamespacesSource, buildOperations, buildOperationsSource, listingIdsOf, reduceListing } from './lib/codegen.mjs';
+import { READ_PAUSE_MS, readInTurn, wait } from './lib/pace.mjs';
 import { summarizeChanges } from './lib/summary.mjs';
 
 /*----------------------------------
@@ -84,10 +85,10 @@ const fetchDocument = async (base, listing) => {
 /** The whole document, then each listing's document reduced to what the SDK reads (`reduceListing`). */
 const fetchSnapshot = async (base) => {
     const document = await fetchDocument(base, null);
-    const listings = [];
-    // Sequential on purpose: seventeen requests in a burst would spend the keyless hourly window faster than needed
-    // and gain nothing for a job that runs once a night.
-    for (const id of listingIdsOf(document)) listings.push(reduceListing(id, await fetchDocument(base, id)));
+    // In turn and paced on purpose: seventeen requests in a burst would meet the edge's limit on this path and gain
+    // nothing for a job that runs once a night. About 19 seconds a run.
+    await wait(READ_PAUSE_MS);
+    const listings = await readInTurn(listingIdsOf(document), async (id) => reduceListing(id, await fetchDocument(base, id)));
     return { document, listings };
 };
 
