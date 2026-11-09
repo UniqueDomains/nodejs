@@ -6,6 +6,9 @@
  * Two errors make the SDK's contract: `ApiProblemError` for every answer that is not a success (the API's problem
  * body, or one built for an answer that carried none), and `ListingMismatchError` for a call a RapidAPI listing does
  * not serve, thrown before any request. A network failure stays the runtime's own `TypeError` from `fetch`.
+ *
+ * `ApiProblemError.from` picks a subclass by the problem's code (plan decision 15), so a caller branches on the kind
+ * with `instanceof`. A code no subclass claims, a newer API's included, stays a plain `ApiProblemError`.
  */
 
 import type { ApiAnswerFacts, ApiProblem, ApiQuota, ApiRateLimit, JsonValue, ProblemCode } from './types';
@@ -60,7 +63,7 @@ const instanceOf = (response: Response): string => new URL(response.url || 'http
 ----------------------------------*/
 
 export class ApiProblemError extends Error {
-    override readonly name = 'ApiProblemError';
+    override readonly name: string = 'ApiProblemError';
     readonly status: number;
     readonly code: ProblemCode;
     readonly title: string;
@@ -95,7 +98,9 @@ export class ApiProblemError extends Error {
 
     /** @boundary `body` is the error body openapi-fetch parsed from the answer. */
     static from(body: unknown, response: Response, facts: ApiAnswerFacts): ApiProblemError {
-        return new ApiProblemError(toProblem(body, response.status, response.statusText, instanceOf(response)), facts);
+        const problem = toProblem(body, response.status, response.statusText, instanceOf(response));
+        const ProblemClass = ERROR_CLASSES.get(problem.code) ?? ApiProblemError;
+        return new ProblemClass(problem, facts);
     }
 
     /**
@@ -107,6 +112,56 @@ export class ApiProblemError extends Error {
         return new ApiProblemError(unexpected(response.status, response.statusText, instanceOf(response), detail, keepRaw(body)), facts);
     }
 }
+
+/** `rate_limited`: too many calls for now. `retryAfter` says how many seconds to wait. */
+export class RateLimitError extends ApiProblemError {
+    override readonly name: string = 'RateLimitError';
+}
+
+/** The month's calls or units, or a day's cap, are spent. `quota` and `retryAfter` say what is left and when it returns. */
+export class QuotaError extends ApiProblemError {
+    override readonly name: string = 'QuotaError';
+}
+
+/** The operation needs a key or a higher plan. `product` says where to get it. */
+export class PlanRequiredError extends ApiProblemError {
+    override readonly name: string = 'PlanRequiredError';
+}
+
+export class NotFoundError extends ApiProblemError {
+    override readonly name: string = 'NotFoundError';
+}
+
+/** A parameter, a cursor, a field or a format the API refused. `problem` carries `reason`, `suggestion` or `allowed`. */
+export class ValidationError extends ApiProblemError {
+    override readonly name: string = 'ValidationError';
+}
+
+/** The key was refused, or it belongs to another listing. */
+export class AuthError extends ApiProblemError {
+    override readonly name: string = 'AuthError';
+}
+
+/** The answer is not ready, or a check could not run just now. Try again later. */
+export class NotReadyError extends ApiProblemError {
+    override readonly name: string = 'NotReadyError';
+}
+
+/** The word cannot be taken into the catalog. `code` says why. */
+export class WordRejectedError extends ApiProblemError {
+    override readonly name: string = 'WordRejectedError';
+}
+
+const ERROR_CLASSES: ReadonlyMap<string, typeof ApiProblemError> = new Map<string, typeof ApiProblemError>([
+    ['rate_limited', RateLimitError],
+    ...['quota_spent', 'budget_spent', 'consumer_day_cap', 'intake_day_cap'].map((code): [string, typeof ApiProblemError] => [code, QuotaError]),
+    ...['plan_required', 'keyed_only'].map((code): [string, typeof ApiProblemError] => [code, PlanRequiredError]),
+    ['not_found', NotFoundError],
+    ...['validation_failed', 'cursor_invalid', 'unsupported_field', 'unsupported_format'].map((code): [string, typeof ApiProblemError] => [code, ValidationError]),
+    ...['invalid_key', 'invalid_proxy_secret', 'listing_mismatch'].map((code): [string, typeof ApiProblemError] => [code, AuthError]),
+    ...['not_ready', 'check_unavailable', 'gate_unavailable'].map((code): [string, typeof ApiProblemError] => [code, NotReadyError]),
+    ...['invalid_word', 'disabled_in_catalog', 'not_a_word', 'brand', 'offensive'].map((code): [string, typeof ApiProblemError] => [code, WordRejectedError]),
+]);
 
 export class ListingMismatchError extends Error {
     override readonly name = 'ListingMismatchError';

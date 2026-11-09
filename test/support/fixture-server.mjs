@@ -29,6 +29,10 @@ const problem = (code, status, detail, extra = {}) => ({ type: `https://unique.d
 
 const json = (status, body, headers = {}) => ({ status, headers: { 'content-type': status >= 400 ? 'application/problem+json' : 'application/json; charset=utf-8', ...headers }, body });
 
+const envelope = (data, self, cursor = null) => ({ data, meta: { asOf: null, cursor, limit: cursor === null ? null : 2 }, links: { self: `https://api.unique.domains/v1${self}`, next: null, register: null, product: null, dataset: null } });
+
+const expiringRow = (name) => ({ id: `dom_${name}`, name, ending: 'io', expiresOn: '2026-11-20', status: 'expiring' });
+
 const getNameBody = (name) => {
     const recorded = loadRecorded().find((fixture) => fixture.name === 'names-get-name').response.body;
     return { ...recorded, data: { ...recorded.data, name } };
@@ -148,6 +152,39 @@ export const SYNTHETIC = [
         name: 'csv-with-path-param',
         request: { method: 'GET', path: '/tlds/io/phases.csv', query: '' },
         response: { status: 200, headers: { 'content-type': 'text/csv; charset=utf-8' }, body: 'phase,startsOn,endsOn\ngeneral,1997-09-16,\n' },
+    },
+    {
+        name: 'expiring-io-1',
+        request: { method: 'GET', path: '/domains/expiring', query: 'ending=io' },
+        response: json(200, envelope([expiringRow('anchor.io'), expiringRow('beacon.io')], '/domains/expiring?ending=io', 'c2')),
+    },
+    {
+        name: 'expiring-io-2',
+        request: { method: 'GET', path: '/domains/expiring', query: 'ending=io&cursor=c2' },
+        response: json(200, envelope([expiringRow('cove.io'), expiringRow('dune.io')], '/domains/expiring?ending=io&cursor=c2', 'c3')),
+    },
+    {
+        name: 'expiring-io-3',
+        request: { method: 'GET', path: '/domains/expiring', query: 'ending=io&cursor=c3' },
+        response: json(200, envelope([expiringRow('ember.io')], '/domains/expiring?ending=io&cursor=c3')),
+    },
+    {
+        name: 'drops-summary',
+        request: { method: 'GET', path: '/domains/drops', query: '' },
+        response: json(200, envelope({ count: 184, byEnding: [{ ending: 'online', count: 151 }], sample: [{ ending: 'online', dropsOn: '2026-11-07' }] }, '/domains/drops')),
+    },
+    {
+        name: 'not-ready-then-ok',
+        request: { method: 'GET', path: '/names/ready.io', query: '' },
+        responses: [
+            json(503, problem('not_ready', 503, 'The answer is being prepared.')),
+            json(200, getNameBody('ready.io')),
+        ],
+    },
+    {
+        name: 'llms-txt',
+        request: { method: 'GET', path: '/meta/llms.txt', query: '' },
+        response: { status: 200, headers: { 'content-type': 'text/plain; charset=utf-8' }, body: '# Unique Domains API\n' },
     },
     {
         name: 'register-and-dataset-links',

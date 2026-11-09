@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { ApiProblemError, createClient, ListingMismatchError } from '../dist/index.js';
+import { ApiProblemError, AuthError, createClient, ListingMismatchError, NotFoundError, NotReadyError, PlanRequiredError, QuotaError, RateLimitError, ValidationError, WordRejectedError } from '../dist/index.js';
 import { loadRecorded, startFixtureServer } from '../../../test/support/fixture-server.mjs';
 
 let server;
@@ -332,5 +332,267 @@ describe('the fixture server', () => {
     it('answers only under /v1 without a RapidAPI host (review R1-22)', async () => {
         const wrongBase = createClient({ apiKey: null, baseUrl: server.origin });
         await assert.rejects(wrongBase.request('get_name', { path: { name: 'harbor.io' } }), (error) => error.code === 'not_found');
+    });
+});
+
+/*----------------------------------
+- 0.2.0: NAMESPACED METHODS, TYPED ERRORS, RETRY
+----------------------------------*/
+
+describe('namespaced methods (plan decisions 13 and 14)', () => {
+    const recorded = (name) => loadRecorded().find((fixture) => fixture.name === name).response.body;
+    const sent = () => { const { method, path, query, body } = lastRequest(); return { method, path, query, body }; };
+
+    it('call the same URL as request', async () => {
+        const client = keyless();
+        const pairs = [
+            [() => client.names.get('harbor.io'), () => client.request('get_name', { path: { name: 'harbor.io' } })],
+            [() => client.words.resolve({ q: 'harbor' }), () => client.request('resolve_word', { query: { q: 'harbor' } })],
+            [() => client.tlds.list({ publicSet: true, limit: 2, fields: ['tld', 'kind'] }), () => client.request('list_tlds', { query: { publicSet: true, limit: 2 }, fields: ['tld', 'kind'] })],
+            [() => client.names.batch({ names: ['harbor.io'] }), () => client.request('batch_names', { body: { names: ['harbor.io'] } })],
+            [() => client.editions.get('founder', '2026-11-02'), () => client.request('get_edition', { path: { persona: 'founder', date: '2026-11-02' } })],
+        ];
+        for (const [namespaced, generic] of pairs) {
+            await namespaced().catch(() => undefined);
+            const first = sent();
+            await generic().catch(() => undefined);
+            assert.deepEqual(first, sent());
+        }
+    });
+
+    it('send an empty body where the operation requires one with no required property', async () => {
+        await keyless().names.check('lantern.io').withMeta().catch(() => undefined);
+        assert.deepEqual(sent(), { method: 'POST', path: '/v1/names/lantern.io/check', query: '', body: {} });
+    });
+
+    it('resolve to data, and withMeta to the 0.1.0 answer', async () => {
+        const client = keyless();
+        assert.deepEqual(await client.names.get('harbor.io'), recorded('names-get-name').data);
+        const { headers, ...meta } = await client.names.get('harbor.io').withMeta();
+        const { headers: genericHeaders, ...generic } = await client.request('get_name', { path: { name: 'harbor.io' } });
+        assert.deepEqual(meta, generic);
+        assert.deepEqual([...headers].filter(([name]) => name !== 'date'), [...genericHeaders].filter(([name]) => name !== 'date'));
+    });
+
+    it('send once, when first awaited, however often the call is read', async () => {
+        const count = server.requests.length;
+        const call = keyless().names.get('harbor.io');
+        assert.equal(server.requests.length, count);
+        assert.equal(Object.prototype.toString.call(call), '[object ApiCall]');
+        const [data, again, answer] = await Promise.all([call, call, call.withMeta()]);
+        assert.equal(server.requests.length, count + 1);
+        assert.equal(data, again);
+        assert.equal(answer.data, data);
+        assert.equal(await call.then((value) => value.name), 'harbor.io');
+    });
+
+    it('resolve a file operation to its text', async () => {
+        assert.equal(await keyless().meta.llmsTxt(), '# Unique Domains API\n');
+        assert.equal((await keyless().meta.llmsTxt().withMeta()).contentType, 'text/plain; charset=utf-8');
+    });
+
+    it('walk three recorded pages, row by row, and stop on a null cursor', async () => {
+        const count = server.requests.length;
+        const rows = [];
+        for await (const row of keyless().tlds.list({ publicSet: true, limit: 2, fields: ['tld', 'kind'] })) rows.push(row.tld);
+        assert.deepEqual(rows, ['.ai', '.app', '.co', '.com', '.io', '.xyz']);
+        assert.equal(server.requests.length, count + 3);
+        assert.match(lastRequest().query, /cursor=/);
+    });
+
+    it('walk whole pages with pages()', async () => {
+        const pages = [];
+        for await (const page of keyless().tlds.list({ publicSet: true, limit: 2, fields: ['tld', 'kind'] }).pages()) pages.push(page.data.length);
+        assert.deepEqual(pages, [2, 2, 2]);
+    });
+
+    it('stop after maxRows, and never send it', async () => {
+        const count = server.requests.length;
+        const rows = [];
+        for await (const row of keyless().tlds.list({ publicSet: true, limit: 2, fields: ['tld', 'kind'], maxRows: 3 })) rows.push(row.tld);
+        assert.deepEqual(rows, ['.ai', '.app', '.co']);
+        assert.equal(server.requests.length, count + 2);
+        assert.doesNotMatch(lastRequest().query, /maxRows/);
+        for await (const row of keyless().tlds.list({ maxRows: 0 })) assert.fail(`no row expected, got ${row}`);
+        assert.equal(server.requests.length, count + 2);
+        await assert.rejects(async () => { for await (const row of keyless().tlds.list({ maxRows: -1 })) void row; }, TypeError);
+    });
+
+    it('page a keyed list with a member key', async () => {
+        const client = createClient({ apiKey: 'ud_live_test', baseUrl: server.base });
+        const names = [];
+        for await (const row of client.domains.expiring({ ending: 'io' })) names.push(row.name);
+        assert.deepEqual(names, ['anchor.io', 'beacon.io', 'cove.io', 'dune.io', 'ember.io']);
+        assert.equal(lastRequest().headers.authorization, 'Bearer ud_live_test');
+    });
+
+    it('refuse to iterate a summary, and resolve it on await', async () => {
+        assert.equal((await keyless().domains.drops()).count, 184);
+        await assert.rejects(async () => { for await (const row of keyless().domains.drops()) void row; }, /summary, not a list/);
+    });
+
+    it('reject on a refusal, and keep the RapidAPI listing check', async () => {
+        await assert.rejects(keyless().names.prices('harbor.io'), (error) => error instanceof ApiProblemError);
+        const rapid = createClient({ rapidApi: { key: 'rk', listing: 'whois' }, baseUrl: server.origin });
+        await assert.rejects(rapid.names.get('harbor.io'), ListingMismatchError);
+        assert.equal((await rapid.names.registry('harbor.io')).name, 'harbor.io');
+    });
+});
+
+describe('typed errors (plan decision 15)', () => {
+    const rejectsWith = (call, Class, check = () => {}) => assert.rejects(call, (error) => {
+        assert.ok(error instanceof Class, `${error.name} is not ${Class.name}`);
+        assert.ok(error instanceof ApiProblemError);
+        assert.equal(error.name, Class.name);
+        check(error);
+        return true;
+    });
+
+    it('pick the class by code', async () => {
+        const client = keyless();
+        await rejectsWith(client.names.get('harbor'), ValidationError, (error) => assert.equal(error.problem.reason, 'not_a_name'));
+        await rejectsWith(client.names.prices('harbor.io'), PlanRequiredError, (error) => assert.equal(error.product, 'https://unique.domains/pricing'));
+        await rejectsWith(client.trends.get('zzz-no-such'), NotFoundError);
+        await rejectsWith(client.names.get('slow.io'), RateLimitError, (error) => assert.equal(error.retryAfter, 900));
+        await rejectsWith(createClient({ apiKey: 'ud_live_test', baseUrl: server.base }).names.prices('quota.io'), QuotaError, (error) => assert.equal(error.quota.remaining, 0));
+        await rejectsWith(client.names.get('ready.io'), NotReadyError);
+    });
+
+    it('keep a code no class claims, and an unreadable answer, as ApiProblemError', async () => {
+        for (const name of ['proxy.io', 'portal.io']) {
+            await assert.rejects(keyless().names.get(name), (error) => {
+                assert.equal(error.constructor, ApiProblemError);
+                assert.equal(error.name, 'ApiProblemError');
+                assert.equal(error.code, 'unexpected_response');
+                return true;
+            });
+        }
+    });
+
+    it('map every listed code to its class', () => {
+        const classes = { RateLimitError, QuotaError, PlanRequiredError, NotFoundError, ValidationError, AuthError, NotReadyError, WordRejectedError };
+        const expected = {
+            rate_limited: 'RateLimitError', quota_spent: 'QuotaError', budget_spent: 'QuotaError', consumer_day_cap: 'QuotaError', intake_day_cap: 'QuotaError',
+            plan_required: 'PlanRequiredError', keyed_only: 'PlanRequiredError', not_found: 'NotFoundError',
+            validation_failed: 'ValidationError', cursor_invalid: 'ValidationError', unsupported_field: 'ValidationError', unsupported_format: 'ValidationError',
+            invalid_key: 'AuthError', invalid_proxy_secret: 'AuthError', listing_mismatch: 'AuthError',
+            not_ready: 'NotReadyError', check_unavailable: 'NotReadyError', gate_unavailable: 'NotReadyError',
+            invalid_word: 'WordRejectedError', disabled_in_catalog: 'WordRejectedError', not_a_word: 'WordRejectedError', brand: 'WordRejectedError', offensive: 'WordRejectedError',
+            internal: 'ApiProblemError',
+        };
+        const facts = { status: 400, headers: new Headers(), etag: null, quota: null, rateLimit: null, retryAfter: null, location: null };
+        for (const [code, name] of Object.entries(expected)) {
+            const error = ApiProblemError.from({ code, detail: 'x' }, new Response(null, { status: 400 }), facts);
+            assert.equal(error.name, name, code);
+            if (name !== 'ApiProblemError') assert.ok(error instanceof classes[name], code);
+        }
+    });
+});
+
+describe('the retry option (plan decision 16)', () => {
+    const problemResponse = (status, code, headers = {}) => new Response(JSON.stringify({ type: 'about:blank', title: code, status, detail: code, instance: '/v1/x', code }), { status, headers: { 'content-type': 'application/problem+json', ...headers } });
+    const okResponse = () => new Response(JSON.stringify({ data: { name: 'ok.io' }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'x' } }), { status: 200, headers: { 'content-type': 'application/json' } });
+
+    /** A client on a scripted fetch: each call takes the next answer (a Response, or an Error to throw). */
+    const scripted = (answers, retry) => {
+        const calls = [];
+        const fetch = async (request) => {
+            calls.push(request.method);
+            const next = answers[Math.min(calls.length - 1, answers.length - 1)];
+            if (next instanceof Error) throw next;
+            return next();
+        };
+        return { client: createClient({ apiKey: null, baseUrl: 'http://127.0.0.1:9/v1', fetch, ...(retry === undefined ? {} : { retry }) }), calls };
+    };
+
+    /** Records each wait of the SDK instead of waiting (other timers, such as the HTTP agent's, run as they are), and fixes the jitter. */
+    const fakeTimers = (t, random = 0.5) => {
+        const waits = [];
+        const realSetTimeout = globalThis.setTimeout;
+        t.mock.method(globalThis, 'setTimeout', (callback, ms, ...rest) => {
+            if (!new Error().stack.includes('/packages/sdk/dist/')) return realSetTimeout(callback, ms, ...rest);
+            waits.push(ms);
+            return realSetTimeout(callback, 0);
+        });
+        t.mock.method(Math, 'random', () => random);
+        return waits;
+    };
+
+    it('is off by default: a 503 not_ready throws at once', async (t) => {
+        const waits = fakeTimers(t);
+        const { client, calls } = scripted([() => problemResponse(503, 'not_ready'), okResponse]);
+        await assert.rejects(client.names.get('ok.io'), NotReadyError);
+        assert.deepEqual([calls.length, waits], [1, []]);
+    });
+
+    it('retries a 503 then succeeds, against the fixture server', async (t) => {
+        fakeTimers(t, 0);
+        const client = createClient({ apiKey: null, baseUrl: server.base, retry: true });
+        assert.equal((await client.names.get('ready.io')).name, 'ready.io');
+    });
+
+    it('backs off with full jitter, doubling, up to the attempts', async (t) => {
+        const waits = fakeTimers(t, 0.5);
+        const { client, calls } = scripted([() => new Response('<html>Bad gateway</html>', { status: 502 })], { attempts: 4 });
+        await assert.rejects(client.names.get('ok.io'), ApiProblemError);
+        assert.deepEqual([calls.length, waits], [4, [250, 500, 1000]]);
+    });
+
+    it('caps a wait at maxDelayMs', async (t) => {
+        const waits = fakeTimers(t, 0.999);
+        const { client } = scripted([() => new Response('', { status: 500 }), () => new Response('', { status: 500 }), okResponse], { attempts: 3, maxDelayMs: 600 });
+        await client.names.get('ok.io');
+        assert.deepEqual(waits.map(Math.round), [500, 599]);
+    });
+
+    it('honours Retry-After, and throws when it is longer than maxDelayMs', async (t) => {
+        const waits = fakeTimers(t);
+        const short = scripted([() => problemResponse(429, 'rate_limited', { 'retry-after': '2' }), okResponse], true);
+        await short.client.names.get('ok.io');
+        assert.deepEqual(waits, [2000]);
+        const long = scripted([() => problemResponse(429, 'rate_limited', { 'retry-after': '900' }), okResponse], true);
+        await assert.rejects(long.client.names.get('ok.io'), RateLimitError);
+        assert.equal(long.calls.length, 1);
+    });
+
+    it('never retries a spent quota, a 500 with a problem body or a 404', async (t) => {
+        fakeTimers(t);
+        for (const answer of [() => problemResponse(429, 'quota_spent', { 'retry-after': '1' }), () => problemResponse(500, 'internal'), () => problemResponse(404, 'not_found')]) {
+            const { client, calls } = scripted([answer, okResponse], true);
+            await assert.rejects(client.names.get('ok.io'), ApiProblemError);
+            assert.equal(calls.length, 1);
+        }
+    });
+
+    it('retries a network failure on a GET', async (t) => {
+        fakeTimers(t);
+        const { client, calls } = scripted([new TypeError('fetch failed'), okResponse], true);
+        assert.equal((await client.names.get('ok.io')).name, 'ok.io');
+        assert.equal(calls.length, 2);
+    });
+
+    it('retries a POST only on a 429 rate_limited', async (t) => {
+        fakeTimers(t);
+        const limited = scripted([() => problemResponse(429, 'rate_limited', { 'retry-after': '1' }), okResponse], true);
+        await limited.client.names.check('ok.io');
+        assert.deepEqual(limited.calls, ['POST', 'POST']);
+        for (const answer of [() => problemResponse(503, 'check_unavailable'), new TypeError('fetch failed'), () => new Response('', { status: 502 })]) {
+            const { client, calls } = scripted([answer, okResponse], true);
+            await assert.rejects(client.names.check('ok.io'));
+            assert.equal(calls.length, 1);
+        }
+    });
+
+    it('stops waiting when the signal aborts', async () => {
+        const { client } = scripted([() => problemResponse(429, 'rate_limited', { 'retry-after': '20' }), okResponse], true);
+        const controller = new AbortController();
+        const call = client.names.get('ok.io', { signal: controller.signal });
+        setTimeout(() => controller.abort(new Error('stopped')), 20);
+        await assert.rejects(call, /stopped/);
+    });
+
+    it('refuses an option it cannot use', () => {
+        assert.throws(() => createClient({ retry: { attempts: 0 } }), TypeError);
+        assert.throws(() => createClient({ retry: { maxDelayMs: -1 } }), TypeError);
     });
 });

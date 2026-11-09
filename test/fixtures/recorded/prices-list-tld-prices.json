@@ -1,0 +1,161 @@
+{
+  "name": "prices-list-tld-prices",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/prices/tlds/io",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"5fg5j0ymM8_8nLvgtmSo1gQazhI\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "57",
+      "x-ratelimit-reset": "1874"
+    },
+    "body": {
+      "data": [
+        {
+          "registrar": "namecheap",
+          "name": "Namecheap",
+          "homepageUrl": "https://www.namecheap.com",
+          "purchasePrice": 29.98,
+          "renewalPrice": 75.98,
+          "transferPrice": 65.98,
+          "currency": "USD",
+          "isPromo": true,
+          "renewalTrap": true,
+          "cheapest": false,
+          "cheapestRenewal": false,
+          "cheapestTransfer": false
+        },
+        {
+          "registrar": "porkbun",
+          "name": "Porkbun",
+          "homepageUrl": "https://porkbun.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "purchasePrice": 28.12,
+          "renewalPrice": 51.8,
+          "transferPrice": 51.8,
+          "currency": "USD",
+          "isPromo": false,
+          "renewalTrap": false,
+          "cheapest": true,
+          "cheapestRenewal": false,
+          "cheapestTransfer": true
+        },
+        {
+          "registrar": "name.com",
+          "name": "Name.com",
+          "homepageUrl": "https://www.name.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "purchasePrice": 55.61,
+          "renewalPrice": 82.39,
+          "transferPrice": 82.39,
+          "currency": "USD",
+          "isPromo": true,
+          "renewalTrap": false,
+          "cheapest": false,
+          "cheapestRenewal": false,
+          "cheapestTransfer": false
+        },
+        {
+          "registrar": "dynadot",
+          "name": "Dynadot",
+          "homepageUrl": "https://www.dynadot.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "purchasePrice": 28.89,
+          "renewalPrice": 53.5,
+          "transferPrice": 53.5,
+          "currency": "USD",
+          "isPromo": true,
+          "renewalTrap": false,
+          "cheapest": false,
+          "cheapestRenewal": false,
+          "cheapestTransfer": false
+        },
+        {
+          "registrar": "spaceship",
+          "name": "Spaceship",
+          "homepageUrl": "https://www.spaceship.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "purchasePrice": 31.98,
+          "renewalPrice": 51.75,
+          "transferPrice": null,
+          "currency": "USD",
+          "isPromo": false,
+          "renewalTrap": false,
+          "cheapest": false,
+          "cheapestRenewal": false,
+          "cheapestTransfer": false
+        },
+        {
+          "registrar": "namesilo",
+          "name": "NameSilo",
+          "homepageUrl": "https://www.namesilo.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "purchasePrice": 38.99,
+          "renewalPrice": 69.99,
+          "transferPrice": 53.49,
+          "currency": "USD",
+          "isPromo": false,
+          "renewalTrap": false,
+          "cheapest": false,
+          "cheapestRenewal": false,
+          "cheapestTransfer": false
+        },
+        {
+          "registrar": "godaddy",
+          "name": "GoDaddy",
+          "homepageUrl": "https://www.godaddy.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "purchasePrice": 29.99,
+          "renewalPrice": 69.99,
+          "transferPrice": null,
+          "currency": "USD",
+          "isPromo": false,
+          "renewalTrap": true,
+          "cheapest": false,
+          "cheapestRenewal": false,
+          "cheapestTransfer": false
+        },
+        {
+          "registrar": "unstoppable",
+          "name": "Unstoppable Domains",
+          "homepageUrl": "https://unstoppabledomains.com?utm_source=unique.domains&utm_medium=website&utm_campaign=lets-partnership-together",
+          "purchasePrice": 38,
+          "renewalPrice": null,
+          "transferPrice": null,
+          "currency": "USD",
+          "isPromo": false,
+          "renewalTrap": false,
+          "cheapest": false,
+          "cheapestRenewal": false,
+          "cheapestTransfer": false
+        },
+        {
+          "registrar": "cloudflare",
+          "name": "Cloudflare",
+          "homepageUrl": "https://domains.cloudflare.com",
+          "purchasePrice": 32,
+          "renewalPrice": 50,
+          "transferPrice": null,
+          "currency": "USD",
+          "isPromo": false,
+          "renewalTrap": false,
+          "cheapest": false,
+          "cheapestRenewal": true,
+          "cheapestTransfer": false
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/prices/tlds/io",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

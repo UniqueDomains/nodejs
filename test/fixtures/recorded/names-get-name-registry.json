@@ -1,0 +1,51 @@
+{
+  "name": "names-get-name-registry",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/names/harbor.io/registry",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"MbArmsuN33j5YE_XmEQp3RUfkDk\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "58",
+      "x-ratelimit-reset": "1874"
+    },
+    "body": {
+      "data": {
+        "read": false,
+        "observedOn": null,
+        "createdAt": null,
+        "updatedAt": null,
+        "expiresAt": null,
+        "registryUpdatedAt": null,
+        "registrar": null,
+        "eppStatuses": [],
+        "nameservers": [],
+        "dnssec": null,
+        "holder": {
+          "holder": null,
+          "redactedBy": null,
+          "heldAtRegistrar": false
+        },
+        "transport": null
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/names/harbor.io/registry",
+        "next": null,
+        "register": null,
+        "product": "https://app.unique.domains/availability/harbor.io",
+        "dataset": null
+      }
+    }
+  }
+}

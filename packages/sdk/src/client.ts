@@ -4,20 +4,25 @@
 
 /**
  * `createClient` (plan decision 6): `openapi-fetch` makes the calls, the generated `operations` type types them, and
- * every call is addressed by its operation id, the name the website's reference and the CLI use for it. Three ways
- * in: no key (the free grade), a member key (`Authorization: Bearer`), or a RapidAPI key with its listing (the
- * listing's own host). Every success is the envelope plus the answer's facts; every failure is an `ApiProblemError`.
+ * every call goes through one function addressed by operation id, the name the website's reference and the CLI use
+ * for it. Three ways in: no key (the free grade), a member key (`Authorization: Bearer`), or a RapidAPI key with its
+ * listing (the listing's own host). Every failure is an `ApiProblemError`.
  *
- * Decision: no path-based methods (`GET('/names/{name}')`) beside `request`. One addressing scheme keeps the public
- * surface small and is the one the CLI and the MCP server are generated from; openapi-fetch stays an implementation
- * detail, so it can be replaced without a breaking change.
+ * Two surfaces over that function. The namespaced methods (`ud.names.get('harbor.io')`, generated, API visibility plan
+ * decisions 13 and 14) answer `data` directly and supersede the 0.1.0 decision to offer no readable methods. `request`
+ * and `requestOperation` stay the generic path for tools and loops, and answer the whole envelope plus its facts; the
+ * CLI and the MCP server are built on them. There are no path-based methods (`GET('/names/{name}')`): openapi-fetch
+ * stays an implementation detail, so it can be replaced without a breaking change.
  */
 
 import createFetchClient from 'openapi-fetch';
 import { ApiProblemError, ListingMismatchError } from './errors';
-import { readFacts } from './headers';
+import { parseRetryAfter, readFacts } from './headers';
 import { findListing, listingsServing, type ListingDefinition } from './listing';
+import { bindNamespaces } from './namespaces';
+import { resolveRetry, retryWait, type RetryOptions } from './retry';
 import { API_PUBLIC_BASE, OPERATIONS, type OperationId } from './generated/operations';
+import type { NamespacedClient } from './generated/namespaces';
 import type { ListingId } from './generated/listings';
 import type { AnswerOf, ApiAnswerFacts, ApiEnvelope, ApiResult, JsonObject, JsonValue, ListOption, OperationAnswer, OperationRequestParams, RequestArgs, RequestParams } from './types';
 
@@ -46,11 +51,18 @@ export type ClientOptions = {
     fetch?: typeof fetch;
     /** The `User-Agent` sent under Node; `false` sends the runtime's own. Browsers never let a page set it. */
     userAgent?: string | false;
+    /**
+     * Retries what is worth retrying, with backoff and jitter: a `rate_limited` answer with a short `Retry-After`, a
+     * 503 `not_ready` or `check_unavailable`, a 5xx without a problem body, a network failure. A POST is retried only
+     * on the 429. `true` tries a call up to 3 times and waits at most 30 seconds. Off by default, where the client
+     * retries once, after a `rate_limited` answer with `Retry-After: 1`.
+     */
+    retry?: boolean | RetryOptions;
 };
 
 export type AuthMode = 'none' | 'member' | 'rapidapi';
 
-export type UniqueDomainsClient = {
+export type UniqueDomainsClient = NamespacedClient & {
     /**
      * Calls one operation by its id: `request('get_name', { path: { name: 'harbor.io' } })`. `P` defaults to `never`
      * so a call without params types as the plain envelope (see `AnswerOf`).
@@ -85,9 +97,9 @@ type LoosePaths = Record<string, Record<HttpMethod, LooseOperation>>;
 - CONSTANTS
 ----------------------------------*/
 
-// Member keys plan section 6: the one retry the SDK makes on its own is a 429 `rate_limited` whose `Retry-After` is
-// exactly `1` (the per-key burst limiter's answer). Any other wait, 0 or a date included, is the caller's decision,
-// so it surfaces as the error (review R1-15).
+// Member keys plan section 6: without the `retry` option, the one retry the SDK makes on its own is a 429
+// `rate_limited` whose `Retry-After` is exactly `1` (the per-key burst limiter's answer). Any other wait, 0 or a date
+// included, is the caller's decision, so it surfaces as the error (review R1-15).
 const RETRY_AFTER_HEADER = '1';
 const RETRY_DELAY_MS = 1000;
 
@@ -179,6 +191,7 @@ export const createClient = (options: ClientOptions = {}): UniqueDomainsClient =
     const { auth, apiKey, listing } = resolveAuth(options);
     const baseUrl = (options.baseUrl ?? (listing ? `https://${listing.host}` : API_PUBLIC_BASE)).replace(/\/+$/, '');
     const fetcher = createFetchClient<LoosePaths>({ baseUrl, headers: buildHeaders(options, apiKey, listing), ...(options.fetch ? { fetch: options.fetch } : {}) });
+    const retry = resolveRetry(options.retry);
 
     const send = async (operationId: OperationId, params: OperationRequestParams, asText: boolean) => {
         const operation = OPERATIONS[operationId];
@@ -199,6 +212,32 @@ export const createClient = (options: ClientOptions = {}): UniqueDomainsClient =
         });
     };
 
+    /** The 0.1.0 behaviour, without the `retry` option: one retry after `Retry-After: 1`, the rest is the caller's. */
+    const sendOnce: typeof send = async (operationId, params, asText) => {
+        const answer = await send(operationId, params, asText);
+        if (answer.response.status !== 429 || answer.response.headers.get('retry-after')?.trim() !== RETRY_AFTER_HEADER || !isRateLimited(answer.error)) return answer;
+        await sleep(RETRY_DELAY_MS, params.signal);
+        return send(operationId, params, asText);
+    };
+
+    /** With the `retry` option: the last answer or the last network failure is what the caller meets. */
+    const sendRetried = async (policy: NonNullable<typeof retry>, ...[operationId, params, asText]: Parameters<typeof send>): ReturnType<typeof send> => {
+        const method = OPERATIONS[operationId].method;
+        for (let attempt = 0; ; attempt++) {
+            let wait: number | null;
+            try {
+                const answer = await send(operationId, params, asText);
+                wait = answer.response.ok ? null : retryWait(policy, attempt, method, { status: answer.response.status, retryAfter: parseRetryAfter(answer.response.headers), body: answer.error });
+                if (wait === null) return answer;
+            } catch (error) {
+                // `fetch` rejects with a TypeError on a network failure; an abort is a DOMException and goes through.
+                wait = error instanceof TypeError ? retryWait(policy, attempt, method, null) : null;
+                if (wait === null) throw error;
+            }
+            await sleep(wait, params.signal);
+        }
+    };
+
     const requestOperation = async (operationId: OperationId, params: OperationRequestParams = {}): Promise<OperationAnswer> => {
         const operation = OPERATIONS[operationId];
         if (!operation) throw new TypeError(`Unknown operation "${operationId}".`);
@@ -206,11 +245,7 @@ export const createClient = (options: ClientOptions = {}): UniqueDomainsClient =
         checkParams(operationId, params);
         const asText = params.format === 'csv' || operation.answer === 'text';
 
-        let answer = await send(operationId, params, asText);
-        if (answer.response.status === 429 && answer.response.headers.get('retry-after')?.trim() === RETRY_AFTER_HEADER && isRateLimited(answer.error)) {
-            await sleep(RETRY_DELAY_MS, params.signal);
-            answer = await send(operationId, params, asText);
-        }
+        const answer = await (retry ? sendRetried(retry, operationId, params, asText) : sendOnce(operationId, params, asText));
         const facts = readFacts(answer.response);
 
         if (answer.response.status === 304) return { ...facts, notModified: true };
@@ -224,8 +259,9 @@ export const createClient = (options: ClientOptions = {}): UniqueDomainsClient =
     };
 
     return {
+        ...bindNamespaces(requestOperation),
         // The generic signature lives on the type; the runtime is `requestOperation`. A cast: a generic function cannot
-        // be checked against per-operation types it only narrows at call sites (the other cast is `parseEnvelope`).
+        // be checked against per-operation types it only narrows at call sites.
         request: requestOperation as UniqueDomainsClient['request'],
         requestOperation,
         baseUrl,
@@ -245,7 +281,7 @@ const isRateLimited = (body: unknown): boolean => typeof body === 'object' && bo
 
 /**
  * @boundary The text of a 200 or 202: the `{ data, meta, links }` envelope when it is JSON of that shape, else null.
- *           The second of the SDK's two casts: the shape is checked here, the field types are the document's.
+ *           A cast: the shape is checked here, the field types are the document's.
  */
 const parseEnvelope = (text: string): ApiEnvelope<JsonValue> | null => {
     let body: JsonValue;

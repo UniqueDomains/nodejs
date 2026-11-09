@@ -10,7 +10,8 @@
  * - `packages/sdk/src/generated/schema.d.ts`: the document's types, from `openapi-typescript`;
  * - `packages/sdk/src/generated/operations.ts`: one entry per operation (id, method, path, tier, plan, metered,
  *   tag, summary, parameters in path order then query order, the body's flat properties);
- * - `packages/sdk/src/generated/listings.ts`: each listing's id, title, RapidAPI host and operation ids.
+ * - `packages/sdk/src/generated/listings.ts`: each listing's id, title, RapidAPI host and operation ids;
+ * - `packages/sdk/src/generated/namespaces.ts`: the namespaced methods, from the operations and the naming rule.
  *
  * Modes:
  *   npm run generate                      fetch, write the snapshot, regenerate
@@ -26,7 +27,7 @@
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildListingsSource, buildOperations, buildOperationsSource, listingIdsOf, reduceListing } from './lib/codegen.mjs';
+import { buildListingsSource, buildNamespacesSource, buildOperations, buildOperationsSource, listingIdsOf, reduceListing } from './lib/codegen.mjs';
 import { summarizeChanges } from './lib/summary.mjs';
 
 /*----------------------------------
@@ -109,6 +110,7 @@ const buildFiles = async ({ document, listings }) => {
     files.set(join(GENERATED_DIR, 'schema.d.ts'), `${header}/* eslint-disable */\n\n${schemaSource}`);
     files.set(join(GENERATED_DIR, 'operations.ts'), `${header}\n${buildOperationsSource(document, buildOperations(document))}`);
     files.set(join(GENERATED_DIR, 'listings.ts'), `${header}\n${buildListingsSource(listings)}`);
+    files.set(join(GENERATED_DIR, 'namespaces.ts'), `${header}\n${buildNamespacesSource(document, buildOperations(document))}`);
     return files;
 };
 

@@ -105,7 +105,7 @@ type HasQueryKey<Id extends OperationId, Key extends string> = [QueryParamsOf<Id
  * `fields` keeps the listed top-level keys; the answer is still typed as the full row, so read a key you did not
  * keep as missing. Offered only where the operation declares `fields` (`include` the same).
  */
-type ProjectionPart<Id extends OperationId> = (HasQueryKey<Id, 'fields'> extends true ? { fields?: ListOption } : { fields?: undefined })
+export type ProjectionPart<Id extends OperationId> = (HasQueryKey<Id, 'fields'> extends true ? { fields?: ListOption } : { fields?: undefined })
     & (HasQueryKey<Id, 'include'> extends true ? { include?: ListOption } : { include?: undefined });
 
 type PathPart<Id extends OperationId> = [PathParamsOf<Id>] extends [never] ? { path?: undefined } : { path: PathParamsOf<Id> };

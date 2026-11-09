@@ -5,12 +5,14 @@
 
 /**
  * Records the answers the tests replay: one free call per API (the document's tags), the three problem shapes a
- * keyless caller meets (400 `validation_failed`, 403 `keyed_only`, 404 `not_found`) and one `.csv` form. Thirteen
- * keyless calls, so a run stays well inside the keyless hourly window. The 304, the 429s, the 202 and a member key's
- * quota headers cannot be recorded without a key or without spending the window: they live in `SYNTHETIC` of
- * `test/support/fixture-server.mjs`, written by hand from the document's examples.
+ * keyless caller meets (400 `validation_failed`, 403 `keyed_only`, 404 `not_found`), one `.csv` form, and the calls the
+ * README examples make that those do not cover. A `pages` entry follows `meta.cursor` to the end, one file a page.
+ * About twenty keyless calls, so a whole run stays inside the keyless hourly window; `--only` records some. The 304,
+ * the 429s, the 202 and a member key's quota headers cannot be recorded without a key or without spending the window:
+ * they live in `SYNTHETIC` of `test/support/fixture-server.mjs`, written by hand from the document's examples.
  *
- * Usage: node scripts/record-fixtures.mjs   (rewrites test/fixtures/recorded/)
+ * Usage: node scripts/record-fixtures.mjs                  (rewrites test/fixtures/recorded/)
+ *        node scripts/record-fixtures.mjs --only a,b       (records the named entries, spends only their calls)
  */
 
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -36,11 +38,18 @@ const CALLS = [
     { name: 'problem-keyed-only', path: '/names/harbor.io/prices' },
     { name: 'problem-not-found', path: '/trends/zzz-no-such' },
     { name: 'csv-list-tlds', path: '/tlds.csv', query: 'limit=3' },
+    { name: 'names-get-name-registry', path: '/names/harbor.io/registry' },
+    { name: 'prices-list-tld-prices', path: '/prices/tlds/io' },
+    { name: 'tlds-public-set', path: '/tlds', query: 'publicSet=true&limit=2&fields=tld,kind', pages: true },
 ];
 
-await mkdir(OUT, { recursive: true });
-for (const call of CALLS) {
-    const url = `${BASE}${call.path}${call.query ? `?${call.query}` : ''}`;
+const onlyAt = process.argv.indexOf('--only');
+const only = onlyAt >= 0 ? new Set((process.argv[onlyAt + 1] ?? '').split(',')) : null;
+const unknown = only ? [...only].filter((name) => !CALLS.some((call) => call.name === name)) : [];
+if (unknown.length > 0 || only?.size === 0) throw new Error(`--only names no entry: ${unknown.join(', ')}`);
+
+const record = async (call, name, query) => {
+    const url = `${BASE}${call.path}${query ? `?${query}` : ''}`;
     const response = await fetch(url, { headers: { 'user-agent': 'uniquedomains-nodejs-record' } });
     const text = await response.text();
     const headers = {};
@@ -49,11 +58,18 @@ for (const call of CALLS) {
     });
     const isJson = (headers['content-type'] ?? '').includes('json');
     const fixture = {
-        name: call.name,
+        name,
         recordedOn: new Date().toISOString().slice(0, 10),
-        request: { method: 'GET', path: call.path, query: call.query ?? '' },
+        request: { method: 'GET', path: call.path, query: query ?? '' },
         response: { status: response.status, headers, body: isJson ? JSON.parse(text) : text },
     };
-    await writeFile(join(OUT, `${call.name}.json`), `${JSON.stringify(fixture, null, 2)}\n`);
-    console.log(`${response.status} ${call.name}`);
+    await writeFile(join(OUT, `${name}.json`), `${JSON.stringify(fixture, null, 2)}\n`);
+    console.log(`${response.status} ${name}`);
+    return fixture.response.body;
+};
+
+await mkdir(OUT, { recursive: true });
+for (const call of CALLS.filter((entry) => !only || only.has(entry.name))) {
+    let body = await record(call, call.pages ? `${call.name}-1` : call.name, call.query);
+    for (let page = 2; call.pages && body.meta?.cursor; page++) body = await record(call, `${call.name}-${page}`, `${call.query}&cursor=${encodeURIComponent(body.meta.cursor)}`);
 }

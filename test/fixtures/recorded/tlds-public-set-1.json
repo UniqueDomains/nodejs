@@ -1,0 +1,43 @@
+{
+  "name": "tlds-public-set-1",
+  "recordedOn": "2026-11-09",
+  "request": {
+    "method": "GET",
+    "path": "/tlds",
+    "query": "publicSet=true&limit=2&fields=tld,kind"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"3ky4CbgjVURNhOUEO7vdpAyEWi8\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "55",
+      "x-ratelimit-reset": "1857"
+    },
+    "body": {
+      "data": [
+        {
+          "tld": ".ai",
+          "kind": "root"
+        },
+        {
+          "tld": ".app",
+          "kind": "root"
+        }
+      ],
+      "meta": {
+        "asOf": "2026-11-08T06:50:05.000Z",
+        "cursor": "eyJ2IjoxLCJzb3J0Ijoic2x1ZyIsImtleSI6WyJhcHAiLCJhcHAiXX0",
+        "limit": 2
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/tlds?publicSet=true&limit=2&fields=tld%2Ckind",
+        "next": "https://api.unique.domains/v1/tlds?publicSet=true&limit=2&fields=tld%2Ckind&cursor=eyJ2IjoxLCJzb3J0Ijoic2x1ZyIsImtleSI6WyJhcHAiLCJhcHAiXX0",
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

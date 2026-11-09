@@ -17,6 +17,25 @@ import { METHODS } from './methods.mjs';
 const SCALAR_TYPES = new Set(['string', 'integer', 'number', 'boolean']);
 const LISTING_TITLE_PREFIX = 'Unique Domains API: ';
 
+/** The ten namespaces of the SDK, in the order the client shows them (plan decision 13). */
+export const NAMESPACES = ['names', 'words', 'domains', 'tlds', 'prices', 'market', 'trends', 'agenda', 'editions', 'meta'];
+
+/** A document tag to its namespace. `shared` is split by path; a tag not listed here throws, so a new API fails loudly. */
+const NAMESPACE_OF_TAG = { names: 'names', words: 'words', catalog: 'domains', tlds: 'tlds', registrars: 'prices', market: 'market', trends: 'trends', agenda: 'agenda' };
+
+/** The noun the rule strips from an operation id, singular; its plural is stripped too. */
+const NOUN_OF_NAMESPACE = { names: 'name', words: 'word', domains: 'domain', tlds: 'tld', prices: 'price', market: 'market', trends: 'trend', agenda: 'agenda', editions: 'edition', meta: 'meta' };
+
+/**
+ * The one hand-written piece of the namespaced surface: the ids the rule reads badly, or would make collide
+ * (`request_word` and `get_word_request` would both be `words.request`). A test holds it to existing ids.
+ */
+export const METHOD_OVERRIDES = {
+    get_catalog_stats: 'domains.stats',
+    get_tld_application_string: 'tlds.application',
+    get_word_request: 'words.requestStatus',
+};
+
 /*----------------------------------
 - HELPERS
 ----------------------------------*/
@@ -207,6 +226,153 @@ export const buildOperationsSource = (document, operations) => {
         '',
         '/** The operations with a `.csv` form. */',
         `export type CsvOperationId = ${unionOf(operations.filter((operation) => operation.csv).map((operation) => operation.id))};`,
+        '',
+    ].join('\n');
+};
+
+/*----------------------------------
+- NAMESPACED METHODS
+----------------------------------*/
+
+const camelCase = (tokens) => tokens.map((token, index) => (index === 0 ? token : token.charAt(0).toUpperCase() + token.slice(1))).join('');
+
+const namespaceOf = (operation) => {
+    // The four file answers stay together (plan, lane N1): `await` gives a string there, never a row.
+    if (operation.answer === 'text') return 'meta';
+    if (operation.tag === 'shared') {
+        if (operation.path.startsWith('/editions')) return 'editions';
+        if (operation.path.startsWith('/meta')) return 'meta';
+        throw new Error(`${operation.id}: no namespace for the shared path ${operation.path}`);
+    }
+    const namespace = NAMESPACE_OF_TAG[operation.tag];
+    if (!namespace) throw new Error(`${operation.id}: no namespace for the tag ${operation.tag}`);
+    return namespace;
+};
+
+/**
+ * Plan decision 13: strip `get_` or `list_` and the namespace's noun, camel-case the rest; a bare `get_<noun>` is
+ * `get`, a bare `list_<nouns>` is `list`. Any other verb stays as the name (`batch_names` is `batch`).
+ */
+export const methodNameOf = (id, namespace) => {
+    const tokens = id.split('_');
+    const verb = tokens[0] === 'get' || tokens[0] === 'list' ? tokens.shift() : null;
+    const noun = NOUN_OF_NAMESPACE[namespace];
+    const nounAt = tokens.findIndex((token) => token === noun || token === `${noun}s`);
+    if (nounAt >= 0) tokens.splice(nounAt, 1);
+    if (tokens.length === 0) {
+        if (!verb) throw new Error(`${id}: the rule leaves no method name`);
+        return verb;
+    }
+    return camelCase(tokens);
+};
+
+/** One entry per operation, in document order. Throws on an override for an unknown id or a repeated method name. */
+export const buildNamespaces = (operations) => {
+    const ids = new Set(operations.map((operation) => operation.id));
+    for (const id of Object.keys(METHOD_OVERRIDES)) if (!ids.has(id)) throw new Error(`METHOD_OVERRIDES names ${id}, which the document does not list`);
+    const seen = new Map();
+    return operations.map((operation) => {
+        const [namespace, method] = METHOD_OVERRIDES[operation.id]?.split('.') ?? [namespaceOf(operation), null];
+        const name = method ?? methodNameOf(operation.id, namespace);
+        const where = `${namespace}.${name}`;
+        if (seen.has(where)) throw new Error(`${operation.id} and ${seen.get(where)} are both ${where}: add an override`);
+        seen.set(where, operation.id);
+        const queryKeys = operation.parameters.filter((param) => param.in === 'query').map((param) => param.name);
+        // Query keys and body properties share the options object, so one name cannot mean both.
+        const clash = operation.body?.properties.find((property) => queryKeys.includes(property.name));
+        if (clash) throw new Error(`${operation.id}: ${clash.name} is both a query parameter and a body property`);
+        return {
+            id: operation.id,
+            namespace,
+            method: name,
+            pathParams: operation.parameters.filter((param) => param.in === 'path').map((param) => param.name),
+            queryKeys,
+            paged: queryKeys.includes('cursor'),
+            optionsRequired: operation.parameters.some((param) => param.in === 'query' && param.required) || Boolean(operation.body?.properties.some((property) => property.required)),
+        };
+    });
+};
+
+/** A value as JavaScript source: single quotes and bare keys, as the README writes them. */
+const toLiteral = (value) => {
+    if (typeof value === 'string') return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    if (Array.isArray(value)) return `[${value.map(toLiteral).join(', ')}]`;
+    if (typeof value === 'object' && value !== null) return `{ ${Object.entries(value).map(([key, entry]) => `${key}: ${toLiteral(entry)}`).join(', ')} }`;
+    return String(value);
+};
+
+const exampleOf = (param) => {
+    const value = param.example ?? `<${param.name}>`;
+    return param.type === 'integer' || param.type === 'number' ? Number(value) || 1 : value;
+};
+
+/** The options of a method's example: its required query values, then its required body values, cut to two list items. */
+const exampleOptions = (document, operation) => {
+    const options = {};
+    for (const param of operation.parameters) if (param.in === 'query' && param.required) options[param.name] = exampleOf(param);
+    const requestBody = operation.body && resolveRef(document, document.paths[operation.path][operation.method.toLowerCase()].requestBody);
+    const bodyExample = requestBody?.content?.['application/json']?.example ?? {};
+    for (const property of operation.body?.properties ?? []) {
+        if (!property.required) continue;
+        const value = bodyExample[property.name] ?? (property.type === 'array' ? [`<${property.name}>`] : `<${property.name}>`);
+        options[property.name] = Array.isArray(value) ? value.slice(0, 2) : value;
+    }
+    return options;
+};
+
+const methodCallOf = (document, operation, entry) => {
+    const args = operation.parameters.filter((param) => param.in === 'path').map((param) => toLiteral(exampleOf(param)));
+    const options = exampleOptions(document, operation);
+    if (Object.keys(options).length > 0) args.push(toLiteral(options));
+    return `ud.${entry.namespace}.${entry.method}(${args.join(', ')})`;
+};
+
+const accessLineOf = (operation) => {
+    const lines = [];
+    if (operation.plan === 'investor') lines.push('Needs a key on the Investor plan.');
+    else if (operation.tier === 'keyed') lines.push('Needs a key.');
+    if (operation.metered) lines.push(`Spends one ${operation.metered} unit when it runs.`);
+    return lines.join(' ');
+};
+
+/** The method's JSDoc: the document's summary, what it needs, and an example built from the document's values. */
+const jsDocOf = (document, operation, entry, indent) => {
+    const call = methodCallOf(document, operation, entry);
+    const example = entry.paged ? [`for await (const row of ${call}) console.log(row);`] : [`const answer = await ${call};`];
+    const summary = operation.summary.replace(/\s+/g, ' ').replace(/\*\//g, '*\\/').trim();
+    const access = accessLineOf(operation);
+    const lines = [summary, ...(access ? ['', access] : []), '', '@example', ...example];
+    return [`${indent}/**`, ...lines.map((line) => (line ? `${indent} * ${line}` : `${indent} *`)), `${indent} */`].join('\n');
+};
+
+const methodSignatureOf = (entry) => {
+    const positional = entry.pathParams.map((name) => `${name}: PathParamsOf<'${entry.id}'>['${name}']`);
+    const options = `options${entry.optionsRequired ? '' : '?'}: CallOptions<'${entry.id}'>`;
+    return `(${[...positional, options].join(', ')}) => OperationCall<'${entry.id}'>`;
+};
+
+export const buildNamespacesSource = (document, operations) => {
+    const entries = buildNamespaces(operations);
+    const byId = Object.fromEntries(operations.map((operation) => [operation.id, operation]));
+    const inNamespace = (namespace) => entries.filter((entry) => entry.namespace === namespace);
+    return [
+        "import type { CallOptions, OperationCall } from '../call';",
+        "import type { PathParamsOf } from '../types';",
+        '',
+        '/** Each namespace of the client: a method name to the operation it calls. */',
+        `export const NAMESPACE_METHODS = ${toSource(Object.fromEntries(NAMESPACES.map((namespace) => [namespace, Object.fromEntries(inNamespace(namespace).map((entry) => [entry.method, entry.id]))])))} as const;`,
+        '',
+        '/** The operations a cursor pages through: their call also iterates over rows. */',
+        `export type PagedOperationId = ${unionOf(entries.filter((entry) => entry.paged).map((entry) => entry.id))};`,
+        '',
+        '/** The namespaced methods of a client. */',
+        'export type NamespacedClient = {',
+        ...NAMESPACES.flatMap((namespace) => [
+            `    ${namespace}: {`,
+            ...inNamespace(namespace).flatMap((entry) => [jsDocOf(document, byId[entry.id], entry, '        '), `        ${entry.method}: ${methodSignatureOf(entry)};`]),
+            '    };',
+        ]),
+        '};',
         '',
     ].join('\n');
 };
