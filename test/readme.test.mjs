@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { relative } from 'node:path';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { writeGenerated } from '../scripts/readme-examples.mjs';
 import { runExample } from '../scripts/lib/readme.mjs';
@@ -36,7 +35,7 @@ after(async () => {
  * catch-all branch prints any error, or whose key never leaves the client, would pass otherwise (review of 2026-11-09).
  */
 const EXPECTED = {
-    'sdk/errors': (printed) => assert.deepEqual(printed, [['Needs a key:', 'https://unique.domains/pricing']]),
+    'sdk/errors': (printed) => assert.deepEqual(printed, [['Needs a key or another plan:', 'https://unique.domains/pricing']]),
     'sdk/member-key': () => assert.equal(server.requests.at(-1).headers.authorization, `Bearer ${README_KEY}`),
     'sdk/rapidapi': () => assert.equal(server.requests.at(-1).headers['x-rapidapi-key'], 'rapidapi-test-key'),
 };

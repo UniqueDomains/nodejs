@@ -5,8 +5,8 @@
 /**
  * What a namespaced method returns (plan decision 14): a thenable that resolves to the answer's `data`, with
  * `.withMeta()` for the whole answer and, on the operations a cursor pages through, async iteration over the rows of
- * every page. The call is sent when it is first awaited or iterated, once: awaiting it again, or asking for
- * `.withMeta()` after, reads the same answer. `request` and `requestOperation` keep returning the whole answer.
+ * every page. The call is sent once, on its first read of any kind (`await`, a loop, `.withMeta()`, `.catch()`):
+ * every later read reuses the answer. `request` and `requestOperation` keep returning the whole answer.
  */
 
 import { OPERATIONS, type OperationId, type TextOperationId } from './generated/operations';
@@ -132,12 +132,12 @@ export class PagedApiCall<TRow, T, TResult> extends ApiCall<T, TResult> implemen
         this.#maxRows = maxRows;
     }
 
-    /** Every page in turn, each fetched when the previous one is done. With `maxRows`, the last page comes whole. */
+    /** Every page in turn, each fetched when the previous one is done. With `maxRows`, the page that reaches it comes whole. */
     async *pages(): AsyncGenerator<TResult, void, undefined> {
         const maxRows = this.#maxRows;
-        if (maxRows !== undefined && (!Number.isInteger(maxRows) || maxRows < 0)) throw new TypeError(`maxRows must be a whole number, 0 or more: ${maxRows}.`);
         if (maxRows === 0) return;
         let seen = 0;
+        let sentCursor: string | undefined;
         let answer = await this.firstAnswer();
         for (;;) {
             yield answer as TResult;
@@ -145,6 +145,9 @@ export class PagedApiCall<TRow, T, TResult> extends ApiCall<T, TResult> implemen
             if (Array.isArray(answer.data)) seen += answer.data.length;
             const cursor = answer.meta.cursor;
             if (!cursor || (maxRows !== undefined && seen >= maxRows)) return;
+            // The same page again would loop until the caller's quota runs out (review m4).
+            if (cursor === sentCursor) throw new TypeError(`The API answered the cursor it was sent (${cursor}): the list stops here.`);
+            sentCursor = cursor;
             answer = await this.fetchAnswer(cursor);
         }
     }
@@ -167,8 +170,14 @@ export class PagedApiCall<TRow, T, TResult> extends ApiCall<T, TResult> implemen
 /** The call behind one namespaced method: `args` are its positional path values, then its options object. */
 export const createCall = (operationId: OperationId, args: readonly unknown[], requestOperation: RequestOperation): ApiCall<unknown, unknown> => {
     const operation: OperationDefinition = OPERATIONS[operationId];
-    const fetchAnswer: FetchAnswer = (cursor) => requestOperation(operationId, toRequestParams(operation, args, cursor));
-    if (!operation.parameters.some((param) => param.in === 'query' && param.name === 'cursor')) return new ApiCall(fetchAnswer);
     const options = args[operation.parameters.filter((param) => param.in === 'path').length] as { maxRows?: number } | undefined;
-    return new PagedApiCall(fetchAnswer, options?.maxRows);
+    const maxRows = options?.maxRows;
+    // Refused on the first read of any kind, so `await` rejects as a loop does (review m2).
+    const invalidMaxRows = maxRows !== undefined && (!Number.isInteger(maxRows) || maxRows < 0);
+    const fetchAnswer: FetchAnswer = async (cursor) => {
+        if (invalidMaxRows) throw new TypeError(`maxRows must be a whole number, 0 or more: ${maxRows}.`);
+        return requestOperation(operationId, toRequestParams(operation, args, cursor));
+    };
+    if (!operation.parameters.some((param) => param.in === 'query' && param.name === 'cursor')) return new ApiCall(fetchAnswer);
+    return new PagedApiCall(fetchAnswer, maxRows);
 };

@@ -59,6 +59,8 @@ export const checks = async (): Promise<void> => {
 
     // A file operation gives its text.
     const text: string = await ud.meta.llmsTxt();
+    const calendar: string = await ud.agenda.ics({ tld: 'io' });
+    const events: string = await ud.agenda.eventsIcs();
     const file: ApiTextResult = await ud.meta.openapi({ listing: 'whois' }).withMeta();
 
     // The typed errors are ApiProblemError.
@@ -70,5 +72,5 @@ export const checks = async (): Promise<void> => {
         if (error instanceof ApiProblemError) void error.code;
     }
 
-    void [status, same, etag, cursor, count, text, file];
+    void [status, same, etag, cursor, count, text, calendar, events, file];
 };

@@ -17,13 +17,16 @@ import { METHODS } from './methods.mjs';
 const SCALAR_TYPES = new Set(['string', 'integer', 'number', 'boolean']);
 const LISTING_TITLE_PREFIX = 'Unique Domains API: ';
 
-/** The ten namespaces of the SDK, in the order the client shows them (plan decision 13). */
+/**
+ * The ten namespaces of the SDK, in the order the client shows them (plan decision 13). A tag or a shared path the
+ * document adds later gets a namespace of its own after these (`namespaceOf`), so the nightly pull request shows it.
+ */
 export const NAMESPACES = ['names', 'words', 'domains', 'tlds', 'prices', 'market', 'trends', 'agenda', 'editions', 'meta'];
 
-/** A document tag to its namespace. `shared` is split by path; a tag not listed here throws, so a new API fails loudly. */
+/** A document tag to its namespace. `shared` is split by path. */
 const NAMESPACE_OF_TAG = { names: 'names', words: 'words', catalog: 'domains', tlds: 'tlds', registrars: 'prices', market: 'market', trends: 'trends', agenda: 'agenda' };
 
-/** The noun the rule strips from an operation id, singular; its plural is stripped too. */
+/** The noun the rule strips from an operation id, singular; its plural is stripped too. A derived namespace's is its singular. */
 const NOUN_OF_NAMESPACE = { names: 'name', words: 'word', domains: 'domain', tlds: 'tld', prices: 'price', market: 'market', trends: 'trend', agenda: 'agenda', editions: 'edition', meta: 'meta' };
 
 /**
@@ -236,17 +239,17 @@ export const buildOperationsSource = (document, operations) => {
 
 const camelCase = (tokens) => tokens.map((token, index) => (index === 0 ? token : token.charAt(0).toUpperCase() + token.slice(1))).join('');
 
+/** `tld-applications` to `tldApplications`: a tag or a path segment as a namespace. */
+const toNamespace = (text) => camelCase(text.split(/[^A-Za-z0-9]+/).filter(Boolean));
+
+/**
+ * `shared` by the path's first segment (`/editions/...`, `/meta/...`), any other tag by the table. A tag or path no one
+ * mapped yet derives its name instead of failing: a throw here would stop the nightly before it writes anything, with
+ * no pull request to read (review M1), while a derived namespace comes up for review in `namespaces.ts`.
+ */
 const namespaceOf = (operation) => {
-    // The four file answers stay together (plan, lane N1): `await` gives a string there, never a row.
-    if (operation.answer === 'text') return 'meta';
-    if (operation.tag === 'shared') {
-        if (operation.path.startsWith('/editions')) return 'editions';
-        if (operation.path.startsWith('/meta')) return 'meta';
-        throw new Error(`${operation.id}: no namespace for the shared path ${operation.path}`);
-    }
-    const namespace = NAMESPACE_OF_TAG[operation.tag];
-    if (!namespace) throw new Error(`${operation.id}: no namespace for the tag ${operation.tag}`);
-    return namespace;
+    if (operation.tag === 'shared') return toNamespace(operation.path.split('/')[1].replace(/\.\w+$/, ''));
+    return NAMESPACE_OF_TAG[operation.tag] ?? toNamespace(operation.tag);
 };
 
 /**
@@ -256,7 +259,7 @@ const namespaceOf = (operation) => {
 export const methodNameOf = (id, namespace) => {
     const tokens = id.split('_');
     const verb = tokens[0] === 'get' || tokens[0] === 'list' ? tokens.shift() : null;
-    const noun = NOUN_OF_NAMESPACE[namespace];
+    const noun = NOUN_OF_NAMESPACE[namespace] ?? namespace.replace(/s$/, '');
     const nounAt = tokens.findIndex((token) => token === noun || token === `${noun}s`);
     if (nounAt >= 0) tokens.splice(nounAt, 1);
     if (tokens.length === 0) {
@@ -269,7 +272,12 @@ export const methodNameOf = (id, namespace) => {
 /** One entry per operation, in document order. Throws on an override for an unknown id or a repeated method name. */
 export const buildNamespaces = (operations) => {
     const ids = new Set(operations.map((operation) => operation.id));
-    for (const id of Object.keys(METHOD_OVERRIDES)) if (!ids.has(id)) throw new Error(`METHOD_OVERRIDES names ${id}, which the document does not list`);
+    for (const [id, target] of Object.entries(METHOD_OVERRIDES)) {
+        if (!ids.has(id)) throw new Error(`METHOD_OVERRIDES names ${id}, which the document does not list`);
+        const [namespace, method] = target.split('.');
+        // A wrong namespace would leave the method out of the generated file with no error (review m8).
+        if (!NAMESPACES.includes(namespace) || !/^[a-z][A-Za-z0-9]*$/.test(method ?? '')) throw new Error(`METHOD_OVERRIDES maps ${id} to ${target}, not <one of the ten namespaces>.<method>`);
+    }
     const seen = new Map();
     return operations.map((operation) => {
         const [namespace, method] = METHOD_OVERRIDES[operation.id]?.split('.') ?? [namespaceOf(operation), null];
@@ -293,8 +301,14 @@ export const buildNamespaces = (operations) => {
     });
 };
 
+/** A variable in an example, for a required value the document gives no example of: it cannot be pasted and run blind. */
+class ExampleVariable {
+    constructor(name) { this.name = name; }
+}
+
 /** A value as JavaScript source: single quotes and bare keys, as the README writes them. */
 const toLiteral = (value) => {
+    if (value instanceof ExampleVariable) return value.name;
     if (typeof value === 'string') return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
     if (Array.isArray(value)) return `[${value.map(toLiteral).join(', ')}]`;
     if (typeof value === 'object' && value !== null) return `{ ${Object.entries(value).map(([key, entry]) => `${key}: ${toLiteral(entry)}`).join(', ')} }`;
@@ -302,8 +316,10 @@ const toLiteral = (value) => {
 };
 
 const exampleOf = (param) => {
-    const value = param.example ?? `<${param.name}>`;
-    return param.type === 'integer' || param.type === 'number' ? Number(value) || 1 : value;
+    const value = param.example ?? param.enum?.[0] ?? param.default;
+    if (value === undefined) return new ExampleVariable(param.name);
+    if (param.type !== 'integer' && param.type !== 'number') return value;
+    return Number.isFinite(Number(value)) ? Number(value) : new ExampleVariable(param.name);
 };
 
 /** The options of a method's example: its required query values, then its required body values, cut to two list items. */
@@ -314,7 +330,7 @@ const exampleOptions = (document, operation) => {
     const bodyExample = requestBody?.content?.['application/json']?.example ?? {};
     for (const property of operation.body?.properties ?? []) {
         if (!property.required) continue;
-        const value = bodyExample[property.name] ?? (property.type === 'array' ? [`<${property.name}>`] : `<${property.name}>`);
+        const value = bodyExample[property.name] ?? new ExampleVariable(property.name);
         options[property.name] = Array.isArray(value) ? value.slice(0, 2) : value;
     }
     return options;
@@ -344,12 +360,15 @@ const accessLineOf = (operation) => {
 };
 
 /** The method's JSDoc: the document's summary, what it needs, and an example built from the document's values. */
+const escapeComment = (text) => text.replace(/\*\//g, '*\\/');
+
 const jsDocOf = (document, operation, entry, indent) => {
     const call = methodCallOf(document, operation, entry);
     const example = entry.paged && answersList(document, operation) ? [`for await (const row of ${call}) console.log(row);`] : [`const answer = await ${call};`];
-    const summary = operation.summary.replace(/\s+/g, ' ').replace(/\*\//g, '*\\/').trim();
+    const summary = escapeComment(operation.summary.replace(/\s+/g, ' ').trim());
     const access = accessLineOf(operation);
-    const lines = [summary, ...(access ? ['', access] : []), '', '@example', ...example];
+    const deprecated = document.paths[operation.path][operation.method.toLowerCase()].deprecated === true;
+    const lines = [summary, ...(access ? ['', access] : []), '', '@example', ...example.map(escapeComment), ...(deprecated ? [`@deprecated ${summary}`] : [])];
     return [`${indent}/**`, ...lines.map((line) => (line ? `${indent} * ${line}` : `${indent} *`)), `${indent} */`].join('\n');
 };
 
@@ -363,19 +382,20 @@ export const buildNamespacesSource = (document, operations) => {
     const entries = buildNamespaces(operations);
     const byId = Object.fromEntries(operations.map((operation) => [operation.id, operation]));
     const inNamespace = (namespace) => entries.filter((entry) => entry.namespace === namespace);
+    const namespaces = [...new Set([...NAMESPACES, ...entries.map((entry) => entry.namespace)])];
     return [
         "import type { CallOptions, OperationCall } from '../call';",
         "import type { PathParamsOf } from '../types';",
         '',
         '/** Each namespace of the client: a method name to the operation it calls. */',
-        `export const NAMESPACE_METHODS = ${toSource(Object.fromEntries(NAMESPACES.map((namespace) => [namespace, Object.fromEntries(inNamespace(namespace).map((entry) => [entry.method, entry.id]))])))} as const;`,
+        `export const NAMESPACE_METHODS = ${toSource(Object.fromEntries(namespaces.map((namespace) => [namespace, Object.fromEntries(inNamespace(namespace).map((entry) => [entry.method, entry.id]))])))} as const;`,
         '',
         '/** The operations a cursor pages through: their call also iterates over rows. */',
         `export type PagedOperationId = ${unionOf(entries.filter((entry) => entry.paged).map((entry) => entry.id))};`,
         '',
         '/** The namespaced methods of a client. */',
         'export type NamespacedClient = {',
-        ...NAMESPACES.flatMap((namespace) => [
+        ...namespaces.flatMap((namespace) => [
             `    ${namespace}: {`,
             ...inNamespace(namespace).flatMap((entry) => [jsDocOf(document, byId[entry.id], entry, '        '), `        ${entry.method}: ${methodSignatureOf(entry)};`]),
             '    };',

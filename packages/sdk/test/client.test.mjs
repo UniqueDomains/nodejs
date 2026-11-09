@@ -351,6 +351,8 @@ describe('namespaced methods (plan decisions 13 and 14)', () => {
             [() => client.tlds.list({ publicSet: true, limit: 2, fields: ['tld', 'kind'] }), () => client.request('list_tlds', { query: { publicSet: true, limit: 2 }, fields: ['tld', 'kind'] })],
             [() => client.names.batch({ names: ['harbor.io'] }), () => client.request('batch_names', { body: { names: ['harbor.io'] } })],
             [() => client.editions.get('founder', '2026-11-02'), () => client.request('get_edition', { path: { persona: 'founder', date: '2026-11-02' } })],
+            [() => client.agenda.ics(), () => client.request('get_agenda_ics')],
+            [() => client.agenda.eventsIcs(), () => client.request('get_events_ics')],
         ];
         for (const [namespaced, generic] of pairs) {
             await namespaced().catch(() => undefined);
@@ -416,6 +418,24 @@ describe('namespaced methods (plan decisions 13 and 14)', () => {
         for await (const row of keyless().tlds.list({ maxRows: 0 })) assert.fail(`no row expected, got ${row}`);
         assert.equal(server.requests.length, count + 2);
         await assert.rejects(async () => { for await (const row of keyless().tlds.list({ maxRows: -1 })) void row; }, TypeError);
+    });
+
+    it('refuse a bad maxRows on await too, before any call (review m2)', async () => {
+        const count = server.requests.length;
+        for (const maxRows of [-1, 1.5]) await assert.rejects(keyless().tlds.list({ maxRows }), /maxRows must be a whole number/);
+        await assert.rejects(keyless().tlds.list({ maxRows: -1 }).withMeta(), TypeError);
+        assert.equal(server.requests.length, count);
+    });
+
+    it('stop on a cursor the API answers twice, not looping on the caller\'s quota (review m4)', async () => {
+        const urls = [];
+        const fetch = async (request) => {
+            urls.push(new URL(request.url).search);
+            return new Response(JSON.stringify({ data: [{ tld: '.ai' }], meta: { asOf: null, cursor: 'same', limit: 1 }, links: { self: 'x' } }), { status: 200, headers: { 'content-type': 'application/json' } });
+        };
+        const client = createClient({ apiKey: null, baseUrl: 'http://127.0.0.1:9/v1', fetch });
+        await assert.rejects(async () => { for await (const row of client.tlds.list()) void row; }, /answered the cursor it was sent/);
+        assert.deepEqual(urls, ['', '?cursor=same']);
     });
 
     it('page a keyed list with a member key', async () => {

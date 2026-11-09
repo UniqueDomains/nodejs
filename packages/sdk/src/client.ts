@@ -6,12 +6,12 @@
  * `createClient` (plan decision 6): `openapi-fetch` makes the calls, the generated `operations` type types them, and
  * every call goes through one function addressed by operation id, the name the website's reference and the CLI use
  * for it. Three ways in: no key (the free grade), a member key (`Authorization: Bearer`), or a RapidAPI key with its
- * listing (the listing's own host). Every failure is an `ApiProblemError`.
+ * listing (the listing's own host). Every answer that is not a success is an `ApiProblemError`.
  *
  * Two surfaces over that function. The namespaced methods (`ud.names.get('harbor.io')`, generated, API visibility plan
  * decisions 13 and 14) answer `data` directly and supersede the 0.1.0 decision to offer no readable methods. `request`
  * and `requestOperation` stay the generic path for tools and loops, and answer the whole envelope plus its facts; the
- * CLI and the MCP server are built on them. There are no path-based methods (`GET('/names/{name}')`): openapi-fetch
+ * CLI is built on them, as the MCP server will be. There are no path-based methods (`GET('/names/{name}')`): openapi-fetch
  * stays an implementation detail, so it can be replaced without a breaking change.
  */
 
@@ -54,8 +54,8 @@ export type ClientOptions = {
     /**
      * Retries what is worth retrying, with backoff and jitter: a `rate_limited` answer with a short `Retry-After`, a
      * 503 `not_ready` or `check_unavailable`, a 5xx without a problem body, a network failure. A POST is retried only
-     * on the 429. `true` tries a call up to 3 times and waits at most 30 seconds before each new try. Off by default, where the client
-     * retries once, after a `rate_limited` answer with `Retry-After: 1`.
+     * on the 429. `true` tries a call up to 3 times and waits at most 30 seconds before each new try. `attempts: 1` retries
+     * nothing at all. Off by default, where the client retries once, after a `rate_limited` answer with `Retry-After: 1`.
      */
     retry?: boolean | RetryOptions;
 };

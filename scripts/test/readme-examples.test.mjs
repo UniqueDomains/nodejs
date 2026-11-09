@@ -19,6 +19,23 @@ describe('README examples (plan decision 17)', () => {
         assert.throws(() => parseExamples('<!-- example: One -->\n'), /a marker reads/);
     });
 
+    it('read tilde fences, longer fences and an info string after the language (review m7)', () => {
+        const read = (markdown) => parseExamples(markdown).map(({ name, code }) => [name, code]);
+        assert.deepEqual(read('<!-- example: tilde -->\n~~~js\na;\n~~~\n'), [['tilde', 'a;']]);
+        assert.deepEqual(read('<!-- example: info -->\n```js title=x\nb;\n```\n'), [['info', 'b;']]);
+        assert.deepEqual(read('<!-- example: long -->\n````js\n```\nc;\n````\n'), [['long', '```\nc;']]);
+        assert.throws(() => parseExamples('~~~js\na;\n~~~\n'), /without <!-- example/);
+        assert.throws(() => parseExamples('```js title=x\na;\n```\n'), /without <!-- example/);
+    });
+
+    it('add the client unless a line of code declares it, any way (review m7)', () => {
+        const prelude = (code) => /const ud = createClient\(\);\n/.test(renderModule(parseExamples(block('<!-- example: one -->', code)), './sdk.mjs').replace(code, ''));
+        assert.equal(prelude('console.log(ud);'), true);
+        assert.equal(prelude('let ud = createClient({ retry: true });'), false);
+        assert.equal(prelude('var ud = createClient();'), false);
+        assert.equal(prelude('// const ud = createClient({ apiKey });\nconsole.log(ud);'), true);
+    });
+
     it('count the skips, failing above three', () => {
         const skips = (count) => Array.from({ length: count }, (_, index) => block(`<!-- example: s${index} skip -->`, 'x;')).join('\n');
         assert.equal(parseExamples(skips(3)).length, 3);

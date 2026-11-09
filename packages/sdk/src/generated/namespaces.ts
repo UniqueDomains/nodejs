@@ -91,8 +91,10 @@ export const NAMESPACE_METHODS = {
     },
     agenda: {
         events: "list_events",
+        eventsIcs: "get_events_ics",
         event: "get_event",
-        get: "get_agenda"
+        get: "get_agenda",
+        ics: "get_agenda_ics"
     },
     editions: {
         latest: "get_latest_edition",
@@ -100,8 +102,6 @@ export const NAMESPACE_METHODS = {
     },
     meta: {
         tlds: "get_meta_tlds",
-        eventsIcs: "get_events_ics",
-        agendaIcs: "get_agenda_ics",
         enums: "get_meta_enums",
         freshness: "get_meta_freshness",
         datasets: "list_meta_datasets",
@@ -684,6 +684,13 @@ export type NamespacedClient = {
          */
         events: (options?: CallOptions<'list_events'>) => OperationCall<'list_events'>;
         /**
+         * The industry events as an iCalendar file.
+         *
+         * @example
+         * const answer = await ud.agenda.eventsIcs();
+         */
+        eventsIcs: (options?: CallOptions<'get_events_ics'>) => OperationCall<'get_events_ics'>;
+        /**
          * One industry event with its organizer, location and description.
          *
          * @example
@@ -697,6 +704,13 @@ export type NamespacedClient = {
          * const answer = await ud.agenda.get();
          */
         get: (options?: CallOptions<'get_agenda'>) => OperationCall<'get_agenda'>;
+        /**
+         * The whole public agenda as an iCalendar file.
+         *
+         * @example
+         * const answer = await ud.agenda.ics();
+         */
+        ics: (options?: CallOptions<'get_agenda_ics'>) => OperationCall<'get_agenda_ics'>;
     };
     editions: {
         /**
@@ -722,20 +736,6 @@ export type NamespacedClient = {
          * const answer = await ud.meta.tlds();
          */
         tlds: (options?: CallOptions<'get_meta_tlds'>) => OperationCall<'get_meta_tlds'>;
-        /**
-         * The industry events as an iCalendar file.
-         *
-         * @example
-         * const answer = await ud.meta.eventsIcs();
-         */
-        eventsIcs: (options?: CallOptions<'get_events_ics'>) => OperationCall<'get_events_ics'>;
-        /**
-         * The whole public agenda as an iCalendar file.
-         *
-         * @example
-         * const answer = await ud.meta.agendaIcs();
-         */
-        agendaIcs: (options?: CallOptions<'get_agenda_ics'>) => OperationCall<'get_agenda_ics'>;
         /**
          * Every enum the payloads use, read from the code catalogs.
          *

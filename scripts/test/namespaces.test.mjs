@@ -51,10 +51,11 @@ describe('namespaces (plan decision 13)', () => {
         }
     });
 
-    it('keep the four text operations on meta', () => {
-        const text = operations.filter((operation) => operation.answer === 'text').map((operation) => operation.id);
-        assert.equal(text.length, 4);
-        for (const id of text) assert.match(where(id), /^meta\./, id);
+    it('keep the API\'s own two files on meta and the calendar feeds on agenda (Gaetan\'s 1B)', () => {
+        const text = operations.filter((operation) => operation.answer === 'text').map((operation) => where(operation.id)).sort();
+        assert.deepEqual(text, ['agenda.eventsIcs', 'agenda.ics', 'meta.llmsTxt', 'meta.openapi']);
+        assert.equal(where('get_events_ics'), 'agenda.eventsIcs');
+        assert.equal(where('get_agenda_ics'), 'agenda.ics');
     });
 
     it('apply the rule: strip the verb and the noun, camel-case the rest', () => {
@@ -64,11 +65,59 @@ describe('namespaces (plan decision 13)', () => {
         assert.equal(methodNameOf('list_tld_application_changes', 'tlds'), 'applicationChanges');
     });
 
-    it('throw on a repeated method and on a tag with no namespace', () => {
+    it('throw on a repeated method', () => {
         // `get_names` reads as `names.get`, which `get_name` already is.
         const twice = [...operations, { ...operations.find((operation) => operation.id === 'get_name'), id: 'get_names' }];
         assert.throws(() => buildNamespaces(twice), /both names\.get/);
-        assert.throws(() => buildNamespaces([...operations, { ...operations[0], id: 'get_thing', tag: 'things' }]), /no namespace for the tag things/);
+    });
+
+    it('derive a namespace for a new tag or shared path, so the nightly still opens its pull request (review M1)', () => {
+        const added = [
+            { ...operations[0], id: 'get_thing', tag: 'things', path: '/things/{name}' },
+            { ...operations[0], id: 'list_things', tag: 'things', path: '/things' },
+            { ...operations[0], id: 'list_tld_watches', tag: 'tld-watches', path: '/tld-watches' },
+            { ...operations[0], id: 'get_status_page', tag: 'shared', path: '/status/page' },
+        ];
+        const derived = buildNamespaces([...operations, ...added]).slice(operations.length).map((entry) => `${entry.namespace}.${entry.method}`);
+        assert.deepEqual(derived, ['things.get', 'things.list', 'tldWatches.tldWatches', 'status.page']);
+        const withThings = { ...document, paths: { ...document.paths, '/things/{name}': { get: document.paths['/names/{name}'].get } } };
+        const source = buildNamespacesSource(withThings, [...operations, { ...operations[0], id: 'get_thing', tag: 'things', path: '/things/{name}' }]);
+        assert.match(source, /^ {4}things: \{\n {8}get: "get_thing"/m);
+        assert.match(source, /ud\.things\.get\('lantern\.io'\)/);
+    });
+
+    it('refuse an override outside the namespaces, or without a method (review m8)', () => {
+        for (const target of ['domain.stats', 'domains', 'domains.']) {
+            METHOD_OVERRIDES.get_catalog_stats = target;
+            try {
+                assert.throws(() => buildNamespaces(operations), /METHOD_OVERRIDES maps get_catalog_stats/);
+            } finally {
+                METHOD_OVERRIDES.get_catalog_stats = 'domains.stats';
+            }
+        }
+    });
+
+    it('write examples a reader cannot paste blind, and keep a comment closed (review m8)', () => {
+        const withParam = (param, extra = {}) => {
+            const path = '/names/{name}';
+            const base = document.paths[path].get;
+            const custom = { ...document, paths: { ...document.paths, [path]: { get: { ...base, ...extra } } } };
+            const operation = { ...operations.find((entry) => entry.id === 'get_name'), parameters: [param] };
+            return buildNamespacesSource(custom, operations.map((entry) => (entry.id === 'get_name' ? operation : entry)));
+        };
+        const path = { name: 'name', in: 'path', required: true, description: '' };
+        assert.match(withParam({ ...path, type: 'integer', example: '0' }), /ud\.names\.get\(0\);/);
+        assert.match(withParam({ ...path, type: 'string' }), /ud\.names\.get\(name\);/);
+        assert.match(withParam({ ...path, type: 'integer', example: 'many' }), /ud\.names\.get\(name\);/);
+        assert.match(withParam({ ...path, type: 'string', enum: ['founder', 'investor'] }), /ud\.names\.get\('founder'\);/);
+        assert.match(withParam({ ...path, type: 'string', example: 'a*/b' }), /ud\.names\.get\('a\*\\\/b'\);/);
+    });
+
+    it('mark a method the document marks deprecated (review m3)', () => {
+        const custom = { ...document, paths: { ...document.paths, '/meta/tlds': { get: { ...document.paths['/meta/tlds'].get, deprecated: true } } } };
+        const summary = operations.find((entry) => entry.id === 'get_meta_tlds').summary;
+        assert.ok(buildNamespacesSource(custom, operations).includes(`@deprecated ${summary}`));
+        assert.doesNotMatch(buildNamespacesSource(document, operations), /@deprecated/);
     });
 
     it('know the 21 paged operations', () => {

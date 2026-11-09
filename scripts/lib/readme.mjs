@@ -21,7 +21,8 @@ import { join, relative } from 'node:path';
 ----------------------------------*/
 
 const MARKER = /^<!-- example: ([a-z0-9]+(?:-[a-z0-9]+)*)(?: (skip|fixture))? -->$/;
-const FENCE = /^```(\S*)\s*$/;
+// Both fence characters and any length, with an info string after the language (CommonMark): ```js title=x, ~~~js.
+const FENCE = /^(`{3,}|~{3,})\s*([^\s`]*).*$/;
 const SCRIPT_LANGUAGES = new Set(['js', 'javascript', 'mjs', 'cjs', 'ts', 'typescript', 'jsx', 'tsx']);
 const SDK_IMPORT = /^import \{([^}]+)\} from '@uniquedomains\/sdk';?$/;
 export const MAX_SKIPS = 3;
@@ -29,6 +30,12 @@ export const MAX_SKIPS = 3;
 /*----------------------------------
 - PUBLIC API
 ----------------------------------*/
+
+/** A closing fence: the opening's character, at least its length, nothing after it. */
+const closesFence = (line, opening) => /^(`+|~+)$/.test(line) && line[0] === opening[0] && line.length >= opening.length;
+
+/** A declaration of `ud` in a line of code, comments left out: the example then needs no client from the prelude. */
+const declaresClient = (code) => code.split('\n').some((line) => !line.trim().startsWith('//') && /\b(?:const|let|var)\s+ud\b/.test(line));
 
 /** The examples of one README, in order. Throws on an unmarked script block, a marker without a block, a repeated name. */
 export const parseExamples = (markdown, file = 'README.md') => {
@@ -49,10 +56,10 @@ export const parseExamples = (markdown, file = 'README.md') => {
             if (marker && line !== '') throw new Error(`${file}:${marker.line}: the marker ${marker.name} is not followed by a js block`);
             continue;
         }
-        const language = fence[1].toLowerCase();
+        const language = fence[2].toLowerCase();
         const start = index;
         const body = [];
-        for (index++; index < lines.length && !/^```\s*$/.test(lines[index].trim()); index++) body.push(lines[index]);
+        for (index++; index < lines.length && !closesFence(lines[index].trim(), fence[1]); index++) body.push(lines[index]);
         if (index >= lines.length) throw new Error(`${file}:${start + 1}: a block that never closes`);
         if (!SCRIPT_LANGUAGES.has(language)) {
             if (marker) throw new Error(`${file}:${marker.line}: the marker ${marker.name} is followed by a ${language || 'plain'} block, not js`);
@@ -85,7 +92,7 @@ export const renderModule = (examples, sdkSpecifier, file = 'README.md') => {
             for (const name of match[1].split(',').map((entry) => entry.trim()).filter(Boolean)) imports.add(name);
         }
         const code = body.join('\n').trim();
-        const prelude = /\bconst ud\s*=/.test(code) ? '' : '            const ud = createClient();\n';
+        const prelude = declaresClient(code) ? '' : '            const ud = createClient();\n';
         return [
             '    {',
             `        name: ${JSON.stringify(example.name)},`,

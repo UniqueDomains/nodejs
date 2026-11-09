@@ -13,14 +13,15 @@
  *
  * Usage: node scripts/record-fixtures.mjs                  (rewrites test/fixtures/recorded/)
  *        node scripts/record-fixtures.mjs --only a,b       (records the named entries, spends only their calls)
+ *        UD_API_BASE, UD_FIXTURES_OUT                      (another base; another folder, for this script's test)
  */
 
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const OUT = join(ROOT, 'test', 'fixtures', 'recorded');
+const OUT = process.env.UD_FIXTURES_OUT || join(ROOT, 'test', 'fixtures', 'recorded');
 const BASE = process.env.UD_API_BASE || 'https://api.unique.domains/v1';
 const KEPT_HEADERS = /^(content-type|etag|retry-after|location|x-ratelimit-.*|x-quota-.*)$/i;
 
@@ -48,28 +49,48 @@ const only = onlyAt >= 0 ? new Set((process.argv[onlyAt + 1] ?? '').split(',')) 
 const unknown = only ? [...only].filter((name) => !CALLS.some((call) => call.name === name)) : [];
 if (unknown.length > 0 || only?.size === 0) throw new Error(`--only names no entry: ${unknown.join(', ')}`);
 
-const record = async (call, name, query) => {
+const fetchFixture = async (call, name, query) => {
     const url = `${BASE}${call.path}${query ? `?${query}` : ''}`;
     const response = await fetch(url, { headers: { 'user-agent': 'uniquedomains-nodejs-record' } });
     const text = await response.text();
     const headers = {};
-    response.headers.forEach((value, name) => {
-        if (KEPT_HEADERS.test(name)) headers[name] = value;
+    response.headers.forEach((value, header) => {
+        if (KEPT_HEADERS.test(header)) headers[header] = value;
     });
     const isJson = (headers['content-type'] ?? '').includes('json');
-    const fixture = {
+    return {
         name,
         recordedOn: new Date().toISOString().slice(0, 10),
         request: { method: 'GET', path: call.path, query: query ?? '' },
         response: { status: response.status, headers, body: isJson ? JSON.parse(text) : text },
     };
-    await writeFile(join(OUT, `${name}.json`), `${JSON.stringify(fixture, null, 2)}\n`);
-    console.log(`${response.status} ${name}`);
-    return fixture.response.body;
+};
+
+const save = async (fixture) => {
+    await writeFile(join(OUT, `${fixture.name}.json`), `${JSON.stringify(fixture, null, 2)}\n`);
+    console.log(`${fixture.response.status} ${fixture.name}`);
+};
+
+/**
+ * Every page, in memory first: a refused page (a 429 midway) writes nothing, so it is never replayed as an answer, and
+ * the entry's old files go only once the whole list is read, so a shorter list leaves no stale page (review m9).
+ */
+const recordPages = async (call) => {
+    const fixtures = [];
+    let query = call.query;
+    do {
+        const fixture = await fetchFixture(call, `${call.name}-${fixtures.length + 1}`, query);
+        if (fixture.response.status !== 200) throw new Error(`${fixture.name} answered ${fixture.response.status}: nothing written.`);
+        fixtures.push(fixture);
+        const cursor = fixture.response.body.meta?.cursor;
+        query = cursor ? `${call.query}&cursor=${encodeURIComponent(cursor)}` : null;
+    } while (query);
+    for (const file of await readdir(OUT)) if (new RegExp(`^${call.name}-\\d+\\.json$`).test(file)) await rm(join(OUT, file));
+    for (const fixture of fixtures) await save(fixture);
 };
 
 await mkdir(OUT, { recursive: true });
 for (const call of CALLS.filter((entry) => !only || only.has(entry.name))) {
-    let body = await record(call, call.pages ? `${call.name}-1` : call.name, call.query);
-    for (let page = 2; call.pages && body.meta?.cursor; page++) body = await record(call, `${call.name}-${page}`, `${call.query}&cursor=${encodeURIComponent(body.meta.cursor)}`);
+    if (call.pages) await recordPages(call);
+    else await save(await fetchFixture(call, call.name, call.query));
 }
