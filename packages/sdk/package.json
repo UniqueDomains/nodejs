@@ -1,6 +1,6 @@
 {
   "name": "@uniquedomains/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Typed Node client for the Unique Domains API: domain names, words, TLDs, registrar prices, the domain market, trends and the agenda.",
   "license": "MIT",
   "author": "Unique Domains (https://unique.domains)",
