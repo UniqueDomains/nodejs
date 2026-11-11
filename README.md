@@ -16,7 +16,7 @@ This repository holds six packages. The first two are generated from the API's O
 [`examples/`](examples) holds three starters: a [Next.js page](examples/nextjs-domain-search), a [Google Sheets function](examples/google-sheets) and an [availability widget](examples/availability-widget).
 
 ```bash
-npx @uniquedomains/cli get-name harbor.io
+npx @uniquedomains/cli get-name get.plumbing
 ```
 
 <!-- example: first-call -->
