@@ -1,6 +1,6 @@
 # Domain appraisal for Node.js
 
-The value needs a key. The comparable sales are free: a summary of the sales behind a domain name, from Node.js or the command line, with no key and no sign-up.
+What did similar names sell for? One call answers with no key and no sign-up: for `get.plumbing`, 10 similar sales with a median of $2,677 (2026-11-11). The summary comes from 12 months of domain sales, about 40,000 of them. The estimated value of a name needs a key.
 
 ```bash
 npx @uniquedomains/domain-appraisal get.plumbing

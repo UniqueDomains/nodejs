@@ -1,16 +1,16 @@
 # @uniquedomains/cli
 
-The [Unique Domains API](https://unique.domains/api) from the command line: domain names, words, endings, registrar prices, the domain market, trends and the agenda.
+Every operation of the [Unique Domains API](https://unique.domains/api) as a command: is a name taken, its registry record, what nine registrars charge for an ending, today's auctions. 87 commands; 62 run with no key. Nothing to install for a first try:
 
 ```bash
-npx @uniquedomains/cli get-name harbor.io
+npx @uniquedomains/cli get-name get.plumbing
 ```
 
 Or install it once, which gives the `ud` command (and `uniquedomains`, the same command, for machines where another `ud` is installed):
 
 ```bash
 npm install -g @uniquedomains/cli
-ud get-name harbor.io
+ud get-name get.plumbing
 ```
 
 Node 20 or later.
@@ -19,9 +19,9 @@ Node 20 or later.
 
 Every operation of the API is a command, its operation id in kebab case: `get_name` is `ud get-name`, `list_tld_prices` is `ud list-tld-prices`. The [API reference](https://unique.domains/api) names each endpoint the same way.
 
-- Path parameters are arguments, in the order of the path: `ud get-name harbor.io`, `ud list-tld-prices io`.
+- Path parameters are arguments, in the order of the path: `ud get-name get.plumbing`, `ud list-tld-prices io`.
 - Query parameters are flags in kebab case: `ud list-tlds --public-set --limit 20`. A yes or no flag also takes `--no-<flag>`.
-- A POST body's fields are flags too (`ud batch-names --names lantern.io,harbor.io`), or the whole body with `--body '{"names":["lantern.io"]}'`, `--body @file.json` or `--body -` for stdin.
+- A POST body's fields are flags too (`ud batch-names --names lantern.io,get.plumbing`), or the whole body with `--body '{"names":["lantern.io"]}'`, `--body @file.json` or `--body -` for stdin.
 
 ```bash
 ud --help                 # every command, grouped by API
@@ -50,7 +50,7 @@ Without a key you read the free endpoints. A member key, included in the Founder
 ```bash
 export UD_API_KEY=ud_live_...
 ud whoami
-ud get-name-registry harbor.io --verbose
+ud get-name-registry get.plumbing --verbose
 ```
 
 Create the key in the product under Settings, Account, API, and keep it on your machine or a server, never in a page a visitor loads. `--key` passes one for a single command.
@@ -58,7 +58,7 @@ Create the key in the product under Settings, Account, API, and keep it on your 
 A RapidAPI subscription works too, with the listing it subscribes to:
 
 ```bash
-ud --rapidapi-key "$RAPIDAPI_KEY" --listing whois get-name-registry harbor.io
+ud --rapidapi-key "$RAPIDAPI_KEY" --listing whois get-name-registry get.plumbing
 ```
 
 `UD_RAPIDAPI_KEY` and `UD_RAPIDAPI_LISTING` set them for every command. `UD_API_BASE` or `--base` points the command at another base URL. With a RapidAPI key, only `--base` does: `UD_API_BASE` is not read, so a base left set from member-key work never receives your RapidAPI key. Pass `--base` on purpose when you test against a local gateway.

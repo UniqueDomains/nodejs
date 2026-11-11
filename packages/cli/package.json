@@ -1,7 +1,7 @@
 {
   "name": "@uniquedomains/cli",
   "version": "0.2.0",
-  "description": "The Unique Domains API from the command line: domain names, words, TLDs, registrar prices, the domain market, trends and the agenda.",
+  "description": "Domain data from the command line: npx @uniquedomains/cli get-name get.plumbing. Status, WHOIS record, nine registrars' prices, auctions. 87 commands, 62 need no key.",
   "license": "MIT",
   "author": "Unique Domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",

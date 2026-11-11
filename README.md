@@ -1,6 +1,27 @@
 # Unique Domains for Node
 
-The Unique Domains API answers questions about domain names: whether a name is free, its registry record, what registrars charge for each ending, and what the domain market did. It covers names, words, endings, registrar prices, the market, trends and the industry agenda, and most of it works without a key.
+One line, no key, a real answer:
+
+```bash
+npx @uniquedomains/cli get-name get.plumbing
+```
+
+```json
+{
+  "name": "get.plumbing",
+  "status": "for_sale",
+  "registry": {
+    "createdAt": "2020-06-03",
+    "expiresAt": "2027-06-03",
+    "registrar": { "name": "GoDaddy.com, LLC", "ianaId": 146 }
+  },
+  "comps": { "count": 10, "medianUsd": 2677 }
+}
+```
+
+That answer (2026-11-11, trimmed) comes from a record Unique Domains reads every day: 37 million one-word names on 505 endings, nine registrars' price lists and seven auction venues. Building it yourself means a WHOIS and RDAP client for every registry and a price reader for every registrar. Here it is `npm install`.
+
+The API has 87 operations. 62 answer with no key, within 60 calls an hour and 100 a day from one address.
 
 This repository holds six packages. The first two are generated from the API's OpenAPI document and cover all of it; the other four each answer one question, from code or as a command:
 
@@ -24,7 +45,7 @@ npx @uniquedomains/cli get-name get.plumbing
 import { createClient } from '@uniquedomains/sdk';
 
 const ud = createClient();
-const name = await ud.names.get('harbor.io');
+const name = await ud.names.get('get.plumbing');
 console.log(name.status);
 ```
 

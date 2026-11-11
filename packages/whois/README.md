@@ -1,6 +1,6 @@
 # WHOIS lookup for Node.js, with history
 
-Read a domain name's registry record from Node.js or the command line: its dates, registrar, status codes, nameservers, DNSSEC and holder. The record and the name's DNS are free and need no key. The history of past records needs a key on the Investor plan.
+WHOIS has no single format: every registry answers its own way, and many now answer over RDAP only. This package skips that work. One call returns a domain name's registry record already parsed: dates, registrar, status codes, nameservers, DNSSEC and holder, stored with the day it was read. The record and the name's DNS are free and need no key. The history of past records needs a key on the Investor plan.
 
 ```bash
 npx @uniquedomains/whois get.plumbing

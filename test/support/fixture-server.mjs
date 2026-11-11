@@ -33,6 +33,12 @@ const envelope = (data, self, cursor = null) => ({ data, meta: { asOf: null, cur
 
 const expiringRow = (name) => ({ id: `dom_${name}`, name, ending: 'io', expiresOn: '2026-11-20', status: 'expiring' });
 
+/** A recorded response, its `links.self` set to the call that serves it. */
+const recordedAt = (name, self) => {
+    const { response } = loadRecorded().find((fixture) => fixture.name === name);
+    return self ? { ...response, body: { ...response.body, links: { ...response.body.links, self } } } : response;
+};
+
 const getNameBody = (name) => {
     const recorded = loadRecorded().find((fixture) => fixture.name === 'names-get-name').response.body;
     return { ...recorded, data: { ...recorded.data, name } };
@@ -180,6 +186,16 @@ export const SYNTHETIC = [
         name: 'rapidapi-registry',
         request: { method: 'GET', path: '/names/harbor.io/registry', query: '', header: ['x-rapidapi-host', 'whois-lookup24.p.rapidapi.com'] },
         response: json(200, { data: { name: 'harbor.io', registrar: null }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://whois-lookup24.p.rapidapi.com/names/harbor.io/registry', next: null, register: null, product: null, dataset: null } }, { 'x-ratelimit-limit': '1000', 'x-ratelimit-remaining': '999' }),
+    },
+    // The README's sample name: its recorded answers served for the README's calls. Its availability fields stand for
+    // the whole name (what the examples print), and the keyed-only refusal depends on the endpoint, not the name.
+    { name: 'readme-get-name', request: { method: 'GET', path: '/names/get.plumbing', query: '' }, response: recordedAt('usecase-availability', 'https://api.unique.domains/v1/names/get.plumbing') },
+    { name: 'readme-keyed-only', request: { method: 'GET', path: '/names/get.plumbing/prices', query: '' }, response: { ...recordedAt('problem-keyed-only'), body: { ...recordedAt('problem-keyed-only').body, instance: '/v1/names/get.plumbing/prices' } } },
+    {
+        // The SDK README's RapidAPI example: the recorded registry record of its sample name, as the whois host serves it.
+        name: 'rapidapi-registry-readme',
+        request: { method: 'GET', path: '/names/get.plumbing/registry', query: '', header: ['x-rapidapi-host', 'whois-lookup24.p.rapidapi.com'] },
+        response: json(200, recordedAt('usecase-registry', 'https://whois-lookup24.p.rapidapi.com/names/get.plumbing/registry').body, { 'x-ratelimit-limit': '1000', 'x-ratelimit-remaining': '999' }),
     },
     {
         name: 'gateway-refusal',

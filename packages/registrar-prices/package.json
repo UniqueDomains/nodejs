@@ -1,7 +1,7 @@
 {
   "name": "@uniquedomains/registrar-prices",
   "version": "0.2.0",
-  "description": "Registrar price comparison for Node.js: every registrar's list price for an ending, renewal traps and price changes, from code or the ud-prices command.",
+  "description": "Registrar price comparison for Node.js: what nine registrars charge for a domain ending, each confirmed price change and over 300 renewal traps. Read daily, free, no key.",
   "license": "MIT",
   "author": "Unique Domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",

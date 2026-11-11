@@ -151,13 +151,15 @@ describe('the use-case packages (plan decision 18)', () => {
             });
 
             it('its first paragraph names what is free', () => {
-                assert.match(readme.split('\n')[2], /free/);
+                assert.match(readme.split('\n')[2], /free|with no key/);
             });
 
         });
     }
 
-    it('the appraisal README opens by saying the value needs a key and the comparable sales are free (decision 48)', () => {
-        assert.match(read('domain-appraisal', 'README.md').split('\n')[2], /^The value needs a key\. The comparable sales are free/);
+    it('the appraisal README opens by saying the comparable sales answer with no key and the value needs a key (decision 48, in the words of 2026-11-11)', () => {
+        const opening = read('domain-appraisal', 'README.md').split('\n')[2];
+        assert.match(opening, /^What did similar names sell for\? One call answers with no key/);
+        assert.match(opening, /The estimated value of a name needs a key\.$/);
     });
 });

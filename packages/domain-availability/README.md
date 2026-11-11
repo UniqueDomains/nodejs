@@ -1,6 +1,6 @@
 # Domain availability check for Node.js
 
-Find out whether a domain name can be registered, from Node.js or the command line. The stored answer is free and needs no key: the name's status, drop day, price and renewal. A live check needs a key, and a list of names at once needs a key on the Investor plan.
+Is the name free, and what will it cost to keep? One call answers both, with no key: the name's status, its drop day, its price today and its renewal price, from a record of 37 million names read every day. A live registry check needs a key, and a list of names at once needs a key on the Investor plan.
 
 ```bash
 npx @uniquedomains/domain-availability get.plumbing

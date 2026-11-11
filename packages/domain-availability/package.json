@@ -1,7 +1,7 @@
 {
   "name": "@uniquedomains/domain-availability",
   "version": "0.2.0",
-  "description": "Domain availability check for Node.js: a name's stored status, drop day, price and renewal for free, a live check with a key, from code or the ud-availability command.",
+  "description": "Domain availability check for Node.js: is the name free, what it costs today and what it renews at, in one call with no key. A live registry check with a key.",
   "license": "MIT",
   "author": "Unique Domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",

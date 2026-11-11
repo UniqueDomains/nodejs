@@ -55,9 +55,9 @@ try {
     // The README's first example, as a user runs it after `npm install`, against the fixture server.
     const server = await startFixtureServer();
     try {
-        const firstExample = 'import { createClient } from "@uniquedomains/sdk"; const ud = createClient({ apiKey: null, baseUrl: process.argv[1] }); const name = await ud.names.get("harbor.io"); console.log(name.status);';
+        const firstExample = 'import { createClient } from "@uniquedomains/sdk"; const ud = createClient({ apiKey: null, baseUrl: process.argv[1] }); const name = await ud.names.get("get.plumbing"); console.log(name.status);';
         const printed = await runAsync(process.execPath, ['--input-type=module', '-e', firstExample, server.base], project);
-        const status = loadRecorded().find((fixture) => fixture.name === 'names-get-name').response.body.data.status;
+        const status = loadRecorded().find((fixture) => fixture.name === 'usecase-availability').response.body.data.status;
         if (printed.trim() !== status) throw new Error(`the README's first example printed "${printed.trim()}", not "${status}"`);
 
         for (const useCase of USE_CASES) {

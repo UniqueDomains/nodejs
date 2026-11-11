@@ -101,7 +101,7 @@ describe('the README examples, on the fixture server', () => {
             assert.equal(sdk.examples[0].name, 'first-call');
             const { examples } = await import(pathToFileURL(sdk.module).href);
             const printed = await runExample(examples[0]);
-            const status = loadRecorded().find((fixture) => fixture.name === 'names-get-name').response.body.data.status;
+            const status = loadRecorded().find((fixture) => fixture.name === 'usecase-availability').response.body.data.status;
             assert.deepEqual(printed, [[status]]);
         });
     });

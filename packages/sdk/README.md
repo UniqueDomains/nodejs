@@ -1,6 +1,6 @@
 # @uniquedomains/sdk
 
-A typed Node client for the [Unique Domains API](https://unique.domains/api): domain names, words, endings, registrar prices, the domain market, trends and the agenda. Most of it answers without a key.
+A typed Node client for the [Unique Domains API](https://unique.domains/api). One call tells you whether a domain name is taken, what its registry record says, what nine registrars charge for its ending and what similar names sold for, from a record of 37 million names read every day. 62 of the 87 operations answer with no key.
 
 ```bash
 npm install @uniquedomains/sdk
@@ -15,7 +15,7 @@ Node 20 or later. ESM and CommonJS.
 import { createClient } from '@uniquedomains/sdk';
 
 const ud = createClient();
-const name = await ud.names.get('harbor.io');
+const name = await ud.names.get('get.plumbing');
 console.log(name.status);
 ```
 
@@ -29,7 +29,7 @@ The examples below continue from this one: `ud` is the client created here. Thos
 
 <!-- example: registry -->
 ```js
-const record = await ud.names.registry('harbor.io');
+const record = await ud.names.registry('get.plumbing');
 console.log(record.registrar, record.expiresAt);
 ```
 
@@ -67,7 +67,7 @@ for await (const page of ud.tlds.list({ publicSet: true, limit: 2, fields: ['tld
 
 <!-- example: with-meta -->
 ```js
-const { data, meta, links, etag, rateLimit } = await ud.names.get('harbor.io').withMeta();
+const { data, meta, links, etag, rateLimit } = await ud.names.get('get.plumbing').withMeta();
 console.log(data.status, meta.asOf, links.self, etag, rateLimit?.remaining);
 ```
 
@@ -82,7 +82,7 @@ An answer that is not a success throws an `ApiProblemError`, or one of its kinds
 import { ApiProblemError, PlanRequiredError, RateLimitError } from '@uniquedomains/sdk';
 
 try {
-    await ud.names.prices('harbor.io');
+    await ud.names.prices('get.plumbing');
 } catch (error) {
     if (error instanceof PlanRequiredError) console.log('Needs a key or another plan:', error.product);
     else if (error instanceof RateLimitError) console.log('Wait', error.retryAfter, 'seconds');
@@ -109,7 +109,7 @@ Every kind is an `ApiProblemError`, with `status`, `code`, `detail`, `retryAfter
 <!-- example: retry -->
 ```js
 const patient = createClient({ retry: true });
-const answer = await patient.names.get('harbor.io');
+const answer = await patient.names.get('get.plumbing');
 console.log(answer.status);
 ```
 
@@ -139,7 +139,7 @@ The API is also on RapidAPI as sixteen listings, each on its own host. Pass your
 <!-- example: rapidapi fixture -->
 ```js
 const rapid = createClient({ rapidApi: { key: process.env.RAPIDAPI_KEY, listing: 'whois' } });
-const listed = await rapid.names.registry('harbor.io');
+const listed = await rapid.names.registry('get.plumbing');
 console.log(listed.registrar);
 ```
 
@@ -151,7 +151,7 @@ Every method is one operation of the API, and `request` calls an operation by it
 
 <!-- example: request -->
 ```js
-const answer = await ud.request('get_name', { path: { name: 'harbor.io' } });
+const answer = await ud.request('get_name', { path: { name: 'get.plumbing' } });
 console.log(answer.data.status, answer.etag);
 ```
 
@@ -190,8 +190,8 @@ console.log(csv.text);
 
 <!-- example: etag -->
 ```js
-const first = await ud.names.get('harbor.io').withMeta();
-const again = await ud.request('get_name', { path: { name: 'harbor.io' }, ifNoneMatch: first.etag });
+const first = await ud.names.get('get.plumbing').withMeta();
+const again = await ud.request('get_name', { path: { name: 'get.plumbing' }, ifNoneMatch: first.etag });
 console.log(again.notModified ? 'unchanged' : again.data.status);
 ```
 
