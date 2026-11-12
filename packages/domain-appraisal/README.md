@@ -1,6 +1,6 @@
 # Domain appraisal for Node.js
 
-What did similar names sell for? One call answers with no key and no sign-up: for `get.plumbing`, 10 similar sales with a median of $2,677 (2026-11-11). The summary comes from 12 months of domain sales, about 40,000 of them. The estimated value of a name needs a key.
+What did similar names sell for? One call answers with no key and no sign-up: for `get.plumbing`, 10 similar sales with a median of $2,677 (2026-11-11). The summary comes from 12 months of domain sales, about 40,000 of them. The estimated value of a name needs a key. The newest sales and the market's totals are a page: [unique.domains/sales](https://unique.domains/sales).
 
 ```bash
 npx @uniquedomains/domain-appraisal get.plumbing

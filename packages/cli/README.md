@@ -1,6 +1,6 @@
 # @uniquedomains/cli
 
-Every operation of the [Unique Domains API](https://unique.domains/api) as a command: is a name taken, its registry record, what nine registrars charge for an ending, today's auctions. 87 commands; 62 run with no key. Nothing to install for a first try:
+Every operation of the [Unique Domains API](https://unique.domains/api) as a command: [is a name taken](https://unique.domains/availability), [its registry record](https://unique.domains/whois), [what nine registrars charge for an ending](https://unique.domains/registrars), [today's auctions](https://unique.domains/auctions). 87 commands; 62 run with no key. Nothing to install for a first try:
 
 ```bash
 npx @uniquedomains/cli get-name get.plumbing

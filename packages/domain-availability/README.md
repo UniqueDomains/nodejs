@@ -1,6 +1,6 @@
 # Domain availability check for Node.js
 
-Is the name free, and what will it cost to keep? One call answers both, with no key: the name's status, its drop day, its price today and its renewal price, from a record of 37 million names read every day. A live registry check needs a key, and a list of names at once needs a key on the Investor plan.
+Is the name free, and what will it cost to keep? One call answers both, with no key: the name's status, its drop day, its price today and its renewal price, from a record of 37 million names read every day. A live registry check needs a key, and a list of names at once needs a key on the Investor plan. To try a name with no code, use [unique.domains/availability](https://unique.domains/availability).
 
 ```bash
 npx @uniquedomains/domain-availability get.plumbing

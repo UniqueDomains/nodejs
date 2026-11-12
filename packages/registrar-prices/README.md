@@ -1,6 +1,6 @@
 # Registrar price comparison for Node.js
 
-The first-year price is not the price you keep paying: `.agency` costs $3.50 for the first year at Dynadot and $28.04 a year after that (2026-11-11). This package reads what nine registrars charge for an ending, the endings whose renewal is a trap (over 300 today) and each price change, served only once the new price read the same on the next morning. All of that is free and needs no key. The cheapest registrar across many endings needs a key, and an ending's price history needs a key on the Investor plan.
+The first-year price is not the price you keep paying: `.agency` costs $3.50 for the first year at Dynadot and $28.04 a year after that (2026-11-11). This package reads what nine registrars charge for an ending, the endings whose renewal is a trap (over 300 today) and each price change, served only once the new price read the same on the next morning. All of that is free and needs no key. The cheapest registrar across many endings needs a key, and an ending's price history needs a key on the Investor plan. The nine price lists and the traps are also a page: [unique.domains/registrars](https://unique.domains/registrars).
 
 ```bash
 npx @uniquedomains/registrar-prices io

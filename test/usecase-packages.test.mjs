@@ -160,6 +160,6 @@ describe('the use-case packages (plan decision 18)', () => {
     it('the appraisal README opens by saying the comparable sales answer with no key and the value needs a key (decision 48, in the words of 2026-11-11)', () => {
         const opening = read('domain-appraisal', 'README.md').split('\n')[2];
         assert.match(opening, /^What did similar names sell for\? One call answers with no key/);
-        assert.match(opening, /The estimated value of a name needs a key\.$/);
+        assert.match(opening, /The estimated value of a name needs a key\./);
     });
 });
