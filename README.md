@@ -1,4 +1,4 @@
-# Unique Domains for Node
+# Unique.domains for Node
 
 One line, no key, a real answer:
 
@@ -19,7 +19,7 @@ npx @uniquedomains/cli get-name get.plumbing
 }
 ```
 
-That answer (2026-11-11, trimmed) comes from a record Unique Domains reads every day: 37 million one-word names on [505 endings](https://unique.domains/tld), [nine registrars' price lists](https://unique.domains/registrars) and [seven auction venues](https://unique.domains/auctions). Building it yourself means a WHOIS and RDAP client for every registry and a price reader for every registrar. Here it is `npm install`. To see an answer with no code at all, [check a name on unique.domains](https://unique.domains/availability).
+That answer (2026-11-11, trimmed) comes from a record Unique.domains reads every day: 34 million one-word names on [505 endings](https://unique.domains/tld), [nine registrars' price lists](https://unique.domains/registrars) and [seven auction venues](https://unique.domains/auctions). All of it is one `npm install` away. To see an answer with no code at all, [check a name on unique.domains](https://unique.domains/availability).
 
 The API has 87 operations. 62 answer with no key, within 60 calls an hour and 100 a day from one address.
 

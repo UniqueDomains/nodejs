@@ -1,6 +1,6 @@
 # @uniquedomains/sdk
 
-A typed Node client for the [Unique Domains API](https://unique.domains/api). One call tells you [whether a domain name is taken](https://unique.domains/availability), [what its registry record says](https://unique.domains/whois), [what nine registrars charge for its ending](https://unique.domains/registrars) and [what similar names sold for](https://unique.domains/sales), from a record of 37 million names read every day. 62 of the 87 operations answer with no key.
+A typed Node client for the [Unique.domains API](https://unique.domains/api). One call tells you [whether a domain name is taken](https://unique.domains/availability), [what its registry record says](https://unique.domains/whois), [what nine registrars charge for its ending](https://unique.domains/registrars) and [what similar names sold for](https://unique.domains/sales), from a record of 37 million names read every day. 62 of the 87 operations answer with no key.
 
 ```bash
 npm install @uniquedomains/sdk
