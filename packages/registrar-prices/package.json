@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Registrar price comparison for Node.js: what nine registrars charge for a domain ending, each confirmed price change and over 300 renewal traps. Read daily, free, no key.",
   "license": "MIT",
-  "author": "Unique Domains (https://unique.domains)",
+  "author": "Unique.domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",
   "repository": {
     "type": "git",

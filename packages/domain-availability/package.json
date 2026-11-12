@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Domain availability check for Node.js: is the name free, what it costs today and what it renews at, in one call with no key. A live registry check with a key.",
   "license": "MIT",
-  "author": "Unique Domains (https://unique.domains)",
+  "author": "Unique.domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",
   "repository": {
     "type": "git",

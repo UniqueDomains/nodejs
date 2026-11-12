@@ -1,10 +1,10 @@
 {
   "upload_type": "software",
-  "title": "Unique Domains for Node: the SDK and the command line of the Unique Domains API",
+  "title": "Unique.domains for Node: the SDK and the command line of the Unique.domains API",
   "description": "<p>The Node packages of the Unique.domains API. One call tells whether a domain name is taken, what its registry record says, what nine registrars charge for its ending and what similar names sold for, from a record of 34 million one-word names read every day. You can read the same record yourself: a name at <a href=\"https://unique.domains/whois\">https://unique.domains/whois</a>, the nine price lists at <a href=\"https://unique.domains/registrars\">https://unique.domains/registrars</a>.</p><p>@uniquedomains/sdk is a typed client for every endpoint, with methods grouped by what they read. @uniquedomains/cli runs every endpoint as a command, with nothing to install: npx @uniquedomains/cli get-name get.plumbing. Four smaller packages each answer one question, from code or as a command: WHOIS lookup, availability, registrar price comparison and appraisal.</p><p>Without a key, the API answers 62 of its 87 operations, 20 rows a page, within 60 calls an hour and 100 a day from one address. The other 25 operations need a key. Documentation: <a href=\"https://unique.domains/api\">https://unique.domains/api</a>.</p><p>Licence: MIT.</p>",
   "creators": [
     {
-      "name": "Unique Domains"
+      "name": "Unique.domains"
     }
   ],
   "license": "mit",

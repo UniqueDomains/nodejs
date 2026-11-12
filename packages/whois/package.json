@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "WHOIS lookup for Node.js without a WHOIS client: one call returns a name's registrar, dates, status codes and nameservers as clean JSON, with the day of the record. Free, no key.",
   "license": "MIT",
-  "author": "Unique Domains (https://unique.domains)",
+  "author": "Unique.domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",
   "repository": {
     "type": "git",

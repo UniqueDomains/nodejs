@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Domain appraisal for Node.js: what similar names sold for, as a count and a median, free with no key. The estimated value with a key.",
   "license": "MIT",
-  "author": "Unique Domains (https://unique.domains)",
+  "author": "Unique.domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",
   "repository": {
     "type": "git",

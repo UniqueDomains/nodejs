@@ -69,7 +69,7 @@ Without a key you read the free endpoints, within a limit per hour and per day. 
 
 Keep a key on a server: a page a visitor loads shows it to everyone. What each plan includes is on the [API page](https://unique.domains/api).
 
-## Also from Unique Domains
+## Also from Unique.domains
 
 - [The API reference](https://unique.domains/api): every endpoint, with examples.
 - [The datasets](https://github.com/UniqueDomains): one-word domain names, expiring names, the daily editions and the new gTLD applications, as files on GitHub.

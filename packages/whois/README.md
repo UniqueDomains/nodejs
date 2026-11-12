@@ -22,7 +22,7 @@ const record = await whois('get.plumbing');
 console.log(record.registrar?.name ?? 'no registrar on file', record.expiresAt);
 ```
 
-The answer is the latest record stored in the Unique Domains catalog, not a query sent to the registry at that moment. A name with no stored record answers `read: false` and empty facts, never an error.
+The answer is the latest record stored in the Unique.domains catalog, not a query sent to the registry at that moment. A name with no stored record answers `read: false` and empty facts, never an error.
 
 ## The name's DNS
 
