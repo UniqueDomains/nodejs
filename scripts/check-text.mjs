@@ -12,15 +12,17 @@
  */
 
 import { readdir, readFile } from 'node:fs/promises';
-import { join, relative } from 'node:path';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { brokenBy, isReaderFile, joinedText } from './lib/text-rules.mjs';
+import { brokenRules, isReaderFile, joinedText, READER_RULES } from './lib/text-rules.mjs';
 
 const ROOT = process.argv[2] ? resolve(process.argv[2]) : join(dirname(fileURLToPath(import.meta.url)), '..');
-const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', '.next', 'generated']);
-const SKIP_FILES = new Set(['package-lock.json', 'openapi.json']);
-const SKIP_PATHS = [join(ROOT, 'openapi'), join(ROOT, 'test', 'fixtures', 'recorded')];
+const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', '.next']);
+const SKIP_FILES = new Set(['package-lock.json']);
+// Exact paths, so a hand-written file cannot be skipped by its name (review of lane N, m3): the API document's
+// snapshot and its copy in the SDK, the files generated from it, and the recorded fixtures.
+const SKIP_EXACT = new Set([join(ROOT, 'packages', 'sdk', 'openapi.json')]);
+const SKIP_PATHS = ['openapi', join('packages', 'sdk', 'src', 'generated'), join('test', 'fixtures', 'recorded')].map((path) => join(ROOT, path) + sep);
 // Every hand-written text file type, `.gitignore` included (review R1-13).
 const TEXT = /\.([mc]?[jt]s|[jt]sx|gs|json|md|ya?ml|txt|html|css|sh)$|^(LICENSE|\.gitignore)$/;
 
@@ -31,11 +33,13 @@ const BANNED = [
     { pattern: new RegExp(`\\b${['dae', 'mon'].join('')}`, 'i'), label: 'the internal name of the scanner (write "scanner")' },
 ];
 
+const LABELS = new Map(READER_RULES.map(({ id, label }) => [id, label]));
+
 const walk = async (dir) => {
     const files = [];
     for (const entry of await readdir(dir, { withFileTypes: true })) {
         const path = join(dir, entry.name);
-        if (SKIP_PATHS.some((skip) => path.startsWith(skip))) continue;
+        if (SKIP_EXACT.has(path) || SKIP_PATHS.some((skip) => `${path}${sep}`.startsWith(skip))) continue;
         if (entry.isDirectory()) {
             if (!SKIP_DIRS.has(entry.name)) files.push(...(await walk(path)));
         } else if (TEXT.test(entry.name) && !SKIP_FILES.has(entry.name)) {
@@ -52,12 +56,12 @@ for (const file of await walk(ROOT)) {
     const lines = (await readFile(file, 'utf8')).split('\n');
     lines.forEach((line, index) => {
         for (const { pattern, label } of BANNED) if (pattern.test(line)) problems.push(`${path}:${index + 1}: ${label}`);
-        if (reader) for (const label of brokenBy(line)) problems.push(`${path}:${index + 1}: ${label}`);
+        if (reader) for (const id of brokenRules(line)) problems.push(`${path}:${index + 1}: ${LABELS.get(id)}`);
     });
     if (reader) {
-        // A phrase split by a line wrap: reported once for the file when no single line carries it.
-        const byLine = new Set(lines.flatMap((line) => brokenBy(line)));
-        for (const label of brokenBy(joinedText(lines))) if (!byLine.has(label)) problems.push(`${path}: ${label} (across a line wrap)`);
+        // A phrase split by a line wrap: reported once for the file when no single line breaks that rule.
+        const byLine = new Set(lines.flatMap((line) => brokenRules(line)));
+        for (const id of brokenRules(joinedText(lines))) if (!byLine.has(id)) problems.push(`${path}: ${LABELS.get(id)} (across a line wrap)`);
     }
 }
 

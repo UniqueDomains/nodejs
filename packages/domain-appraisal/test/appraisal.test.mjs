@@ -82,7 +82,7 @@ describe('ud-appraise', () => {
 
     it('says so when no sale is on record, and when the name has no value yet', async () => {
         const sales = await runBin('domain-appraisal', ['harbor.io', '--no-json', ...base()]);
-        assert.equal(sales.stdout.trim(), 'No comparable sales are on record for harbor.io.');
+        assert.equal(sales.stdout.trim(), 'No comparable sales for harbor.io in the catalog.');
         const value = await runBin('domain-appraisal', ['harbor.io', '--value', '--no-json', '--key', KEY, ...base()]);
         assert.equal(value.stdout.trim(), 'No value yet for harbor.io.');
     });

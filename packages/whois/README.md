@@ -22,7 +22,7 @@ const record = await whois('get.plumbing');
 console.log(record.registrar?.name ?? 'no registrar on file', record.expiresAt);
 ```
 
-The answer is the record in the Unique.domains catalog. A name with no record answers `read: false` and empty facts, never an error.
+The answer is the record in the Unique.domains catalog. A name with no record in the catalog answers `read: false` and empty facts, never an error; such a name may well be taken.
 
 ## The name's DNS
 
@@ -36,7 +36,7 @@ console.log(reading.ns, reading.hasWebsite);
 
 ## The history of past records
 
-Every past version of the record, the registrar moves between them, the transfers the records name and the lock removals of the last 90 days. This one needs a key on the Investor plan.
+Every version of the record in the catalog, the registrar moves between them, the transfers the records name and the lock removals of the last 90 days. This one needs a key on the Investor plan.
 
 <!-- example: history fixture -->
 ```js

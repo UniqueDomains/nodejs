@@ -97,7 +97,8 @@ describe('ud-whois', () => {
 
     it('says so when there is no record, and --json still prints the empty record', async () => {
         const table = await runBin('whois', ['harbor.io', '--no-json', ...base()]);
-        assert.equal(table.stdout.trim(), 'No registry record for harbor.io.');
+        assert.equal(table.stdout.trim(), 'No registry record for harbor.io in the catalog: the name may well be taken.');
+        assert.match(table.stdout, /may well be taken/);
         const json = await runBin('whois', ['harbor.io', '--json', ...base()]);
         assert.equal(JSON.parse(json.stdout).read, false);
     });

@@ -22,7 +22,7 @@ main({
         if (args.flags.history) return { call: whoisHistory(name, connection) };
         return {
             call: whois(name, connection),
-            empty: (record: DataOf<'get_name_registry'>) => (!record.read && record.nameservers.length === 0 ? `No registry record for ${name}.` : null),
+            empty: (record: DataOf<'get_name_registry'>) => (!record.read && record.nameservers.length === 0 ? `No registry record for ${name} in the catalog: the name may well be taken.` : null),
         };
     },
 });

@@ -11,8 +11,9 @@ export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaE
 export type { ConnectionOptions };
 
 /**
- * The registry record of a name: dates, registrar, status codes, nameservers, DNSSEC and holder. Free. A name with no
- * record answers `read: false` and empty facts, never an error.
+ * The registry record of a name: dates, registrar, status codes, nameservers, DNSSEC and holder. Free. The answer is
+ * the record in the Unique.domains catalog. A name with no record in the catalog answers `read: false` and empty facts,
+ * never an error; such a name may well be taken.
  *
  * @example
  * const record = await whois('get.plumbing');
@@ -34,7 +35,7 @@ export const dns = (name: string, options?: ConnectionOptions & CallOptions<'get
 };
 
 /**
- * The past versions of a name's registry record and what moved between them. Needs a key on the Investor plan, or a
+ * Every version of a name's registry record in the catalog, and what moved between them. Needs a key on the Investor plan, or a
  * paid RapidAPI subscription.
  *
  * @example

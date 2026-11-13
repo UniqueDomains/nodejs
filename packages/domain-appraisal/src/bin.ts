@@ -27,7 +27,7 @@ main({
         if (args.flags.value) return { call: appraisal(name, connection), empty: noValue(name) };
         return {
             call: comparableSales(name, connection),
-            empty: (sales: DataOf<'get_name_comps'>) => (sales.count === 0 ? `No comparable sales are on record for ${name}.` : null),
+            empty: (sales: DataOf<'get_name_comps'>) => (sales.count === 0 ? `No comparable sales for ${name} in the catalog.` : null),
         };
     },
 });

@@ -6,7 +6,7 @@ import { describe, it } from 'node:test';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { manifestOf, packageFolders, PLACEHOLDER_VERSION, placeholderManifest } from '../lib/packages.mjs';
-import { brokenBy, isReaderFile, joinedText } from '../lib/text-rules.mjs';
+import { brokenBy, brokenRules, isReaderFile, joinedText, READER_RULES } from '../lib/text-rules.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -71,46 +71,21 @@ describe('scripts/check-text.mjs (review R1-13)', () => {
 });
 
 describe('scripts/check-text.mjs, the three rules (plan "never where data comes from", lane N)', () => {
-    const banned = [
+    // The removed lines of this lane: each still fails the guard.
+    const removed = [
         'The stored answer for one domain name.',
         'The answer comes from storage.',
         'refreshed by the same scanner',
         'Free, read from storage, never live.',
         'A stored record, not a live lookup.',
-        'Stored data as of its day.',
         'An answer carries its day where the record has one.',
-        'The latest stored DNS reading, with the day it was read.',
         'nameservers as clean JSON, with the day of the record.',
-        'How current each part of the data is.',
-        'The 2026 new gTLD round as ICANN publishes it.',
-        'Written by an AI editor from the sources above.',
-        // One sample per alternative, so a typo in any of them fails here (review of lane N, finding 3).
-        'Kept in sync with the registry.',
-        'The CLI reads live data.',
-        'Read the name live.',
-        'Live reads come back at 00:00 UTC.',
-        'Reads the name live from its registry and a registrar.',
-        'A live registry check needs a key.',
-        "The registry's word right now.",
-        'the day it is from',
-        'the totals on the latest day',
-        'on the latest footprint day',
-        'checked on 3 Oct',
-        'Checked just now',
-        'Rescanned on a rolling schedule.',
-        '505 endings, each with its dates.',
-        'answers are dated by day',
-        'each answer with its day',
-        'with its day',
-        'when its estimate is missing or out of date',
-        '## A fresh appraisal',
-        'none on a fresh estimate',
+        'The latest record stored in the Unique.domains catalog, not a query sent to the registry at that moment.',
+        'When the registry did not conclude, the API answers 202.',
+        'Reads the name from its registry and a registrar now.',
         'That answer (2026-11-11, trimmed) comes from a record.',
-        'a median of $2,677 (2026-11-11).',
-        '"Is get.plumbing taken?" answered on 2026-11-11',
-        'An AI-written summary.',
-        'an AI estimate by the vendor',
-        'written by Claude models from a research corpus',
+        '## A fresh appraisal',
+        'when its estimate is missing or out of date',
     ];
     const kept = [
         'A live check with a key.',
@@ -123,20 +98,73 @@ describe('scripts/check-text.mjs, the three rules (plan "never where data comes 
         'the .ai estimate of a name',
         'Runs no live check.',
         'Some lists are also public datasets on GitHub.',
+        'Keep your key in an environment variable.',
+        'a check could not run just now',
+        'The registrar of the record.',
     ];
 
-    it('catches every banned phrase and lets the kept ones pass', () => {
-        for (const line of banned) assert.notDeepEqual(brokenBy(line), [], line);
+    // Samples per rule id, kept here and not beside the rule, so deleting a rule, or one alternative inside it,
+    // leaves a sample uncaught (review of lane N, M1; the planner's point 5).
+    const SAMPLES = {
+        'stored': ['The stored answer.', 'We store it.', 'It stores the reading.', 'Storing the reading.', 'It comes from storage.'],
+        'scan': ['A daily scan.', 'It scans every ending.', 'The scanner.', 'Two scanners.', 'Scanned today.', 'Scanning now.', 'Rescanned on a rolling schedule.'],
+        'sync': ['Kept in sync every night.', 'Synced daily.'],
+        'not-live': ['This answer is not live.', 'Not a live answer.'],
+        'never-live': ['Free, never live.'],
+        'live-read': ['A live read.', 'Live reads come back at 00:00 UTC.', 'A live reading.', 'Live readings.', 'A live lookup.', 'Live lookups.'],
+        'reads-live': ['Read the name live.', 'It reads live.'],
+        'live-from': ['Prices live from the shop.'],
+        'live-registry-check': ['A live registry check needs a key.'],
+        'from-registry': ['The answer comes from the registry.', 'Read from its registry.'],
+        'registry-word': ['The registry\'s word right now.', 'The registry\u2019s word right now.'],
+        'to-registry': ['Not a query sent to the registry.', 'We asked the registry.'],
+        'registry-asked': ['When the registry did not conclude.', 'Even when the registry was asked.'],
+        'as-of': ['Prices as of Monday.'],
+        'carries-its-day': ['An answer carries its day.'],
+        'day-it-is-from': ['Say the day it is from.'],
+        'latest-day': ['The totals of the latest day.', 'Names on the latest footprint day.'],
+        'latest-record': ['The latest record of a name.', 'The latest records.', 'The latest registry record.', 'The latest DNS reading.', 'The latest readings.', 'The latest answer.', 'The latest answers.', 'The latest status.'],
+        'how-current': ['How current is the data?', 'How fresh is the data?'],
+        'checked-on': ['Checked just now.', 'Terms checked on Monday.'],
+        'checked-date': ['Terms checked 3 Oct.'],
+        'out-of-date': ['An estimate out of date.'],
+        'its-dates': ['505 endings, each with its dates.'],
+        'with-its-day': ['Nameservers, with the day of the record.', 'Each answer, with its day.'],
+        'dated-by-day': ['Answers are dated by day.'],
+        'fresh': ['A fresh estimate.', 'No fresh estimates.', 'A fresh appraisal.', 'Fresh appraisals.', 'A fresh read.', 'Fresh reads.', 'A fresh reading.', 'Fresh readings.', 'A fresh record.', 'Fresh records.', 'A fresh answer.', 'Fresh answers.', 'Fresh data.', 'A fresh status.', 'Fresh statuses.', 'A fresh figure.', 'Fresh figures.'],
+        'dated-example': ['A median of $2,677 (2026-11-11).', 'That answer (2026-11-11, trimmed).'],
+        'answered-on': ['Is get.plumbing taken? Answered on 2026-11-11.'],
+        'body-publishes': ['The round as ICANN publishes it.', 'The list as IANA publishes it.', 'The registrar as IANA names it.'],
+        'ai-made': ['An AI editor.', 'An AI-estimate.', 'An AI estimate.', 'An AI appraisal.', 'An AI valuation.', 'An AI-written summary.', 'An AI-generated idea.', 'An AI summary.', 'An AI model values it.'],
+        'made-by-ai': ['Written by AI.', 'Generated by a model.', 'Made by an AI.', 'Drafted by Claude.', 'Created by an LLM.'],
+        'claude-models': ['Claude models wrote the story.', 'A Claude model wrote it.'],
+    };
+
+    it('has one sample per rule that this rule alone catches, so a deleted or broken rule fails here (review of lane N, M1)', () => {
+        assert.equal(new Set(READER_RULES.map(({ id }) => id)).size, READER_RULES.length);
+        assert.deepEqual(READER_RULES.map(({ id }) => id).sort(), Object.keys(SAMPLES).sort());
+        for (const [id, samples] of Object.entries(SAMPLES)) {
+            for (const sample of samples) {
+                assert.deepEqual(brokenRules(sample), [id], `${id}: "${sample}"`);
+                assert.deepEqual(brokenRules(sample, READER_RULES.filter((rule) => rule.id !== id)), [], `${id} is the only rule for "${sample}"`);
+            }
+        }
+    });
+
+    it('catches every line this lane removed and lets the kept ones pass', () => {
+        for (const line of removed) assert.notDeepEqual(brokenBy(line), [], line);
         for (const line of kept) assert.deepEqual(brokenBy(line), [], line);
     });
 
-    it('joins a wrapped docstring into one text', () => {
-        assert.deepEqual(brokenBy(joinedText([' * The answer, as', ' * of the day.'])), ['when our data was read']);
+    it('joins a wrapped docstring, a quote and CRLF lines into one text', () => {
+        assert.deepEqual(brokenRules(joinedText([' * The answer, as', ' * of the day.'])), ['as-of']);
+        assert.deepEqual(brokenRules(joinedText(['> The answer, as\r', '> of the day.'])), ['as-of']);
     });
 
     it('reads the texts a reader sees, not the tests and the scripts', () => {
         for (const path of ['README.md', 'packages/whois/README.md', 'packages/whois/package.json', 'packages/whois/src/bin.ts', 'examples/google-sheets/Code.gs', '.zenodo.json']) assert.ok(isReaderFile(path), path);
         assert.ok(isReaderFile('scripts/lib/codegen.mjs'), 'codegen writes the SDK docstrings');
+        assert.ok(isReaderFile('scripts/lib/packages.mjs'), 'packages writes a placeholder description and README');
         for (const path of ['test/examples.test.mjs', 'packages/whois/test/whois.test.mjs', 'packages/sdk/typetests/answers.ts', 'scripts/check-text.mjs']) assert.ok(!isReaderFile(path), path);
     });
 
@@ -162,6 +190,15 @@ describe('scripts/check-text.mjs, the three rules (plan "never where data comes 
             const wrapped = spawnSync(process.execPath, [join(ROOT, 'scripts', 'check-text.mjs'), root], { encoding: 'utf8' });
             assert.notEqual(wrapped.status, 0);
             assert.match(wrapped.stderr, /across a line wrap/);
+            // A hand-written file is read whatever its name (review of lane N, m3).
+            writeFileSync(join(root, 'README.md'), 'The answer.\n');
+            writeFileSync(join(root, 'openapi-notes.md'), 'The stored answer.\n');
+            mkdirSync(join(root, 'docs', 'generated'), { recursive: true });
+            writeFileSync(join(root, 'docs', 'generated', 'openapi.json'), '{ "note": "The stored answer." }\n');
+            const named = spawnSync(process.execPath, [join(ROOT, 'scripts', 'check-text.mjs'), root], { encoding: 'utf8' });
+            assert.notEqual(named.status, 0);
+            assert.match(named.stderr, /openapi-notes\.md:1/);
+            assert.match(named.stderr, /docs\/generated\/openapi\.json:1/);
         } finally {
             rmSync(root, { recursive: true, force: true });
         }

@@ -34,7 +34,8 @@ export const MAX_BATCH_NAMES = 100;
 
 /**
  * A name's status, drop day, price and renewal. Free. A name outside the catalog answers `tracked: false` and
- * `status: 'not_checked'`, never an error; that status also covers a taken name the catalog does not track.
+ * `status: 'not_checked'`, never an error; that status also covers a taken name the catalog does not track, so it
+ * never means the name is free.
  *
  * @example
  * const answer = await availability('get.plumbing');
