@@ -27,7 +27,7 @@ describe('@uniquedomains/domain-appraisal', () => {
         await assert.rejects(appraisal('harbor.io', free()), PlanRequiredError);
     });
 
-    it('sends the key on the stored value, by GET: it never starts a run', async () => {
+    it('sends the key on the value, by GET: it never starts a run', async () => {
         const { current } = await appraisal('zorbly.io', keyed());
         assert.equal(last().method, 'GET');
         assert.equal(last().path, '/v1/names/zorbly.io/value');
@@ -35,7 +35,7 @@ describe('@uniquedomains/domain-appraisal', () => {
         assert.equal(current.value, 4200);
     });
 
-    it('posts a fresh appraisal, with the key', async () => {
+    it('posts a new appraisal, with the key', async () => {
         const { current } = await appraise('zorbly.io', keyed());
         assert.equal(last().method, 'POST');
         assert.equal(last().path, '/v1/names/zorbly.io/appraise');
@@ -48,7 +48,7 @@ describe('@uniquedomains/domain-appraisal', () => {
         assert.equal(answer.data.current, null);
     });
 
-    it('throws PlanRequiredError on a fresh appraisal with a Founder key or none', async () => {
+    it('throws PlanRequiredError on a new appraisal with a Founder key or none', async () => {
         await assert.rejects(appraise('zorbly.io', { apiKey: FOUNDER_KEY, baseUrl: server.base }), (error) => {
             assert.ok(error instanceof PlanRequiredError);
             assert.equal(error.code, 'plan_required');
@@ -65,10 +65,10 @@ describe('@uniquedomains/domain-appraisal', () => {
 describe('ud-appraise', () => {
     const base = () => ['--base', server.base];
 
-    it('on a run still going, says where the answer will be, never that no value is stored', async () => {
+    it('on a run still going, says where the answer will be, never that the name has no value yet', async () => {
         const { code, stdout, stderr } = await runBin('domain-appraisal', ['running.io', '--run', '--no-json', '--key', KEY, ...base()]);
         assert.equal(code, 0);
-        assert.doesNotMatch(stdout, /No value is stored/);
+        assert.doesNotMatch(stdout, /No value yet/);
         assert.match(stderr, /Accepted: the full answer will be at https:\/\/api\.unique\.domains\/v1\/names\/running\.io\/value in about 30 seconds/);
     });
 
@@ -80,11 +80,11 @@ describe('ud-appraise', () => {
         assert.match(table.stdout, /^medianUsd\s+2677$/m);
     });
 
-    it('says so when no sale is on record, and when no value is stored', async () => {
+    it('says so when no sale is on record, and when the name has no value yet', async () => {
         const sales = await runBin('domain-appraisal', ['harbor.io', '--no-json', ...base()]);
         assert.equal(sales.stdout.trim(), 'No comparable sales are on record for harbor.io.');
         const value = await runBin('domain-appraisal', ['harbor.io', '--value', '--no-json', '--key', KEY, ...base()]);
-        assert.equal(value.stdout.trim(), 'No value is stored for harbor.io.');
+        assert.equal(value.stdout.trim(), 'No value yet for harbor.io.');
     });
 
     it('runs --value and --run with a key', async () => {

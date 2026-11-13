@@ -1,6 +1,6 @@
 // @ts-check
 /**
- * Draws a domain name's stored status on any page, with one script tag and no library:
+ * Draws a domain name's status on any page, with one script tag and no library:
  *
  *   <script src="widget.js" data-name="get.plumbing" async></script>
  *

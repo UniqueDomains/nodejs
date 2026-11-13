@@ -2,7 +2,7 @@
 - @uniquedomains/domain-availability
 ----------------------------------*/
 
-/** Whether a name can be registered: the stored answer, the live check and many names at once. */
+/** Whether a name can be registered: the answer, the live check and many names at once. */
 
 import type { ApiCall, ApiResult, CallOptions, DataOf, EnvelopeOf, OperationCall } from '@uniquedomains/sdk';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
@@ -33,8 +33,8 @@ export const MAX_BATCH_NAMES = 100;
 ----------------------------------*/
 
 /**
- * A name's stored status, drop day, price and renewal. Free, read from storage, never live. A name the catalog never
- * stored answers `tracked: false` and `status: 'not_checked'`, never an error.
+ * A name's status, drop day, price and renewal. Free. A name outside the catalog answers `tracked: false` and
+ * `status: 'not_checked'`, never an error; that status also covers a taken name the catalog does not track.
  *
  * @example
  * const answer = await availability('get.plumbing');
@@ -45,8 +45,8 @@ export const availability = (name: string, options?: ConnectionOptions & Omit<Ca
 };
 
 /**
- * Reads a name live from its registry and a registrar, stores the answer and returns it. Needs a key, and spends one
- * Live unit when the live read runs, also when the registry was asked and did not conclude (status 202).
+ * Runs a live check of a name and returns the full answer. Needs a key, and spends one Live unit when the check runs,
+ * also when it did not conclude (status 202).
  *
  * @example
  * const answer = await check('zorbly.io', { apiKey: process.env.UD_API_KEY });
@@ -57,8 +57,8 @@ export const check = (name: string, options?: ConnectionOptions & CallOptions<'c
 };
 
 /**
- * The stored answer for up to 100 names, in the order sent, each with the keyed fields. Needs a key on the Investor
- * plan, and is billed one call per name sent. No live read.
+ * The answers for up to 100 names, in the order sent, each with the keyed fields. Needs a key on the Investor plan,
+ * and is billed one call per name sent. Runs no live check.
  *
  * @example
  * const answers = await availabilityBatch(['zorbly.io', 'zorbly.ai'], { apiKey: process.env.UD_API_KEY });

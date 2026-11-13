@@ -14,7 +14,7 @@ A custom function for Google Sheets, written in Apps Script with no library and 
 2. Paste [`Code.gs`](Code.gs) and save.
 3. Type the formula in a cell. A custom function asks for no permission.
 
-The field is any path in the answer of [`GET /names/{name}`](https://unique.domains/api/get-name). A name the catalog never stored answers `not_checked` as its status.
+The field is any path in the answer of [`GET /names/{name}`](https://unique.domains/api/get-name). A name outside the catalog answers `not_checked` as its status, which also covers a taken name the catalog does not track.
 
 ## Limits
 

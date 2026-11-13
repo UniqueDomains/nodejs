@@ -41,9 +41,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                     <dt>Status</dt>
                     <dd>{lookup.found.tracked ? lookup.found.status : 'Not in the catalog yet'}</dd>
                     <dt>First year</dt>
-                    <dd>{lookup.found.price.firstYear === null ? 'No price stored' : `$${lookup.found.price.firstYear}`}</dd>
+                    <dd>{lookup.found.price.firstYear === null ? 'No price' : `$${lookup.found.price.firstYear}`}</dd>
                     <dt>Renewal</dt>
-                    <dd>{lookup.found.price.renewal === null ? 'No price stored' : `$${lookup.found.price.renewal}`}</dd>
+                    <dd>{lookup.found.price.renewal === null ? 'No price' : `$${lookup.found.price.renewal}`}</dd>
                 </dl>
             )}
         </main>

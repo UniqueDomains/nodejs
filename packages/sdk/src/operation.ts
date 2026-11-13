@@ -53,7 +53,7 @@ export type OperationDefinition = {
     readonly csv: boolean;
     /** `json` answers the `{ data, meta, links }` envelope; `text` answers a file (the document, plain text, a calendar). */
     readonly answer: 'json' | 'text';
-    /** The operation may answer 202 with `Location` and `Retry-After` while the scanner works. */
+    /** The operation may answer 202 with `Location` and `Retry-After` while the answer is being prepared. */
     readonly accepted: boolean;
 };
 

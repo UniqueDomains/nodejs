@@ -10,9 +10,9 @@ declare const __PACKAGE_VERSION__: string;
 main({
     bin: 'ud-availability',
     version: __PACKAGE_VERSION__,
-    summary: 'Whether a domain name can be registered. The stored answer is free, no key needed; --check and many names need one.',
+    summary: 'Whether a domain name can be registered. The answer is free, no key needed; --check and many names need one.',
     usage: ['<name>', '<name> --check', '<name> <name> ...'],
-    flags: [{ name: 'check', help: 'Read the name live. Needs a key, and spends one Live unit when the read runs.' }],
+    flags: [{ name: 'check', help: 'Run a live check of the name. Needs a key, and spends one Live unit when it runs.' }],
     listing: 'availability',
     plan: (args, connection) => {
         const [name, ...others] = args.positionals;
@@ -24,7 +24,7 @@ main({
         if (args.flags.check) return { call: check(name, connection) };
         return {
             call: availability(name, connection),
-            empty: (answer: Availability) => (answer.tracked ? null : `${name} is not in the catalog yet, so no status is stored. --check reads it live, with a key.`),
+            empty: (answer: Availability) => (answer.tracked ? null : `${name} is not in the catalog yet, so the catalog has no answer for it: it may well be taken. --check runs a live check, with a key.`),
         };
     },
 });

@@ -16,7 +16,7 @@ const keyed = () => ({ apiKey: KEY, baseUrl: server.base });
 const last = () => server.requests.at(-1);
 
 describe('@uniquedomains/domain-availability', () => {
-    it('reads the stored answer for free, asking only for its fields', async () => {
+    it('reads the answer for free, asking only for its fields', async () => {
         const answer = await availability('get.plumbing', free());
         assert.deepEqual(answer, recorded('usecase-availability'));
         assert.equal(last().method, 'GET');
@@ -24,7 +24,7 @@ describe('@uniquedomains/domain-availability', () => {
         assert.equal(last().headers.authorization, undefined);
     });
 
-    it('answers tracked false for a name the catalog never stored', async () => {
+    it('answers tracked false for a name outside the catalog', async () => {
         const answer = await availability('harbor.io', free());
         assert.equal(answer.tracked, false);
         assert.equal(answer.status, 'not_checked');
@@ -72,7 +72,7 @@ describe('@uniquedomains/domain-availability', () => {
 describe('ud-availability', () => {
     const base = () => ['--base', server.base];
 
-    it('prints the stored answer, as JSON in a pipe and as a table with --no-json', async () => {
+    it('prints the answer, as JSON in a pipe and as a table with --no-json', async () => {
         const json = await runBin('domain-availability', ['get.plumbing', ...base()]);
         assert.equal(json.code, 0);
         assert.deepEqual(JSON.parse(json.stdout), recorded('usecase-availability'));
@@ -83,6 +83,7 @@ describe('ud-availability', () => {
     it('says what an untracked name means instead of an empty table', async () => {
         const { stdout } = await runBin('domain-availability', ['harbor.io', '--no-json', ...base()]);
         assert.match(stdout, /harbor\.io is not in the catalog yet/);
+        assert.match(stdout, /it may well be taken/);
     });
 
     it('runs the live check with --check, and a batch with several names', async () => {

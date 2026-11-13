@@ -203,7 +203,7 @@ An answer's `links` say where to go next. A name you can buy carries `links.regi
 
 ## The datasets
 
-Some lists are also public datasets on GitHub, refreshed by the same scanner (`ud.meta.datasets()` reads this list):
+Some lists are also public datasets on GitHub (`ud.meta.datasets()` reads this list):
 
 | Dataset | Endpoint |
 |---|---|
@@ -220,6 +220,6 @@ The document this version was built from ships with the package as `@uniquedomai
 ## Also
 
 - [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli): the same API from the command line.
-- `@uniquedomains/mcp-server`: the same API as tools for AI assistants, coming next in its own repository.
+- [`@uniquedomains/mcp-server`](https://www.npmjs.com/package/@uniquedomains/mcp-server): the same API as tools for AI assistants, in [its own repository](https://github.com/UniqueDomains/mcp-server).
 
 MIT

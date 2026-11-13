@@ -1,5 +1,5 @@
 /**
- * A custom function for Google Sheets: =UD_NAME("get.plumbing") answers the name's stored status, and
+ * A custom function for Google Sheets: =UD_NAME("get.plumbing") answers the name's status, and
  * =UD_NAME("get.plumbing", "price.firstYear") any other field of the answer, by its dotted path.
  *
  * Answers are cached for six hours, so a sheet recalculating does not spend a call each time.

@@ -19,7 +19,7 @@ npx @uniquedomains/cli get-name get.plumbing
 }
 ```
 
-That answer (2026-11-11, trimmed) comes from a record Unique.domains reads every day: 34 million one-word names on [505 endings](https://unique.domains/tld), [nine registrars' price lists](https://unique.domains/registrars) and [seven auction venues](https://unique.domains/auctions). All of it is one `npm install` away. To see an answer with no code at all, [check a name on unique.domains](https://unique.domains/availability).
+That answer (trimmed) comes from a record Unique.domains reads every day: 34 million one-word names on [505 endings](https://unique.domains/tld), [nine registrars' price lists](https://unique.domains/registrars) and [seven auction venues](https://unique.domains/auctions). All of it is one `npm install` away. To see an answer with no code at all, [check a name on unique.domains](https://unique.domains/availability).
 
 The API has 87 operations. 62 answer with no key, within 60 calls an hour and 100 a day from one address.
 
@@ -30,7 +30,7 @@ This repository holds six packages. The first two are generated from the API's O
 | [`@uniquedomains/sdk`](packages/sdk) | A typed client. Methods grouped by what they read (`ud.names.get`, `ud.prices.tld`, ...), each answering the API's data. |
 | [`@uniquedomains/cli`](packages/cli) | The `ud` command. Every operation is a command: `get_name` is `ud get-name`. |
 | [`@uniquedomains/whois`](packages/whois) | WHOIS lookup: a name's registry record and DNS for free, its past records with a key. The `ud-whois` command. |
-| [`@uniquedomains/domain-availability`](packages/domain-availability) | Availability check: a name's stored status and price for free, a live check with a key. The `ud-availability` command. |
+| [`@uniquedomains/domain-availability`](packages/domain-availability) | Availability check: a name's status and price for free, a live check with a key. The `ud-availability` command. |
 | [`@uniquedomains/registrar-prices`](packages/registrar-prices) | Price comparison: every registrar's price for an ending, renewal traps and changes for free, the cheapest across endings with a key. The `ud-prices` command. |
 | [`@uniquedomains/domain-appraisal`](packages/domain-appraisal) | Appraisal: comparable sales for free, the value with a key. The `ud-appraise` command. |
 
@@ -73,7 +73,7 @@ Keep a key on a server: a page a visitor loads shows it to everyone. What each p
 
 - [The API reference](https://unique.domains/api): every endpoint, with examples.
 - [The datasets](https://github.com/UniqueDomains): one-word domain names, expiring names, the daily editions and the new gTLD applications, as files on GitHub.
-- `@uniquedomains/mcp-server`: the same API as tools for AI assistants, through the Model Context Protocol. It is coming next, in its own repository in this organization.
+- [`@uniquedomains/mcp-server`](https://www.npmjs.com/package/@uniquedomains/mcp-server): the same API as tools for AI assistants, through the Model Context Protocol, in [its own repository](https://github.com/UniqueDomains/mcp-server) in this organization.
 
 ## Working on this repository
 

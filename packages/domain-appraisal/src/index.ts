@@ -2,7 +2,7 @@
 - @uniquedomains/domain-appraisal
 ----------------------------------*/
 
-/** What a name may be worth: free comparable sales, the stored value and a fresh appraisal with a key. */
+/** What a name may be worth: free comparable sales, the value and a new appraisal with a key. */
 
 import type { CallOptions, OperationCall } from '@uniquedomains/sdk';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
@@ -23,8 +23,8 @@ export const comparableSales = (name: string, options?: ConnectionOptions & Call
 };
 
 /**
- * A name's stored value and its last 20 estimates; `current` is null when none is stored. Needs a key. Never runs an
- * appraisal: `appraise` does.
+ * A name's value and its last 20 estimates; `current` is null when the name has no estimate yet. Needs a key. Never
+ * runs an appraisal: `appraise` does.
  *
  * @example
  * const value = await appraisal('zorbly.io', { apiKey: process.env.UD_API_KEY });
@@ -35,9 +35,9 @@ export const appraisal = (name: string, options?: ConnectionOptions & CallOption
 };
 
 /**
- * Runs the appraisal of a stored name when its estimate is missing or out of date, and answers the value. Needs a key on the Investor
- * plan, and spends one Appraisal unit when this call starts a run; a fresh estimate spends none. When another call holds
- * the run, the answer is what is stored so far, so `current` may be null: `.withMeta()` then carries status 202.
+ * Runs the appraisal of a catalog name when its estimate is missing, and answers the value. Needs a key on the Investor
+ * plan, and spends one Appraisal unit when this call starts a run; an estimate it reuses spends none. When another call
+ * holds the run, the answer is the one so far, so `current` may be null: `.withMeta()` then carries status 202.
  *
  * @example
  * const value = await appraise('zorbly.io', { apiKey: process.env.UD_API_KEY });

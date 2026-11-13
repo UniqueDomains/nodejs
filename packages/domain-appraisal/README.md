@@ -1,6 +1,6 @@
 # Domain appraisal for Node.js
 
-What did similar names sell for? One call answers with no key and no sign-up: for `get.plumbing`, 10 similar sales with a median of $2,677 (2026-11-11). The summary comes from 12 months of domain sales, about 40,000 of them. The estimated value of a name needs a key. The newest sales and the market's totals are a page: [unique.domains/sales](https://unique.domains/sales).
+What did similar names sell for? One call answers with no key and no sign-up: for `get.plumbing`, 10 similar sales with a median of $2,677. The summary comes from 12 months of domain sales, about 40,000 of them. The estimated value of a name needs a key. The newest sales and the market's totals are a page: [unique.domains/sales](https://unique.domains/sales).
 
 ```bash
 npx @uniquedomains/domain-appraisal get.plumbing
@@ -26,14 +26,14 @@ The answer is a summary, never a list of single sales: how close the sales are t
 
 ## The value
 
-The stored value of a name and its last 20 estimates. It needs a key. `current` is `null` when no estimate is stored, and this call never starts one.
+The value of a name and its last 20 estimates. It needs a key. `current` is `null` when the name has no estimate yet, and this call never starts one.
 
 <!-- example: value fixture -->
 ```js
 import { appraisal } from '@uniquedomains/domain-appraisal';
 
 const { current } = await appraisal('zorbly.io', { apiKey: process.env.UD_API_KEY });
-console.log(current ? current.value : 'No estimate is stored yet.');
+console.log(current ? current.value : 'No estimate yet.');
 ```
 
 Without a key, the call throws a `PlanRequiredError`:
@@ -50,9 +50,9 @@ try {
 }
 ```
 
-## A fresh appraisal
+## A new appraisal
 
-Runs the appraisal when a stored name's estimate is missing or out of date, and answers the value. It needs a key on the Investor plan. Appraisals are counted apart from your calls, in Appraisal units your plan or RapidAPI subscription includes each month: this spends one when this call starts a run, and none on a fresh estimate. When another call holds the run, the API answers 202 with what is stored so far, so `current` may be `null`: ask again in about 30 seconds. The name must be stored already: [`check` in `@uniquedomains/domain-availability`](https://www.npmjs.com/package/@uniquedomains/domain-availability) stores it.
+Runs the appraisal when a catalog name's estimate is missing, and answers the value. It needs a key on the Investor plan. Appraisals are counted apart from your calls, in Appraisal units your plan or RapidAPI subscription includes each month: this spends one when this call starts a run, and none when it reuses an estimate. When another call holds the run, the API answers 202 with the answer so far, so `current` may be `null`: ask again in about 30 seconds. The name must be in the catalog already: [`check` in `@uniquedomains/domain-availability`](https://www.npmjs.com/package/@uniquedomains/domain-availability) adds it.
 
 <!-- example: appraise fixture -->
 ```js
@@ -76,7 +76,7 @@ A table on a terminal, JSON in a pipe. `ud-appraise --help` lists the flags.
 
 Without a key you read the comparable sales, within a limit per hour and per day from one address. Every function also takes a key, and reads `UD_API_KEY` from the environment when you pass none. Keep a key on a server: a page a visitor loads shows it to everyone.
 
-- **A member key.** The Founder and Investor plans include the API with a key of your own, and a fresh appraisal needs the Investor plan. See [the plans](https://unique.domains/pricing).
+- **A member key.** The Founder and Investor plans include the API with a key of your own, and a new appraisal needs the Investor plan. See [the plans](https://unique.domains/pricing).
 - **A paid RapidAPI plan.** [Domain Appraisal on RapidAPI](https://rapidapi.com/dopamyn-network-dopamyn-network-default/api/domain-appraisal3) serves all three: pass `{ rapidApi: { key, listing: 'appraisal' } }`. RapidAPI's free Basic plan reads the free calls only.
 
 The [Domain appraisal API page](https://unique.domains/api/appraisal) shows the answer and its fields, and you can run the free call there.

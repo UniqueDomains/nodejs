@@ -66,7 +66,7 @@ ud --rapidapi-key "$RAPIDAPI_KEY" --listing whois get-name-registry get.plumbing
 ## Also
 
 - [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk): the typed client behind this command.
-- `@uniquedomains/mcp-server`: the same API as tools for AI assistants, coming next in its own repository.
+- [`@uniquedomains/mcp-server`](https://www.npmjs.com/package/@uniquedomains/mcp-server): the same API as tools for AI assistants, in [its own repository](https://github.com/UniqueDomains/mcp-server).
 - [The datasets](https://github.com/UniqueDomains) on GitHub.
 
 MIT

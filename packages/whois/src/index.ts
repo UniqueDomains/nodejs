@@ -11,8 +11,8 @@ export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaE
 export type { ConnectionOptions };
 
 /**
- * The latest stored registry record of a name: dates, registrar, status codes, nameservers, DNSSEC and holder. Free. A
- * name with no stored record answers `read: false` and empty facts, never an error.
+ * The registry record of a name: dates, registrar, status codes, nameservers, DNSSEC and holder. Free. A name with no
+ * record answers `read: false` and empty facts, never an error.
  *
  * @example
  * const record = await whois('get.plumbing');
@@ -23,7 +23,7 @@ export const whois = (name: string, options?: ConnectionOptions & CallOptions<'g
 };
 
 /**
- * The latest stored DNS reading of a name and its parking venue. Free.
+ * The DNS records of a name and its parking venue. Free.
  *
  * @example
  * const reading = await dns('get.plumbing');
@@ -34,7 +34,7 @@ export const dns = (name: string, options?: ConnectionOptions & CallOptions<'get
 };
 
 /**
- * The stored versions of a name's registry record and what moved between them. Needs a key on the Investor plan, or a
+ * The past versions of a name's registry record and what moved between them. Needs a key on the Investor plan, or a
  * paid RapidAPI subscription.
  *
  * @example

@@ -5,16 +5,19 @@
 
 /**
  * Fails when a file written by hand in this repository carries a character or a word the project's writing rules
- * ban: the em dash, and the internal name of the scanner (say "scanner"). The snapshot and the generated files are
- * the API's own published text and are checked by the API's repository, so they are left out here.
+ * ban: the em dash, and the internal name of the scanner (say "scanner"). A file a reader sees (every one but the
+ * tests and the scripts) also may not say where the data comes from, when it was read, or that AI made it
+ * (`lib/text-rules.mjs`). The snapshot and the generated files are the API's own published text and are checked by
+ * the API's repository, so they are left out here. An optional first argument checks another folder.
  */
 
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { brokenBy, isReaderFile, joinedText } from './lib/text-rules.mjs';
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+const ROOT = process.argv[2] ? resolve(process.argv[2]) : join(dirname(fileURLToPath(import.meta.url)), '..');
 const SKIP_DIRS = new Set(['node_modules', 'dist', '.git', '.next', 'generated']);
 const SKIP_FILES = new Set(['package-lock.json', 'openapi.json']);
 const SKIP_PATHS = [join(ROOT, 'openapi'), join(ROOT, 'test', 'fixtures', 'recorded')];
@@ -44,10 +47,18 @@ const walk = async (dir) => {
 
 const problems = [];
 for (const file of await walk(ROOT)) {
+    const path = relative(ROOT, file);
+    const reader = isReaderFile(path);
     const lines = (await readFile(file, 'utf8')).split('\n');
     lines.forEach((line, index) => {
-        for (const { pattern, label } of BANNED) if (pattern.test(line)) problems.push(`${relative(ROOT, file)}:${index + 1}: ${label}`);
+        for (const { pattern, label } of BANNED) if (pattern.test(line)) problems.push(`${path}:${index + 1}: ${label}`);
+        if (reader) for (const label of brokenBy(line)) problems.push(`${path}:${index + 1}: ${label}`);
     });
+    if (reader) {
+        // A phrase split by a line wrap: reported once for the file when no single line carries it.
+        const byLine = new Set(lines.flatMap((line) => brokenBy(line)));
+        for (const label of brokenBy(joinedText(lines))) if (!byLine.has(label)) problems.push(`${path}: ${label} (across a line wrap)`);
+    }
 }
 
 if (problems.length > 0) {

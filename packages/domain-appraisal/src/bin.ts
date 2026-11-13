@@ -8,7 +8,7 @@ import { appraisal, appraise, comparableSales } from './index';
 
 declare const __PACKAGE_VERSION__: string;
 
-const noValue = (name: string) => (value: DataOf<'get_name_value'>) => (value.current === null ? `No value is stored for ${name}.` : null);
+const noValue = (name: string) => (value: DataOf<'get_name_value'>) => (value.current === null ? `No value yet for ${name}.` : null);
 
 main({
     bin: 'ud-appraise',
@@ -16,7 +16,7 @@ main({
     summary: 'What a domain name may be worth. The comparable sales are free, no key needed; the value needs one.',
     usage: ['<name>', '<name> --value', '<name> --run'],
     flags: [
-        { name: 'value', help: 'The stored value and its last estimates. Needs a key.' },
+        { name: 'value', help: 'The value and its last estimates. Needs a key.' },
         { name: 'run', help: 'Run the appraisal when the estimate is missing. Needs a key on the Investor plan, and spends one Appraisal unit when it runs.' },
     ],
     listing: 'appraisal',

@@ -1,6 +1,6 @@
 # WHOIS lookup for Node.js, with history
 
-WHOIS has no single format: every registry answers its own way, and many now answer over RDAP only. This package skips that work. One call returns a domain name's registry record already parsed: dates, registrar, status codes, nameservers, DNSSEC and holder, with the day it was read. The record and the name's DNS are free and need no key. The history of past records needs a key on the Investor plan. To see a record before you install anything, look one up at [unique.domains/whois](https://unique.domains/whois).
+WHOIS has no single format: every registry answers its own way, and many now answer over RDAP only. This package skips that work. One call returns a domain name's registry record already parsed: dates, registrar, status codes, nameservers, DNSSEC and holder. The record and the name's DNS are free and need no key. The history of past records needs a key on the Investor plan. To see a record before you install anything, look one up at [unique.domains/whois](https://unique.domains/whois).
 
 ```bash
 npx @uniquedomains/whois get.plumbing
@@ -22,7 +22,7 @@ const record = await whois('get.plumbing');
 console.log(record.registrar?.name ?? 'no registrar on file', record.expiresAt);
 ```
 
-The answer is the latest record stored in the Unique.domains catalog, not a query sent to the registry at that moment. A name with no stored record answers `read: false` and empty facts, never an error.
+The answer is the record in the Unique.domains catalog. A name with no record answers `read: false` and empty facts, never an error.
 
 ## The name's DNS
 
@@ -36,7 +36,7 @@ console.log(reading.ns, reading.hasWebsite);
 
 ## The history of past records
 
-Every stored version of the record, the registrar moves between them, the transfers the records name and the lock removals of the last 90 days. This one needs a key on the Investor plan.
+Every past version of the record, the registrar moves between them, the transfers the records name and the lock removals of the last 90 days. This one needs a key on the Investor plan.
 
 <!-- example: history fixture -->
 ```js
