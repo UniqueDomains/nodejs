@@ -53,7 +53,7 @@
       "get": {
         "operationId": "get_name",
         "summary": "The stored answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.",
-        "description": "Read from the stored lookup rows, never live (`POST /names/{name}/check` is the live path). Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict and the value facts. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        "description": "Read from the stored lookup rows, never live (`POST /names/{name}/check` is the live path). Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict, the value facts, the word's meaning-abroad flag and what the name is. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
         "tags": [
           "names"
         ],
@@ -72,7 +72,7 @@
             "name": "fields",
             "in": "query",
             "required": false,
-            "description": "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps.",
+            "description": "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps.",
             "schema": {
               "type": "string"
             }
@@ -141,7 +141,8 @@
                             "not_checked",
                             "not_covered",
                             "not_a_name"
-                          ]
+                          ],
+                          "description": "Where the name stands for a buyer. A list row's stored status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`."
                         },
                         "lifecycle": {
                           "type": [
@@ -341,6 +342,51 @@
                             }
                           }
                         },
+                        "crossLanguageFlag": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "none",
+                            "caution",
+                            "avoid",
+                            null
+                          ],
+                          "description": "Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score."
+                        },
+                        "nameLabel": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "description": "Keyed. What the name is; null when the name has no reading yet.",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "dictionary_word",
+                                "inflected_word",
+                                "compound",
+                                "phrase",
+                                "blend",
+                                "misspelling",
+                                "acronym",
+                                "coinage",
+                                "personal_name",
+                                "place_name",
+                                "brand_like",
+                                "numeric_or_junk"
+                              ]
+                            },
+                            "baseWords": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
                         "rating": {
                           "type": "object",
                           "properties": {
@@ -446,6 +492,7 @@
                                 "same_word",
                                 "synonyms",
                                 "related",
+                                "same_type",
                                 "market",
                                 null,
                                 "sold_before"
@@ -463,7 +510,7 @@
                             },
                             "endingsSoldOn": {
                               "type": "integer",
-                              "description": "Endings the word sold on in 12 months."
+                              "description": "How many endings the word sold on in 12 months."
                             }
                           }
                         }
@@ -479,18 +526,18 @@
                 },
                 "example": {
                   "data": {
-                    "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                    "name": "lantern.io",
-                    "ending": "io",
+                    "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                    "name": "get.plumbing",
+                    "ending": "plumbing",
                     "tracked": true,
-                    "status": "parked",
+                    "status": "for_sale",
                     "lifecycle": "active",
                     "drop": {
                       "kind": "none"
                     },
                     "ownableNow": false,
                     "price": {
-                      "kind": null,
+                      "kind": "aftermarket",
                       "firstYear": null,
                       "registrar": null,
                       "renewal": null,
@@ -499,33 +546,33 @@
                       "renewalTrap": false
                     },
                     "registry": {
-                      "createdAt": "2014-03-02T10:11:00.000Z",
-                      "updatedAt": "2026-02-11T08:00:00.000Z",
-                      "expiresAt": "2027-03-02T10:11:00.000Z",
-                      "registryUpdatedAt": null,
+                      "createdAt": "2020-06-03T08:30:53.000Z",
+                      "updatedAt": "2026-08-12T04:41:40.000Z",
+                      "expiresAt": "2027-06-03T08:30:53.000Z",
+                      "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                       "registrar": {
-                        "name": "Gandi SAS",
-                        "ianaId": 81,
-                        "url": "https://www.gandi.net"
+                        "name": "GoDaddy.com, LLC",
+                        "ianaId": 146,
+                        "url": null
                       }
                     },
-                    "parking": "sedo",
-                    "length": 7,
-                    "format": "oneWord",
+                    "parking": "afternic",
+                    "length": 3,
+                    "format": null,
                     "shape": "single",
                     "word": {
-                      "id": "wrd_48211",
-                      "word": "lantern",
-                      "slug": "lantern"
+                      "id": "wrd_23922",
+                      "word": "get",
+                      "slug": "get"
                     },
                     "rating": {
-                      "band": "strong"
+                      "band": "prime"
                     },
                     "comps": {
                       "tier": "same_word",
-                      "count": 7,
-                      "medianUsd": 2150,
-                      "endingsSoldOn": 4
+                      "count": 10,
+                      "medianUsd": 2677,
+                      "endingsSoldOn": 0
                     }
                   }
                 }
@@ -586,7 +633,7 @@
             "name": "fields",
             "in": "query",
             "required": false,
-            "description": "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, error.",
+            "description": "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, error.",
             "schema": {
               "type": "string"
             }
@@ -613,7 +660,7 @@
               },
               "example": {
                 "names": [
-                  "lantern.io",
+                  "get.plumbing",
                   "zorbly.ai",
                   "foo@bar.com"
                 ]
@@ -688,7 +735,8 @@
                                   "not_checked",
                                   "not_covered",
                                   "not_a_name"
-                                ]
+                                ],
+                                "description": "Where the name stands for a buyer. A list row's stored status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`."
                               },
                               "lifecycle": {
                                 "type": [
@@ -888,6 +936,51 @@
                                   }
                                 }
                               },
+                              "crossLanguageFlag": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "none",
+                                  "caution",
+                                  "avoid",
+                                  null
+                                ],
+                                "description": "Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score."
+                              },
+                              "nameLabel": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "description": "Keyed. What the name is; null when the name has no reading yet.",
+                                "properties": {
+                                  "type": {
+                                    "type": "string",
+                                    "enum": [
+                                      "dictionary_word",
+                                      "inflected_word",
+                                      "compound",
+                                      "phrase",
+                                      "blend",
+                                      "misspelling",
+                                      "acronym",
+                                      "coinage",
+                                      "personal_name",
+                                      "place_name",
+                                      "brand_like",
+                                      "numeric_or_junk"
+                                    ]
+                                  },
+                                  "baseWords": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  }
+                                }
+                              },
                               "rating": {
                                 "type": "object",
                                 "properties": {
@@ -993,6 +1086,7 @@
                                       "same_word",
                                       "synonyms",
                                       "related",
+                                      "same_type",
                                       "market",
                                       null,
                                       "sold_before"
@@ -1010,7 +1104,7 @@
                                   },
                                   "endingsSoldOn": {
                                     "type": "integer",
-                                    "description": "Endings the word sold on in 12 months."
+                                    "description": "How many endings the word sold on in 12 months."
                                   }
                                 }
                               }
@@ -1064,18 +1158,18 @@
                 "example": {
                   "data": [
                     {
-                      "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                      "name": "lantern.io",
-                      "ending": "io",
+                      "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                      "name": "get.plumbing",
+                      "ending": "plumbing",
                       "tracked": true,
-                      "status": "parked",
+                      "status": "for_sale",
                       "lifecycle": "active",
                       "drop": {
                         "kind": "none"
                       },
                       "ownableNow": false,
                       "price": {
-                        "kind": null,
+                        "kind": "aftermarket",
                         "firstYear": null,
                         "registrar": null,
                         "renewal": null,
@@ -1085,34 +1179,34 @@
                         "regularPrice": null
                       },
                       "registry": {
-                        "createdAt": "2014-03-02T10:11:00.000Z",
-                        "updatedAt": "2026-02-11T08:00:00.000Z",
-                        "expiresAt": "2027-03-02T10:11:00.000Z",
-                        "registryUpdatedAt": null,
+                        "createdAt": "2020-06-03T08:30:53.000Z",
+                        "updatedAt": "2026-08-12T04:41:40.000Z",
+                        "expiresAt": "2027-06-03T08:30:53.000Z",
+                        "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                         "registrar": {
-                          "name": "Gandi SAS",
-                          "ianaId": 81,
-                          "url": "https://www.gandi.net"
+                          "name": "GoDaddy.com, LLC",
+                          "ianaId": 146,
+                          "url": null
                         }
                       },
-                      "parking": "sedo",
-                      "length": 7,
-                      "format": "oneWord",
+                      "parking": "afternic",
+                      "length": 3,
+                      "format": null,
                       "shape": "single",
                       "word": {
-                        "id": "wrd_48211",
-                        "word": "lantern",
-                        "slug": "lantern"
+                        "id": "wrd_23922",
+                        "word": "get",
+                        "slug": "get"
                       },
                       "rating": {
-                        "band": "strong",
-                        "score": 68
+                        "band": "prime",
+                        "score": 84
                       },
                       "comps": {
                         "tier": "same_word",
-                        "count": 7,
-                        "medianUsd": 2150,
-                        "endingsSoldOn": 4
+                        "count": 10,
+                        "medianUsd": 2677,
+                        "endingsSoldOn": 0
                       },
                       "verdict": {
                         "rating": "good",
@@ -1198,7 +1292,7 @@
             "name": "fields",
             "in": "query",
             "required": false,
-            "description": "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, checked.",
+            "description": "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, checked.",
             "schema": {
               "type": "string"
             }
@@ -1300,7 +1394,8 @@
                             "not_checked",
                             "not_covered",
                             "not_a_name"
-                          ]
+                          ],
+                          "description": "Where the name stands for a buyer. A list row's stored status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`."
                         },
                         "lifecycle": {
                           "type": [
@@ -1500,6 +1595,51 @@
                             }
                           }
                         },
+                        "crossLanguageFlag": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "none",
+                            "caution",
+                            "avoid",
+                            null
+                          ],
+                          "description": "Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score."
+                        },
+                        "nameLabel": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "description": "Keyed. What the name is; null when the name has no reading yet.",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "dictionary_word",
+                                "inflected_word",
+                                "compound",
+                                "phrase",
+                                "blend",
+                                "misspelling",
+                                "acronym",
+                                "coinage",
+                                "personal_name",
+                                "place_name",
+                                "brand_like",
+                                "numeric_or_junk"
+                              ]
+                            },
+                            "baseWords": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
                         "rating": {
                           "type": "object",
                           "properties": {
@@ -1605,6 +1745,7 @@
                                 "same_word",
                                 "synonyms",
                                 "related",
+                                "same_type",
                                 "market",
                                 null,
                                 "sold_before"
@@ -1622,7 +1763,7 @@
                             },
                             "endingsSoldOn": {
                               "type": "integer",
-                              "description": "Endings the word sold on in 12 months."
+                              "description": "How many endings the word sold on in 12 months."
                             }
                           }
                         },
@@ -1642,18 +1783,18 @@
                 },
                 "example": {
                   "data": {
-                    "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                    "name": "lantern.io",
-                    "ending": "io",
+                    "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                    "name": "get.plumbing",
+                    "ending": "plumbing",
                     "tracked": true,
-                    "status": "parked",
+                    "status": "for_sale",
                     "lifecycle": "active",
                     "drop": {
                       "kind": "none"
                     },
                     "ownableNow": false,
                     "price": {
-                      "kind": null,
+                      "kind": "aftermarket",
                       "firstYear": null,
                       "registrar": null,
                       "renewal": null,
@@ -1663,34 +1804,34 @@
                       "regularPrice": null
                     },
                     "registry": {
-                      "createdAt": "2014-03-02T10:11:00.000Z",
-                      "updatedAt": "2026-02-11T08:00:00.000Z",
-                      "expiresAt": "2027-03-02T10:11:00.000Z",
-                      "registryUpdatedAt": null,
+                      "createdAt": "2020-06-03T08:30:53.000Z",
+                      "updatedAt": "2026-08-12T04:41:40.000Z",
+                      "expiresAt": "2027-06-03T08:30:53.000Z",
+                      "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                       "registrar": {
-                        "name": "Gandi SAS",
-                        "ianaId": 81,
-                        "url": "https://www.gandi.net"
+                        "name": "GoDaddy.com, LLC",
+                        "ianaId": 146,
+                        "url": null
                       }
                     },
-                    "parking": "sedo",
-                    "length": 7,
-                    "format": "oneWord",
+                    "parking": "afternic",
+                    "length": 3,
+                    "format": null,
                     "shape": "single",
                     "word": {
-                      "id": "wrd_48211",
-                      "word": "lantern",
-                      "slug": "lantern"
+                      "id": "wrd_23922",
+                      "word": "get",
+                      "slug": "get"
                     },
                     "rating": {
-                      "band": "strong",
-                      "score": 68
+                      "band": "prime",
+                      "score": 84
                     },
                     "comps": {
                       "tier": "same_word",
-                      "count": 7,
-                      "medianUsd": 2150,
-                      "endingsSoldOn": 4
+                      "count": 10,
+                      "medianUsd": 2677,
+                      "endingsSoldOn": 0
                     },
                     "verdict": {
                       "rating": "good",
@@ -1769,7 +1910,8 @@
                             "not_checked",
                             "not_covered",
                             "not_a_name"
-                          ]
+                          ],
+                          "description": "Where the name stands for a buyer. A list row's stored status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`."
                         },
                         "lifecycle": {
                           "type": [
@@ -1969,6 +2111,51 @@
                             }
                           }
                         },
+                        "crossLanguageFlag": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "none",
+                            "caution",
+                            "avoid",
+                            null
+                          ],
+                          "description": "Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score."
+                        },
+                        "nameLabel": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "description": "Keyed. What the name is; null when the name has no reading yet.",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "dictionary_word",
+                                "inflected_word",
+                                "compound",
+                                "phrase",
+                                "blend",
+                                "misspelling",
+                                "acronym",
+                                "coinage",
+                                "personal_name",
+                                "place_name",
+                                "brand_like",
+                                "numeric_or_junk"
+                              ]
+                            },
+                            "baseWords": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
                         "rating": {
                           "type": "object",
                           "properties": {
@@ -2074,6 +2261,7 @@
                                 "same_word",
                                 "synonyms",
                                 "related",
+                                "same_type",
                                 "market",
                                 null,
                                 "sold_before"
@@ -2091,7 +2279,7 @@
                             },
                             "endingsSoldOn": {
                               "type": "integer",
-                              "description": "Endings the word sold on in 12 months."
+                              "description": "How many endings the word sold on in 12 months."
                             }
                           }
                         },
@@ -2111,18 +2299,18 @@
                 },
                 "example": {
                   "data": {
-                    "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                    "name": "lantern.io",
-                    "ending": "io",
+                    "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                    "name": "get.plumbing",
+                    "ending": "plumbing",
                     "tracked": true,
-                    "status": "parked",
+                    "status": "for_sale",
                     "lifecycle": "active",
                     "drop": {
                       "kind": "none"
                     },
                     "ownableNow": false,
                     "price": {
-                      "kind": null,
+                      "kind": "aftermarket",
                       "firstYear": null,
                       "registrar": null,
                       "renewal": null,
@@ -2132,34 +2320,34 @@
                       "regularPrice": null
                     },
                     "registry": {
-                      "createdAt": "2014-03-02T10:11:00.000Z",
-                      "updatedAt": "2026-02-11T08:00:00.000Z",
-                      "expiresAt": "2027-03-02T10:11:00.000Z",
-                      "registryUpdatedAt": null,
+                      "createdAt": "2020-06-03T08:30:53.000Z",
+                      "updatedAt": "2026-08-12T04:41:40.000Z",
+                      "expiresAt": "2027-06-03T08:30:53.000Z",
+                      "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                       "registrar": {
-                        "name": "Gandi SAS",
-                        "ianaId": 81,
-                        "url": "https://www.gandi.net"
+                        "name": "GoDaddy.com, LLC",
+                        "ianaId": 146,
+                        "url": null
                       }
                     },
-                    "parking": "sedo",
-                    "length": 7,
-                    "format": "oneWord",
+                    "parking": "afternic",
+                    "length": 3,
+                    "format": null,
                     "shape": "single",
                     "word": {
-                      "id": "wrd_48211",
-                      "word": "lantern",
-                      "slug": "lantern"
+                      "id": "wrd_23922",
+                      "word": "get",
+                      "slug": "get"
                     },
                     "rating": {
-                      "band": "strong",
-                      "score": 68
+                      "band": "prime",
+                      "score": 84
                     },
                     "comps": {
                       "tier": "same_word",
-                      "count": 7,
-                      "medianUsd": 2150,
-                      "endingsSoldOn": 4
+                      "count": 10,
+                      "medianUsd": 2677,
+                      "endingsSoldOn": 0
                     },
                     "verdict": {
                       "rating": "good",
@@ -2592,31 +2780,43 @@
                 "example": {
                   "data": {
                     "read": true,
-                    "observedOn": "2026-11-04",
-                    "createdAt": "2014-03-02T10:11:00.000Z",
-                    "updatedAt": "2026-02-11T08:00:00.000Z",
-                    "expiresAt": "2027-03-02T10:11:00.000Z",
-                    "registryUpdatedAt": "2026-11-04T06:12:00.000Z",
+                    "observedOn": "2026-09-23",
+                    "createdAt": "2020-06-03T08:30:53.000Z",
+                    "updatedAt": "2026-08-12T04:41:40.000Z",
+                    "expiresAt": "2027-06-03T08:30:53.000Z",
+                    "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                     "registrar": {
-                      "name": "Gandi SAS",
-                      "ianaId": 81,
-                      "url": "https://www.gandi.net"
+                      "name": "GoDaddy.com, LLC",
+                      "ianaId": 146,
+                      "url": null
                     },
                     "eppStatuses": [
                       {
+                        "id": "clientDeleteProhibited",
+                        "raw": "clientDeleteProhibited"
+                      },
+                      {
+                        "id": "clientRenewProhibited",
+                        "raw": "clientRenewProhibited"
+                      },
+                      {
                         "id": "clientTransferProhibited",
-                        "raw": "client transfer prohibited"
+                        "raw": "clientTransferProhibited"
+                      },
+                      {
+                        "id": "clientUpdateProhibited",
+                        "raw": "clientUpdateProhibited"
                       }
                     ],
                     "nameservers": [
-                      "ns1.sedoparking.com",
-                      "ns2.sedoparking.com"
+                      "ns5.afternic.com",
+                      "ns6.afternic.com"
                     ],
                     "dnssec": false,
                     "holder": {
                       "holder": null,
-                      "redactedBy": "REDACTED FOR PRIVACY",
-                      "heldAtRegistrar": false
+                      "redactedBy": null,
+                      "heldAtRegistrar": true
                     },
                     "transport": "rdap"
                   }
@@ -2809,32 +3009,32 @@
                     "versions": [
                       {
                         "observedAt": "2025-06-02T04:10:00.000Z",
-                        "registrar": "GoDaddy.com, LLC",
+                        "registrar": "Gandi SAS",
                         "registered": true
                       },
                       {
-                        "observedAt": "2026-02-11T08:02:00.000Z",
-                        "registrar": "Gandi SAS",
+                        "observedAt": "2026-08-12T05:02:00.000Z",
+                        "registrar": "GoDaddy.com, LLC",
                         "registered": true
                       }
                     ],
                     "moves": [
                       {
-                        "at": "2026-02-11T08:02:00.000Z",
-                        "from": "GoDaddy.com, LLC",
-                        "to": "Gandi SAS"
+                        "at": "2026-08-12T05:02:00.000Z",
+                        "from": "Gandi SAS",
+                        "to": "GoDaddy.com, LLC"
                       }
                     ],
                     "transfers": [
                       {
-                        "at": "2026-02-10T00:00:00.000Z",
-                        "from": "GoDaddy.com, LLC",
-                        "to": "Gandi SAS"
+                        "at": "2026-08-12T00:00:00.000Z",
+                        "from": "Gandi SAS",
+                        "to": "GoDaddy.com, LLC"
                       }
                     ],
                     "lockChanges": [
                       {
-                        "at": "2026-02-09T03:00:00.000Z",
+                        "at": "2026-08-10T03:00:00.000Z",
                         "kind": "lock_removed"
                       }
                     ]
@@ -2888,7 +3088,7 @@
       "get": {
         "operationId": "get_name_dns",
         "summary": "The latest stored DNS reading of one name, with its parking venue.",
-        "description": "NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the reading points at. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        "description": "NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the reading points at. A name the catalog never stored answers 200 with `read: false` and empty facts, never 404.",
         "tags": [
           "names"
         ],
@@ -3006,17 +3206,23 @@
                   "data": {
                     "read": true,
                     "ns": [
-                      "ns1.atom.com",
-                      "ns2.atom.com"
+                      "ns6.afternic.com",
+                      "ns5.afternic.com"
                     ],
                     "a": [
-                      "52.20.84.62"
+                      "76.223.54.146",
+                      "13.248.169.48"
                     ],
                     "aaaa": [],
                     "cname": [],
-                    "mx": [],
-                    "hasWebsite": false,
-                    "parking": "atom"
+                    "mx": [
+                      {
+                        "exchange": "",
+                        "priority": 0
+                      }
+                    ],
+                    "hasWebsite": true,
+                    "parking": "afternic"
                   }
                 }
               }
@@ -3222,7 +3428,7 @@
                       "observedAt": "2026-11-03T05:41:00.000Z",
                       "subject": {
                         "kind": "name",
-                        "key": "lantern.io"
+                        "key": "get.plumbing"
                       },
                       "before": {
                         "registrar": "Network Solutions, LLC",
@@ -3800,8 +4006,8 @@
     "/names/{name}/comps": {
       "get": {
         "operationId": "get_name_comps",
-        "summary": "The similar-sales aggregate of one name and the endings its word sold on.",
-        "description": "Aggregates only: the tier of the sales behind the figure, their count and median, and the endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        "summary": "The similar-sales aggregate of one name and how many endings its word sold on.",
+        "description": "Aggregates only: the tier of the sales behind the figure, their count and median, and how many endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name the catalog never stored answers 200 with `tier: null` and a count of 0, never 404.",
         "tags": [
           "names"
         ],
@@ -3828,7 +4034,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The similar-sales aggregate of one name and the endings its word sold on.",
+            "description": "The similar-sales aggregate of one name and how many endings its word sold on.",
             "content": {
               "application/json": {
                 "schema": {
@@ -3857,6 +4063,7 @@
                             "same_word",
                             "synonyms",
                             "related",
+                            "same_type",
                             "market",
                             null,
                             "sold_before"
@@ -3874,7 +4081,7 @@
                         },
                         "endingsSoldOn": {
                           "type": "integer",
-                          "description": "Endings the word sold on in 12 months."
+                          "description": "How many endings the word sold on in 12 months."
                         }
                       }
                     },
@@ -3889,9 +4096,9 @@
                 "example": {
                   "data": {
                     "tier": "same_word",
-                    "count": 7,
-                    "medianUsd": 2150,
-                    "endingsSoldOn": 4
+                    "count": 10,
+                    "medianUsd": 2677,
+                    "endingsSoldOn": 0
                   }
                 }
               }
@@ -4446,7 +4653,7 @@
             "name": "fields",
             "in": "query",
             "required": false,
-            "description": "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics, found.",
+            "description": "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics, found.",
             "schema": {
               "type": "string"
             }
@@ -4637,6 +4844,19 @@
                                   null
                                 ],
                                 "description": "Why the word stays off public lists; null when none."
+                              },
+                              "crossLanguageFlag": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
+                                "enum": [
+                                  "none",
+                                  "caution",
+                                  "avoid",
+                                  null
+                                ],
+                                "description": "What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the word has no reading yet. The flag alone, a fact and never a score."
                               },
                               "origin": {
                                 "type": "string",
@@ -5278,7 +5498,7 @@
             "name": "fields",
             "in": "query",
             "required": false,
-            "description": "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics.",
+            "description": "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics.",
             "schema": {
               "type": "string"
             }
@@ -5437,6 +5657,19 @@
                             null
                           ],
                           "description": "Why the word stays off public lists; null when none."
+                        },
+                        "crossLanguageFlag": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "none",
+                            "caution",
+                            "avoid",
+                            null
+                          ],
+                          "description": "What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the word has no reading yet. The flag alone, a fact and never a score."
                         },
                         "origin": {
                           "type": "string",
@@ -5653,6 +5886,7 @@
                       }
                     ],
                     "denyClass": null,
+                    "crossLanguageFlag": "none",
                     "origin": "dictionary",
                     "addedAt": null,
                     "linguistics": {
@@ -5731,7 +5965,7 @@
       "get": {
         "operationId": "get_word_endings",
         "summary": "A word's endings as the nightly update holds them: counts, the key endings and open names per ending.",
-        "description": "Reads the `WordEndings` row. A word with no row yet answers zero counts. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.",
+        "description": "Reads the `WordEndings` row. A word with no count (not scanned, or not counted yet) answers `byGroup` and `openByEnding` null; zeros are real. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.",
         "tags": [
           "words"
         ],
@@ -5787,7 +6021,11 @@
                       ],
                       "properties": {
                         "byGroup": {
-                          "type": "object",
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "description": "Null for a word with no count (not scanned, or not counted yet); zeros are real.",
                           "properties": {
                             "scanned": {
                               "type": "integer"
@@ -5827,11 +6065,14 @@
                           }
                         },
                         "openByEnding": {
-                          "type": "object",
+                          "type": [
+                            "object",
+                            "null"
+                          ],
                           "additionalProperties": {
                             "type": "integer"
                           },
-                          "description": "`{ ending: count }`."
+                          "description": "`{ ending: count }`; null for a word with no count (not scanned, or not counted yet); zeros are real."
                         },
                         "cheapest": {
                           "type": "object",
@@ -7610,7 +7851,8 @@
                               "dormant",
                               "sold",
                               "unknown"
-                            ]
+                            ],
+                            "description": "The stored status of the row. One name's own answer groups it for a buyer: `resell` reads `for_sale` there (`at_auction` at a drop-catch venue), `premium` reads `free_premium`."
                           },
                           "price": {
                             "type": [
@@ -7939,7 +8181,8 @@
                             "not_checked",
                             "not_covered",
                             "not_a_name"
-                          ]
+                          ],
+                          "description": "Where the name stands for a buyer. A list row's stored status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`."
                         },
                         "lifecycle": {
                           "type": [
@@ -8139,6 +8382,51 @@
                             }
                           }
                         },
+                        "crossLanguageFlag": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "enum": [
+                            "none",
+                            "caution",
+                            "avoid",
+                            null
+                          ],
+                          "description": "Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score."
+                        },
+                        "nameLabel": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "description": "Keyed. What the name is; null when the name has no reading yet.",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "dictionary_word",
+                                "inflected_word",
+                                "compound",
+                                "phrase",
+                                "blend",
+                                "misspelling",
+                                "acronym",
+                                "coinage",
+                                "personal_name",
+                                "place_name",
+                                "brand_like",
+                                "numeric_or_junk"
+                              ]
+                            },
+                            "baseWords": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
                         "rating": {
                           "type": "object",
                           "properties": {
@@ -8244,6 +8532,7 @@
                                 "same_word",
                                 "synonyms",
                                 "related",
+                                "same_type",
                                 "market",
                                 null,
                                 "sold_before"
@@ -8261,7 +8550,7 @@
                             },
                             "endingsSoldOn": {
                               "type": "integer",
-                              "description": "Endings the word sold on in 12 months."
+                              "description": "How many endings the word sold on in 12 months."
                             }
                           }
                         }
@@ -8277,18 +8566,18 @@
                 },
                 "example": {
                   "data": {
-                    "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                    "name": "lantern.io",
-                    "ending": "io",
+                    "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                    "name": "get.plumbing",
+                    "ending": "plumbing",
                     "tracked": true,
-                    "status": "parked",
+                    "status": "for_sale",
                     "lifecycle": "active",
                     "drop": {
                       "kind": "none"
                     },
                     "ownableNow": false,
                     "price": {
-                      "kind": null,
+                      "kind": "aftermarket",
                       "firstYear": null,
                       "registrar": null,
                       "renewal": null,
@@ -8297,33 +8586,33 @@
                       "renewalTrap": false
                     },
                     "registry": {
-                      "createdAt": "2014-03-02T10:11:00.000Z",
-                      "updatedAt": "2026-02-11T08:00:00.000Z",
-                      "expiresAt": "2027-03-02T10:11:00.000Z",
-                      "registryUpdatedAt": null,
+                      "createdAt": "2020-06-03T08:30:53.000Z",
+                      "updatedAt": "2026-08-12T04:41:40.000Z",
+                      "expiresAt": "2027-06-03T08:30:53.000Z",
+                      "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                       "registrar": {
-                        "name": "Gandi SAS",
-                        "ianaId": 81,
-                        "url": "https://www.gandi.net"
+                        "name": "GoDaddy.com, LLC",
+                        "ianaId": 146,
+                        "url": null
                       }
                     },
-                    "parking": "sedo",
-                    "length": 7,
-                    "format": "oneWord",
+                    "parking": "afternic",
+                    "length": 3,
+                    "format": null,
                     "shape": "single",
                     "word": {
-                      "id": "wrd_48211",
-                      "word": "lantern",
-                      "slug": "lantern"
+                      "id": "wrd_23922",
+                      "word": "get",
+                      "slug": "get"
                     },
                     "rating": {
-                      "band": "strong"
+                      "band": "prime"
                     },
                     "comps": {
                       "tier": "same_word",
-                      "count": 7,
-                      "medianUsd": 2150,
-                      "endingsSoldOn": 4
+                      "count": 10,
+                      "medianUsd": 2677,
+                      "endingsSoldOn": 0
                     }
                   }
                 }
@@ -9042,7 +9331,8 @@
                               "dormant",
                               "sold",
                               "unknown"
-                            ]
+                            ],
+                            "description": "The stored status of the row. One name's own answer groups it for a buyer: `resell` reads `for_sale` there (`at_auction` at a drop-catch venue), `premium` reads `free_premium`."
                           },
                           "price": {
                             "type": [
@@ -10802,7 +11092,7 @@
                       {
                         "registrar": "namecheap",
                         "name": "Namecheap",
-                        "homepageUrl": "https://www.namecheap.com?utm_source=unique.domains",
+                        "homepageUrl": "https://www.namecheap.com",
                         "purchasePrice": 34.98,
                         "renewalPrice": 59.98,
                         "renewalTrap": false,
@@ -12975,7 +13265,7 @@
                             "oneOf": [
                               {
                                 "type": "string",
-                                "description": "Outbound homepage, with the catalog's UTM tags."
+                                "description": "The registrar's or venue's homepage, with no tracking query."
                               },
                               {
                                 "type": "null"
@@ -12986,7 +13276,7 @@
                             "oneOf": [
                               {
                                 "type": "string",
-                                "description": "The same homepage untagged."
+                                "description": "The same homepage as `homepageUrl`."
                               },
                               {
                                 "type": "null"
@@ -13037,7 +13327,7 @@
                       "kind": "registrar",
                       "ianaId": 1861,
                       "accredited": true,
-                      "homepageUrl": "https://porkbun.com?utm_source=unique.domains",
+                      "homepageUrl": "https://porkbun.com",
                       "siteUrl": "https://porkbun.com",
                       "logoUrl": "https://unique.domains/static/registrars/porkbun.svg",
                       "endingsPriced": 512
@@ -14872,7 +15162,7 @@
                             "oneOf": [
                               {
                                 "type": "string",
-                                "description": "Outbound homepage, with the catalog's UTM tags."
+                                "description": "The registrar's or venue's homepage, with no tracking query."
                               },
                               {
                                 "type": "null"
@@ -14883,7 +15173,7 @@
                             "oneOf": [
                               {
                                 "type": "string",
-                                "description": "The same homepage untagged."
+                                "description": "The same homepage as `homepageUrl`."
                               },
                               {
                                 "type": "null"
@@ -15121,7 +15411,7 @@
                           "oneOf": [
                             {
                               "type": "string",
-                              "description": "Outbound homepage, with the catalog's UTM tags."
+                              "description": "The registrar's or venue's homepage, with no tracking query."
                             },
                             {
                               "type": "null"
@@ -15132,7 +15422,7 @@
                           "oneOf": [
                             {
                               "type": "string",
-                              "description": "The same homepage untagged."
+                              "description": "The same homepage as `homepageUrl`."
                             },
                             {
                               "type": "null"
@@ -19894,7 +20184,8 @@
                           "enum": [
                             "founder",
                             "investor"
-                          ]
+                          ],
+                          "description": "The page the edition was written for. A day before 2026-11-10 with no founder edition of its own answers the investor edition, read with the founder verdicts: `persona` is then `investor`."
                         },
                         "date": {
                           "type": "string",
@@ -19905,10 +20196,12 @@
                           "format": "date-time"
                         },
                         "trendCount": {
-                          "type": "integer"
+                          "type": "integer",
+                          "description": "Trends in the whole edition. `trends` lists at most 20, the ones the public page shows, so this count can be larger."
                         },
                         "nameCount": {
-                          "type": "integer"
+                          "type": "integer",
+                          "description": "Names in the whole edition; `openCount` of them are open here."
                         },
                         "openCount": {
                           "type": "integer",
@@ -20192,12 +20485,12 @@
                 "example": {
                   "data": {
                     "persona": "founder",
-                    "date": "2026-11-05",
-                    "publishAt": "2026-11-05T06:00:00.000Z",
+                    "date": "2026-11-11",
+                    "publishAt": "2026-11-11T06:00:00.000Z",
                     "trendCount": 25,
                     "nameCount": 25,
                     "openCount": 5,
-                    "previousDate": "2026-11-04",
+                    "previousDate": "2026-11-10",
                     "nextDate": null,
                     "trends": [
                       {
@@ -20330,7 +20623,7 @@
               "type": "string",
               "format": "date"
             },
-            "example": "2026-11-02"
+            "example": "2026-11-10"
           },
           {
             "name": "fields",
@@ -20363,7 +20656,8 @@
                           "enum": [
                             "founder",
                             "investor"
-                          ]
+                          ],
+                          "description": "The page the edition was written for. A day before 2026-11-10 with no founder edition of its own answers the investor edition, read with the founder verdicts: `persona` is then `investor`."
                         },
                         "date": {
                           "type": "string",
@@ -20374,10 +20668,12 @@
                           "format": "date-time"
                         },
                         "trendCount": {
-                          "type": "integer"
+                          "type": "integer",
+                          "description": "Trends in the whole edition. `trends` lists at most 20, the ones the public page shows, so this count can be larger."
                         },
                         "nameCount": {
-                          "type": "integer"
+                          "type": "integer",
+                          "description": "Names in the whole edition; `openCount` of them are open here."
                         },
                         "openCount": {
                           "type": "integer",
@@ -20661,13 +20957,13 @@
                 "example": {
                   "data": {
                     "persona": "founder",
-                    "date": "2026-11-02",
-                    "publishAt": "2026-11-05T06:00:00.000Z",
+                    "date": "2026-11-10",
+                    "publishAt": "2026-11-10T06:00:00.000Z",
                     "trendCount": 25,
                     "nameCount": 25,
                     "openCount": 5,
-                    "previousDate": "2026-11-01",
-                    "nextDate": "2026-11-03",
+                    "previousDate": "2026-11-05",
+                    "nextDate": "2026-11-11",
                     "trends": [
                       {
                         "slug": "agentic-checkout",
@@ -20771,7 +21067,7 @@
       "get": {
         "operationId": "get_meta_enums",
         "summary": "Every enum the payloads use, read from the code catalogs.",
-        "description": "Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services.",
+        "description": "Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.",
         "tags": [
           "shared"
         ],
@@ -21434,7 +21730,7 @@
       "get": {
         "operationId": "get_meta_providers",
         "summary": "Registrar identities and the auction venue and parking service catalogs.",
-        "description": "Registrars in catalog order with their IANA id and homepage, the seven auction venues and the parking services the scanner recognises.",
+        "description": "Registrars in catalog order with their IANA id and homepage, the auction venues and the parking services the scanner recognises. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.",
         "tags": [
           "shared"
         ],

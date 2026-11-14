@@ -133,7 +133,7 @@ export type NamespacedClient = {
          * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan.
          *
          * @example
-         * const answer = await ud.names.batch({ names: ['lantern.io', 'zorbly.ai'] });
+         * const answer = await ud.names.batch({ names: ['get.plumbing', 'zorbly.ai'] });
          */
         batch: (options: CallOptions<'batch_names'>) => OperationCall<'batch_names'>;
         /**
@@ -214,7 +214,7 @@ export type NamespacedClient = {
          */
         appraise: (name: PathParamsOf<'appraise_name'>['name'], options?: CallOptions<'appraise_name'>) => OperationCall<'appraise_name'>;
         /**
-         * The similar-sales aggregate of one name and the endings its word sold on.
+         * The similar-sales aggregate of one name and how many endings its word sold on.
          *
          * @example
          * const answer = await ud.names.comps('get.plumbing');
@@ -724,7 +724,7 @@ export type NamespacedClient = {
          * One dated published edition of one page.
          *
          * @example
-         * const answer = await ud.editions.get('founder', '2026-11-02');
+         * const answer = await ud.editions.get('founder', '2026-11-10');
          */
         get: (persona: PathParamsOf<'get_edition'>['persona'], date: PathParamsOf<'get_edition'>['date'], options?: CallOptions<'get_edition'>) => OperationCall<'get_edition'>;
     };

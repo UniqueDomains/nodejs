@@ -68,7 +68,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The stored answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.",
-        description: "Read from the stored lookup rows, never live (`POST /names/{name}/check` is the live path). Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict and the value facts. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        description: "Read from the stored lookup rows, never live (`POST /names/{name}/check` is the live path). Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict, the value facts, the word's meaning-abroad flag and what the name is. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
         parameters: [
             {
                 name: "name",
@@ -83,7 +83,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps."
+                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps."
             }
         ],
         body: null,
@@ -107,7 +107,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, error."
+                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, error."
             }
         ],
         body: {
@@ -152,7 +152,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, checked."
+                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, checked."
             }
         ],
         body: {
@@ -286,7 +286,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The latest stored DNS reading of one name, with its parking venue.",
-        description: "NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the reading points at. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        description: "NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the reading points at. A name the catalog never stored answers 200 with `read: false` and empty facts, never 404.",
         parameters: [
             {
                 name: "name",
@@ -470,8 +470,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The similar-sales aggregate of one name and the endings its word sold on.",
-        description: "Aggregates only: the tier of the sales behind the figure, their count and median, and the endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        summary: "The similar-sales aggregate of one name and how many endings its word sold on.",
+        description: "Aggregates only: the tier of the sales behind the figure, their count and median, and how many endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name the catalog never stored answers 200 with `tier: null` and a count of 0, never 404.",
         parameters: [
             {
                 name: "name",
@@ -598,7 +598,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics, found."
+                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics, found."
             }
         ],
         body: {
@@ -817,7 +817,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics."
+                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics."
             }
         ],
         body: null,
@@ -834,7 +834,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "A word's endings as the nightly update holds them: counts, the key endings and open names per ending.",
-        description: "Reads the `WordEndings` row. A word with no row yet answers zero counts. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.",
+        description: "Reads the `WordEndings` row. A word with no count (not scanned, or not counted yet) answers `byGroup` and `openByEnding` null; zeros are real. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.",
         parameters: [
             {
                 name: "word",
@@ -3607,7 +3607,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 format: "date",
-                example: "2026-11-02",
+                example: "2026-11-10",
                 description: "The edition day, UTC."
             },
             {
@@ -3632,7 +3632,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Every enum the payloads use, read from the code catalogs.",
-        description: "Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services.",
+        description: "Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.",
         parameters: [
             {
                 name: "fields",
@@ -3728,7 +3728,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Registrar identities and the auction venue and parking service catalogs.",
-        description: "Registrars in catalog order with their IANA id and homepage, the seven auction venues and the parking services the scanner recognises.",
+        description: "Registrars in catalog order with their IANA id and homepage, the auction venues and the parking services the scanner recognises. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.",
         parameters: [
             {
                 name: "fields",
