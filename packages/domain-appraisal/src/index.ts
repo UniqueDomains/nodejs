@@ -11,8 +11,8 @@ export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaE
 export type { ConnectionOptions };
 
 /**
- * A summary of the sales behind a name: which sales it draws on (`tier`), their count and median in USD, and the endings
- * the word sold on in 12 months. Free. Aggregates only, never a single sale.
+ * A summary of the sales behind a name: which sales it draws on (`tier`), their count and median in USD, and on how many
+ * endings the word sold in the last 12 months. Free. Aggregates only, never a single sale.
  *
  * @example
  * const sales = await comparableSales('get.plumbing');

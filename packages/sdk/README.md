@@ -177,7 +177,7 @@ if (isOperationId(id)) {
 <!-- example: include fixture -->
 ```js
 const endings = await ud.words.endings('harbor', { include: ['cheapest'] });
-console.log(endings.endings);
+console.log(endings.cheapest, endings.availableOn);
 ```
 
 The `.csv` form of a list and the `If-None-Match` question go through `request`, since their answers carry no `data`:

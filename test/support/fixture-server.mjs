@@ -156,7 +156,7 @@ export const SYNTHETIC = [
     {
         name: 'word-endings-include',
         request: { method: 'GET', path: '/words/harbor/endings', query: 'include=cheapest' },
-        response: json(200, { data: { word: 'harbor', endings: [] }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://api.unique.domains/v1/words/harbor/endings', next: null, register: null, product: null, dataset: null } }),
+        response: json(200, { data: { byGroup: { scanned: 5, taken: 2, available: 2, forSale: 1 }, keyEndings: [{ ending: 'com', status: 'taken', price: null }, { ending: 'io', status: 'available', price: 34.98 }], openByEnding: { io: 1, co: 1, studio: 1 }, availableOn: ['co', 'io'], forSaleOn: ['studio'], cheapest: { ending: 'co', price: 11.98 } }, meta: { asOf: null, cursor: null, limit: null }, links: { self: 'https://api.unique.domains/v1/words/harbor/endings', next: null, register: null, product: null, dataset: null } }),
     },
     {
         name: 'meta-enums',

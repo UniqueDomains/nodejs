@@ -74,8 +74,12 @@ export const checks = async (etag: string | null, format: 'json' | 'csv'): Promi
     const forSaleOn: string[] | null = endings.data.forSaleOn;
     // @ts-expect-error the list may be null and must be narrowed
     void endings.data.availableOn.length;
+    // @ts-expect-error the list may be null and must be narrowed
+    void endings.data.forSaleOn.length;
     // @ts-expect-error the counts may be null and must be narrowed
     void endings.data.byGroup.scanned;
+    // @ts-expect-error the open map may be null and must be narrowed
+    void endings.data.openByEnding.io;
     void [availableOn, forSaleOn];
 
     // The tracked auction counts keep their keys.

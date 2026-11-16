@@ -249,7 +249,8 @@ describe('request: formats and projections', () => {
         await assert.rejects(keyless().request('list_tlds', { query: { limit: 3 }, fields: ['tld', 'kind'] }), (error) => error.code === 'not_found');
         assert.equal(new URLSearchParams(lastRequest().query).get('fields'), 'tld,kind');
         const endings = await keyless().request('get_word_endings', { path: { word: 'harbor' }, include: ['cheapest'] });
-        assert.equal(endings.data.word, 'harbor');
+        assert.equal(endings.data.cheapest.ending, 'co');
+        assert.deepEqual(endings.data.availableOn, ['co', 'io']);
         assert.equal(new URLSearchParams(lastRequest().query).get('include'), 'cheapest');
     });
 
