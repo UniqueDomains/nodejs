@@ -1,6 +1,6 @@
 {
   "name": "@uniquedomains/registrar-prices",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Registrar price comparison for Node.js: what nine registrars charge for a domain ending, each confirmed price change and over 300 renewal traps. Read daily, free, no key.",
   "license": "MIT",
   "author": "Unique.domains (https://unique.domains)",
@@ -57,6 +57,6 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@uniquedomains/sdk": "0.2.0"
+    "@uniquedomains/sdk": "0.2.1"
   }
 }
