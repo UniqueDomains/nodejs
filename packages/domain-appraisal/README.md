@@ -22,7 +22,7 @@ const sales = await comparableSales('get.plumbing');
 console.log(sales.tier, sales.count, sales.medianUsd);
 ```
 
-The answer is a summary, never a list of single sales: how close the sales are to the name (`tier`), how many there are, their median in USD, and on how many endings the word sold in the last 12 months. `same_word` means sales of the same word on other endings, `synonyms` and `related` sales of words close to it, and `market` sales across the whole ending when nothing closer exists, so read that one as the ending's going rate, not as similar names. With a key, `sold_before` also appears: this exact name sold before.
+The answer is a summary, never a list of single sales: how close the sales are to the name (`tier`), how many there are, their median in USD, and on how many endings the word sold in the last 12 months. `same_word` means sales of the same word on other endings, `synonyms` and `related` sales of words close to it, and `market` sales across the whole ending when nothing closer exists, so read that one as the ending's going rate, not as similar names. `same_type` means sales of the same kind of name on the ending (a count and a median, no sale listed under it). With a key, `sold_before` also appears: this exact name sold before.
 
 ## The value
 
