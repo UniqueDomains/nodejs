@@ -121,7 +121,7 @@ export type PagedOperationId = 'list_name_changes' | 'list_words' | 'list_word_n
 export type NamespacedClient = {
     names: {
         /**
-         * The stored answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.
+         * The answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.
          *
          * @example
          * const answer = await ud.names.get('get.plumbing');
@@ -133,11 +133,11 @@ export type NamespacedClient = {
          * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan.
          *
          * @example
-         * const answer = await ud.names.batch({ names: ['lantern.io', 'zorbly.ai'] });
+         * const answer = await ud.names.batch({ names: ['get.plumbing', 'zorbly.ai'] });
          */
         batch: (options: CallOptions<'batch_names'>) => OperationCall<'batch_names'>;
         /**
-         * Reads one name live from its registry and a registrar, stores the answer and returns the keyed name resource.
+         * Runs a live check of one name and returns the keyed name resource.
          *
          * Sent when awaited: a call never awaited never runs. Needs a key. Spends one Live unit when it runs.
          *
@@ -146,7 +146,7 @@ export type NamespacedClient = {
          */
         check: (name: PathParamsOf<'check_name'>['name'], options?: CallOptions<'check_name'>) => OperationCall<'check_name'>;
         /**
-         * Every stored registrar quote for one name, and the renewal-trap flag.
+         * Every registrar quote for one name, and the renewal-trap flag.
          *
          * Needs a key.
          *
@@ -155,14 +155,14 @@ export type NamespacedClient = {
          */
         prices: (name: PathParamsOf<'get_name_prices'>['name'], options?: CallOptions<'get_name_prices'>) => OperationCall<'get_name_prices'>;
         /**
-         * The latest stored registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder.
+         * The registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder.
          *
          * @example
          * const answer = await ud.names.registry('get.plumbing');
          */
         registry: (name: PathParamsOf<'get_name_registry'>['name'], options?: CallOptions<'get_name_registry'>) => OperationCall<'get_name_registry'>;
         /**
-         * The stored registry record versions of one name and what moved between them.
+         * The past versions of one name's registry record and what moved between them.
          *
          * Needs a key on the Investor plan.
          *
@@ -171,7 +171,7 @@ export type NamespacedClient = {
          */
         registryHistory: (name: PathParamsOf<'get_name_registry_history'>['name'], options?: CallOptions<'get_name_registry_history'>) => OperationCall<'get_name_registry_history'>;
         /**
-         * The latest stored DNS reading of one name, with its parking venue.
+         * The DNS records of one name, with its parking venue.
          *
          * @example
          * const answer = await ud.names.dns('get.plumbing');
@@ -196,7 +196,7 @@ export type NamespacedClient = {
          */
         history: (name: PathParamsOf<'get_name_history'>['name'], options?: CallOptions<'get_name_history'>) => OperationCall<'get_name_history'>;
         /**
-         * The stored value estimate of one name and its last 20 estimates.
+         * The value estimate of one name and its last 20 estimates.
          *
          * Needs a key.
          *
@@ -205,7 +205,7 @@ export type NamespacedClient = {
          */
         value: (name: PathParamsOf<'get_name_value'>['name'], options?: CallOptions<'get_name_value'>) => OperationCall<'get_name_value'>;
         /**
-         * Runs the appraisal of one stored name when its estimate is missing, and returns the value resource.
+         * Runs the appraisal of one catalog name when its estimate is missing, and returns the value resource.
          *
          * Sent when awaited: a call never awaited never runs. Needs a key on the Investor plan. Spends one Appraisal unit when it runs.
          *
@@ -214,7 +214,7 @@ export type NamespacedClient = {
          */
         appraise: (name: PathParamsOf<'appraise_name'>['name'], options?: CallOptions<'appraise_name'>) => OperationCall<'appraise_name'>;
         /**
-         * The similar-sales aggregate of one name and the endings its word sold on.
+         * The similar-sales aggregate of one name and how many endings its word sold on.
          *
          * @example
          * const answer = await ud.names.comps('get.plumbing');
@@ -271,7 +271,7 @@ export type NamespacedClient = {
          */
         get: (word: PathParamsOf<'get_word'>['word'], options?: CallOptions<'get_word'>) => OperationCall<'get_word'>;
         /**
-         * A word's endings as the nightly update holds them: counts, the key endings and open names per ending.
+         * A word's endings: counts, the key endings, and the endings the word is available on and for sale on.
          *
          * @example
          * const answer = await ud.words.endings('harbor');
@@ -296,7 +296,7 @@ export type NamespacedClient = {
          */
         trademarks: (word: PathParamsOf<'get_word_trademarks'>['word'], options?: CallOptions<'get_word_trademarks'>) => OperationCall<'get_word_trademarks'>;
         /**
-         * A word's Wikipedia and Wikidata facts.
+         * A word's Wikipedia page and Wikidata entry: title, backlinks, languages and description.
          *
          * Needs a key on the Investor plan.
          *
@@ -305,7 +305,7 @@ export type NamespacedClient = {
          */
         notability: (word: PathParamsOf<'get_word_notability'>['word'], options?: CallOptions<'get_word_notability'>) => OperationCall<'get_word_notability'>;
         /**
-         * A word's sales and auction aggregates from the nightly update.
+         * A word's sales and auction aggregates.
          *
          * Needs a key on the Investor plan.
          *
@@ -359,7 +359,7 @@ export type NamespacedClient = {
          */
         list: (options?: CallOptions<'list_domains'>) => OperationCall<'list_domains'>;
         /**
-         * One catalog name, by name or id.
+         * One name the catalog lists, by name or id.
          *
          * @example
          * const answer = await ud.domains.get('get.plumbing');
@@ -398,7 +398,7 @@ export type NamespacedClient = {
          */
         changes: (options?: CallOptions<'list_domain_changes'>) => OperationCall<'list_domain_changes'>;
         /**
-         * Catalog headline totals for the latest day.
+         * Catalog headline totals.
          *
          * @example
          * const answer = await ud.domains.stats();
@@ -421,7 +421,7 @@ export type NamespacedClient = {
          */
         get: (tld: PathParamsOf<'get_tld'>['tld'], options?: CallOptions<'get_tld'>) => OperationCall<'get_tld'>;
         /**
-         * The ending's latest market figures, and with history its last daily rows.
+         * The ending's market figures, and with history its daily rows.
          *
          * @example
          * const answer = await ud.tlds.stats('ai');
@@ -449,14 +449,14 @@ export type NamespacedClient = {
          */
         keywords: (tld: PathParamsOf<'list_tld_keywords'>['tld'], options?: CallOptions<'list_tld_keywords'>) => OperationCall<'list_tld_keywords'>;
         /**
-         * The 2026 new gTLD round as ICANN publishes it, A to Z, with two simple bands.
+         * ICANN's 2026 new gTLD round, A to Z, with two simple bands.
          *
          * @example
          * for await (const row of ud.tlds.applications()) console.log(row);
          */
         applications: (options?: CallOptions<'list_tld_applications'>) => OperationCall<'list_tld_applications'>;
         /**
-         * Every recorded status or contention change of the round, newest first.
+         * Every status or contention change of the round, newest first.
          *
          * @example
          * for await (const row of ud.tlds.applicationChanges()) console.log(row);
@@ -493,7 +493,7 @@ export type NamespacedClient = {
          */
         registrarChanges: (registrar: PathParamsOf<'list_registrar_changes'>['registrar'], options?: CallOptions<'list_registrar_changes'>) => OperationCall<'list_registrar_changes'>;
         /**
-         * Names tracked under the registrar on the latest footprint day, rounded, with its top endings.
+         * Names tracked under the registrar, rounded, with its top endings.
          *
          * Needs a key.
          *
@@ -555,7 +555,7 @@ export type NamespacedClient = {
          */
         venue: (id: PathParamsOf<'get_venue'>['id'], options?: CallOptions<'get_venue'>) => OperationCall<'get_venue'>;
         /**
-         * The IANA registrar list as the registry sync stores it, by id.
+         * The IANA registrar list, by IANA id.
          *
          * @example
          * for await (const row of ud.prices.ianaRegistrars()) console.log(row);
@@ -652,7 +652,7 @@ export type NamespacedClient = {
          */
         list: (options?: CallOptions<'list_trends'>) => OperationCall<'list_trends'>;
         /**
-         * One trend: its latest row, its head words, its figures at every edition and its latest observations.
+         * One trend: its latest row, its head words, its figures at every edition and its observations.
          *
          * @example
          * const answer = await ud.trends.get('padel');
@@ -724,7 +724,7 @@ export type NamespacedClient = {
          * One dated published edition of one page.
          *
          * @example
-         * const answer = await ud.editions.get('founder', '2026-11-02');
+         * const answer = await ud.editions.get('founder', '2026-11-10');
          */
         get: (persona: PathParamsOf<'get_edition'>['persona'], date: PathParamsOf<'get_edition'>['date'], options?: CallOptions<'get_edition'>) => OperationCall<'get_edition'>;
     };
@@ -737,14 +737,14 @@ export type NamespacedClient = {
          */
         tlds: (options?: CallOptions<'get_meta_tlds'>) => OperationCall<'get_meta_tlds'>;
         /**
-         * Every enum the payloads use, read from the code catalogs.
+         * Every enum the payloads use.
          *
          * @example
          * const answer = await ud.meta.enums();
          */
         enums: (options?: CallOptions<'get_meta_enums'>) => OperationCall<'get_meta_enums'>;
         /**
-         * How current the scanner's passes are: the day's counts and each lane's state.
+         * The day's counts and the state of each part of the data.
          *
          * @example
          * const answer = await ud.meta.freshness();
@@ -795,7 +795,7 @@ export type NamespacedClient = {
          */
         llmsTxt: (options?: CallOptions<'get_llms_txt'>) => OperationCall<'get_llms_txt'>;
         /**
-         * Liveness, with no database read.
+         * Liveness: `ok` with the server time.
          *
          * @example
          * const answer = await ud.meta.health();

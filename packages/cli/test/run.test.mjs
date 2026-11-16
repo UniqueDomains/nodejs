@@ -292,7 +292,7 @@ describe('ud: help, version, openapi', () => {
     it('lists commands by API with summaries', async () => {
         const { code, stdout } = await ud(['--help']);
         assert.equal(code, 0);
-        assert.match(stdout, /Domain Check API\n\s+get-name <name>\s+The stored answer for one domain name/);
+        assert.match(stdout, /Domain Check API\n\s+get-name <name>\s+The answer for one domain name/);
         assert.match(stdout, /whoami/);
     });
 

@@ -68,6 +68,21 @@ export const checks = async (etag: string | null, format: 'json' | 'csv'): Promi
     // @ts-expect-error get_llms_txt declares no fields
     await ud.request('get_llms_txt', { fields: ['x'] });
 
+    // A word's endings name the endings it is available on and for sale on; both are null for a word with no count yet.
+    const endings = await ud.request('get_word_endings', { path: { word: 'harbor' } });
+    const availableOn: string[] | null = endings.data.availableOn;
+    const forSaleOn: string[] | null = endings.data.forSaleOn;
+    // @ts-expect-error the list may be null and must be narrowed
+    void endings.data.availableOn.length;
+    // @ts-expect-error the counts may be null and must be narrowed
+    void endings.data.byGroup.scanned;
+    void [availableOn, forSaleOn];
+
+    // The tracked auction counts keep their keys.
+    const auctions = await ud.request('get_market_auctions');
+    const tracked: [number, number, number] = [auctions.data.counts.today, auctions.data.counts.results, auctions.data.counts.all];
+    void tracked;
+
     // An id known only at run time goes through requestOperation (review R1-2).
     const id: OperationId = 'list_tlds';
     const any = await ud.requestOperation(id, { query: { limit: 3 } });
