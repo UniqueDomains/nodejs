@@ -67,8 +67,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The stored answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.",
-        description: "Read from the stored lookup rows, never live (`POST /names/{name}/check` is the live path). Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict and the value facts. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        summary: "The answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.",
+        description: "`POST /names/{name}/check` runs a live check of the name. Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict, the value facts, the word's meaning-abroad flag and what the name is. A name outside the catalog answers 200 with `tracked: false` and empty facts, never 404. Its status is `not_checked`, which also covers a taken name the catalog does not track: it never means the name is free.",
         parameters: [
             {
                 name: "name",
@@ -76,14 +76,14 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps."
+                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps."
             }
         ],
         body: null,
@@ -100,14 +100,14 @@ export const OPERATIONS = {
         plan: "investor",
         metered: null,
         summary: "The keyed name resource for up to 100 names in one call.",
-        description: "One entry per name, in the request's order: the keyed `GET /names/{name}` resource, `{ name, tracked: false }` for a name the catalog never stored, or `{ name, error: \"validation_failed\" }` for an entry that is not a name. No live read. Billed one request per name sent, refused entries included.",
+        description: "One entry per name, in the request's order: the keyed `GET /names/{name}` resource, `{ name, tracked: false }` for a name outside the catalog, or `{ name, error: \"validation_failed\" }` for an entry that is not a name. Billed one request per name sent, refused entries included.",
         parameters: [
             {
                 name: "fields",
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, error."
+                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, error."
             }
         ],
         body: {
@@ -136,8 +136,8 @@ export const OPERATIONS = {
         tier: "keyed",
         plan: null,
         metered: "Live",
-        summary: "Reads one name live from its registry and a registrar, stores the answer and returns the keyed name resource.",
-        description: "Billed `Live=1` when the live read answered (200, `checked: true`) or when the registry was asked and did not conclude (202); `Live=0` when the answer came from storage (200, `checked: false`). Asking `value` or `history` answers 202 with the stored resource so far, `Retry-After: 30` and `Location`; the check never runs the appraisal (`POST /names/{name}/appraise` does). 2,000 live checks a UTC day for the whole API, 200 per consumer.",
+        summary: "Runs a live check of one name and returns the keyed name resource.",
+        description: "Billed `Live=1` when the live check answered (200, `checked: true`) or ran and did not conclude (202); `Live=0` when no live check ran (200, `checked: false`). Asking `value` or `history` answers 202 with the resource so far, `Retry-After: 30` and `Location`; the check never runs the appraisal (`POST /names/{name}/appraise` does). 2,000 live checks a UTC day for the whole API, 200 per consumer.",
         parameters: [
             {
                 name: "name",
@@ -145,19 +145,19 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, checked."
+                description: "Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, checked."
             }
         ],
         body: {
             required: true,
-            description: "Optional: the lanes to read. `prices` asks every registrar, `registry` forces the registry record. Default `[\"availability\",\"registry\",\"dns\",\"prices\"]`.",
+            description: "Optional: the blocks to check. `prices` checks the price at every registrar, not one (their list is `GET /names/{name}/prices`); `registry` checks the registry record too. Default `[\"availability\",\"registry\",\"dns\",\"prices\"]`.",
             properties: [
                 {
                     name: "blocks",
@@ -189,8 +189,8 @@ export const OPERATIONS = {
         tier: "keyed",
         plan: null,
         metered: null,
-        summary: "Every stored registrar quote for one name, and the renewal-trap flag.",
-        description: "Cheapest first year first. The quote list stays out of the free tier; the free price facts are the `price` block of `GET /names/{name}`. A name the catalog never stored answers `quotes: []`.",
+        summary: "Every registrar quote for one name, and the renewal-trap flag.",
+        description: "Cheapest first year first. The quote list stays out of the free tier; the free price facts are the `price` block of `GET /names/{name}`. A name outside the catalog answers `quotes: []`.",
         parameters: [
             {
                 name: "name",
@@ -198,7 +198,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -221,8 +221,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The latest stored registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder.",
-        description: "The record's observation time is its UTC day on free (`observedOn`) and its exact time on keyed (`observedAt`). `transport` says whether RDAP or WHOIS answered. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        summary: "The registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder.",
+        description: "`transport` names the record's format, `rdap` or `whois`. A name outside the catalog answers 200 with `read: false` and empty facts, never 404.",
         parameters: [
             {
                 name: "name",
@@ -230,7 +230,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -253,8 +253,8 @@ export const OPERATIONS = {
         tier: "keyed",
         plan: "investor",
         metered: null,
-        summary: "The stored registry record versions of one name and what moved between them.",
-        description: "Versions and registrar moves oldest first, the distinct transfers the records name, and the lock removals of the last 90 days. A name the catalog never stored answers empty lists.",
+        summary: "The past versions of one name's registry record and what moved between them.",
+        description: "Versions and registrar moves oldest first, the distinct transfers the records name, and the lock removals of the last 90 days. A name outside the catalog answers empty lists.",
         parameters: [
             {
                 name: "name",
@@ -262,7 +262,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -285,8 +285,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The latest stored DNS reading of one name, with its parking venue.",
-        description: "NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the reading points at. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        summary: "The DNS records of one name, with its parking venue.",
+        description: "NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the records point at. A name outside the catalog answers 200 with `read: false` and empty facts, never 404.",
         parameters: [
             {
                 name: "name",
@@ -294,7 +294,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -318,7 +318,7 @@ export const OPERATIONS = {
         plan: "investor",
         metered: null,
         summary: "The change events of one name, newest first.",
-        description: "Price, status, expiry, lifecycle, registrar, transfer, lock, renewal, nameserver, parking and auction events, kept 90 days. `before` and `after` carry the allowlisted values of each type only. A name the catalog never stored answers an empty list.",
+        description: "Price, status, expiry, lifecycle, registrar, transfer, lock, renewal, nameserver, parking and auction events of the last 90 days. `before` and `after` carry the allowlisted values of each type only. A name outside the catalog answers an empty list.",
         parameters: [
             {
                 name: "name",
@@ -326,7 +326,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "types",
@@ -375,7 +375,7 @@ export const OPERATIONS = {
         plan: "investor",
         metered: null,
         summary: "The web history of one name as our bands: archive captures, authority band and language.",
-        description: "Every field is null when the name has no history row.",
+        description: "Every field is null when the name has no history record yet.",
         parameters: [
             {
                 name: "name",
@@ -383,7 +383,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -406,8 +406,8 @@ export const OPERATIONS = {
         tier: "keyed",
         plan: null,
         metered: null,
-        summary: "The stored value estimate of one name and its last 20 estimates.",
-        description: "`current` is null when no estimate of the current model is stored. Never runs the appraisal: `POST /names/{name}/appraise` does.",
+        summary: "The value estimate of one name and its last 20 estimates.",
+        description: "`current` is null when the name has no current estimate. Never runs the appraisal: `POST /names/{name}/appraise` does.",
         parameters: [
             {
                 name: "name",
@@ -415,7 +415,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -438,8 +438,8 @@ export const OPERATIONS = {
         tier: "keyed",
         plan: "investor",
         metered: "Appraisal",
-        summary: "Runs the appraisal of one stored name when its estimate is missing, and returns the value resource.",
-        description: "A fresh estimate answers 200 with `Appraisal=0` and no run. A run this call started answers 200 with `Appraisal=1`; a run another call holds answers 202 with `Retry-After: 30` and `Appraisal=0`, and a run another call finished meanwhile 200 with `Appraisal=0`. The name must be stored: run `POST /names/{name}/check` first. 5,000 runs a UTC day for the whole API.",
+        summary: "Runs the appraisal of one catalog name when its estimate is missing, and returns the value resource.",
+        description: "A fresh estimate answers 200 with `Appraisal=0` and no run. A run this call started answers 200 with `Appraisal=1`; a run another call holds answers 202 with `Retry-After: 30` and `Appraisal=0`, and a run another call finished meanwhile 200 with `Appraisal=0`. The name must be in the catalog (`tracked: true`): for a name outside it, run `POST /names/{name}/check` first. 5,000 runs a UTC day for the whole API.",
         parameters: [
             {
                 name: "name",
@@ -447,7 +447,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -470,8 +470,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The similar-sales aggregate of one name and the endings its word sold on.",
-        description: "Aggregates only: the tier of the sales behind the figure, their count and median, and the endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.",
+        summary: "The similar-sales aggregate of one name and how many endings its word sold on.",
+        description: "Aggregates only: the tier of the sales behind the figure, their count and median, and how many endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name outside the catalog answers 200 with `tier: null` and a count of 0, never 404.",
         parameters: [
             {
                 name: "name",
@@ -479,7 +479,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -511,7 +511,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 example: "get.plumbing",
-                description: "A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
+                description: "A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`."
             },
             {
                 name: "fields",
@@ -598,7 +598,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics, found."
+                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics, found."
             }
         ],
         body: {
@@ -628,7 +628,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Searches the catalog's words by text and facets, alphabetically.",
-        description: "Enabled words only, every word with a deny class left out. Alphabetical order only, keyset-paged by `(word, id)`. Popularity and sentiment are numeric ranges on the stored 0 to 100 scale.",
+        description: "Enabled words only, every word with a deny class left out. Alphabetical order only, keyset-paged by `(word, id)`. Popularity and sentiment are numeric ranges on the 0 to 100 scale.",
         parameters: [
             {
                 name: "q",
@@ -649,7 +649,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "A part-of-speech tag as stored (`noun`, `verb`, `adjective`, ...)."
+                description: "A part-of-speech tag (`noun`, `verb`, `adjective`, ...)."
             },
             {
                 name: "shape",
@@ -802,7 +802,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "A word's profile: definition, facets, categories, origin and linguistics.",
-        description: "Reads the catalog `Word` row and its categories. A word unknown, disabled, offensive or not a word answers 404 with up to five candidates.",
+        description: "The word's profile and its categories. A word unknown, disabled, offensive or not a word answers 404 with up to five candidates.",
         parameters: [
             {
                 name: "word",
@@ -817,7 +817,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics."
+                description: "Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics."
             }
         ],
         body: null,
@@ -833,8 +833,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "A word's endings as the nightly update holds them: counts, the key endings and open names per ending.",
-        description: "Reads the `WordEndings` row. A word with no row yet answers zero counts. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.",
+        summary: "A word's endings: counts, the key endings, and the endings the word is available on and for sale on.",
+        description: "A word with no count yet answers `byGroup`, `openByEnding`, `availableOn` and `forSaleOn` null; zeros and empty lists are real. `availableOn` names the endings where the word is unregistered at the standard price. `forSaleOn` names the endings where it can be bought another way: at a premium price, from a resale listing, or as a name that is expiring or expired. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.",
         parameters: [
             {
                 name: "word",
@@ -849,7 +849,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "string",
-                description: "Comma-separated top-level keys to keep: byGroup, keyEndings, openByEnding, cheapest."
+                description: "Comma-separated top-level keys to keep: byGroup, keyEndings, openByEnding, availableOn, forSaleOn, cheapest."
             },
             {
                 name: "include",
@@ -873,7 +873,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "A word's catalog names on the endings that sell, by name.",
-        description: "Catalog rows only (never a name a live check created), on the endings with a market, name order, keyset-paged by `(name, id)`.",
+        description: "Every name of the word the catalog lists on the endings with a market, taken names included, in name order, keyset-paged by `(name, id)`.",
         parameters: [
             {
                 name: "word",
@@ -975,8 +975,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: "investor",
         metered: null,
-        summary: "A word's Wikipedia and Wikidata facts.",
-        description: "The article title after redirects, its backlinks (capped at 500), its languages, the Wikidata id and description. 404 when no read exists yet.",
+        summary: "A word's Wikipedia page and Wikidata entry: title, backlinks, languages and description.",
+        description: "The article title after redirects, its backlinks (capped at 500), its languages, the Wikidata id and description. A word with no Wikipedia page answers 200 with null fields; 404 when the word has no notability facts yet.",
         parameters: [
             {
                 name: "word",
@@ -1007,7 +1007,7 @@ export const OPERATIONS = {
         tier: "free",
         plan: "investor",
         metered: null,
-        summary: "A word's sales and auction aggregates from the nightly update.",
+        summary: "A word's sales and auction aggregates.",
         description: "Usable sales of the word itself over 12 months and 30 days, the median from three sales, the count of endings it sold on and its open auctions per ending. Aggregates only.",
         parameters: [
             {
@@ -1082,7 +1082,7 @@ export const OPERATIONS = {
         plan: "investor",
         metered: null,
         summary: "How well the word fits each ending whose keywords list it.",
-        description: "The stored pair fit of the word on each ending (`basis: rated`), else 50 (`basis: default`), in the keyword's rank on the ending. `tld` asks one ending.",
+        description: "The pair fit of the word on each ending (`basis: rated`), else 50 (`basis: default`), in the keyword's rank on the ending. `tld` asks one ending.",
         parameters: [
             {
                 name: "word",
@@ -1157,7 +1157,7 @@ export const OPERATIONS = {
         plan: "investor",
         metered: null,
         summary: "The state of a word request: queued, ready with its catalog word, refused or failed.",
-        description: "Reads the request by its id. `queued` while the intake has not finished; `ready` names the catalog word and whether its first scan of every ending ran; `rejected` the reason code. Not metered.",
+        description: "Reads the request by its id. `queued` while the intake has not finished; `ready` names the catalog word and whether every ending of the word has its first status yet; `rejected` the reason code. Not metered.",
         parameters: [
             {
                 name: "requestId",
@@ -1190,7 +1190,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "One-word catalog names under filters.",
-        description: "Free: at most 20 rows in the engine's neutral order (the cached public list, or the daily shuffle under filters), one page. Keyed: pages of up to 100 in a neutral column order with `sort`, else in the engine's own order, with the estimate, Est. profit, liquidity and verdict on each row.",
+        description: "Free: at most 20 rows in the engine's neutral order (the website's `/domains` list, or the daily shuffle under filters), one page. Keyed: pages of up to 100 in a neutral column order with `sort`, else in the engine's own order, with the estimate, Est. profit, liquidity and verdict on each row.",
         parameters: [
             {
                 name: "ending",
@@ -1344,8 +1344,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "One catalog name, by name or id.",
-        description: "The stored name read of `GET /names/{name}` for a name the catalog tracks; a name outside the catalog, a hidden word or, on the free tier, a proper noun answers 404.",
+        summary: "One name the catalog lists, by name or id.",
+        description: "The name answer of `GET /names/{name}` for a name the catalog lists, whatever its status: a taken name answers 200. A name the catalog does not list, even one `GET /names/{name}` answers with `tracked: true`, a hidden word or, on the free tier, a proper noun answers 404.",
         parameters: [
             {
                 name: "nameOrId",
@@ -1707,8 +1707,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "Catalog headline totals for the latest day.",
-        description: "The tracked names by status, the words and the endings covered, from the nightly update.",
+        summary: "Catalog headline totals.",
+        description: "The tracked names by status, the words and the endings covered.",
         parameters: [
             {
                 name: "fields",
@@ -1879,7 +1879,7 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The ending's latest market figures, and with history its last daily rows.",
+        summary: "The ending's market figures, and with history its daily rows.",
         description: "Free for a public-set TLD (the website page carries these aggregates), keyed outside it. Scored rows only.",
         parameters: [
             {
@@ -1921,7 +1921,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Every dated launch phase of the ending, chronological.",
-        description: "From `TldLaunchPhase`, ordered by first day then phase. A known ending with no phase answers `[]`.",
+        description: "Ordered by first day then phase. A known ending with no phase answers `[]`.",
         parameters: [
             {
                 name: "tld",
@@ -1953,7 +1953,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The ending's public registry changes, newest first.",
-        description: "Delegations, removals, contract terminations and phase changes from `TldChange`, keyset on `(seenAt, id)`.",
+        description: "Delegations, removals, contract terminations and phase changes, keyset on `(seenAt, id)`.",
         parameters: [
             {
                 name: "tld",
@@ -2002,7 +2002,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The keywords the catalog attaches to the ending, by type.",
-        description: "From `TldKeyword`, ordered by type then the catalog's position; a word with a deny class is left out.",
+        description: "Ordered by type then the catalog's position; a word with a deny class is left out.",
         parameters: [
             {
                 name: "tld",
@@ -2049,7 +2049,7 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The 2026 new gTLD round as ICANN publishes it, A to Z, with two simple bands.",
+        summary: "ICANN's 2026 new gTLD round, A to Z, with two simple bands.",
         description: "Keyset on `(string, applicationId)`. `sort`, `dir`, `page` and `view` are refused.",
         parameters: [
             {
@@ -2166,8 +2166,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "Every recorded status or contention change of the round, newest first.",
-        description: "From `TldApplicationChange`, keyset on `(seenAt, id)`.",
+        summary: "Every status or contention change of the round, newest first.",
+        description: "Keyset on `(seenAt, id)`.",
         parameters: [
             {
                 name: "kind",
@@ -2308,7 +2308,7 @@ export const OPERATIONS = {
                 in: "query",
                 required: false,
                 type: "boolean",
-                description: "`true`: the endings its last complete list no longer carries. Paid subscriptions only."
+                description: "`true`: the endings the registrar's price list no longer carries. Paid subscriptions only."
             },
             {
                 name: "limit",
@@ -2408,8 +2408,8 @@ export const OPERATIONS = {
         tier: "keyed",
         plan: null,
         metered: null,
-        summary: "Names tracked under the registrar on the latest footprint day, rounded, with its top endings.",
-        description: "From the scanner's footprint figures, keyed by IANA id; 404 for a registrar with no IANA id or no row.",
+        summary: "Names tracked under the registrar, rounded, with its top endings.",
+        description: "Keyed by IANA id; 404 for a registrar with no IANA id or no figures yet.",
         parameters: [
             {
                 name: "registrar",
@@ -2484,7 +2484,7 @@ export const OPERATIONS = {
         plan: "investor",
         metered: null,
         summary: "Change-only price rows of one ending, newest first.",
-        description: "From `TldPriceHistory`, keyset on `(firstSeenAt, id)`, optionally for one registrar.",
+        description: "Keyset on `(firstSeenAt, id)`, optionally for one registrar.",
         parameters: [
             {
                 name: "tld",
@@ -2753,7 +2753,7 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "The IANA registrar list as the registry sync stores it, by id.",
+        summary: "The IANA registrar list, by IANA id.",
         description: "Ascending IANA id, keyset on the id.",
         parameters: [
             {
@@ -2840,7 +2840,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The domain sales pulse as headline aggregates: windows, price bands and the sold-before count.",
-        description: "Usable sales over 7 days, 30 days and 12 months with their medians (from three sales) and the previous window of the same length, the price-band mix, and the size of the sold-before list. From the nightly sales update; 503 `not_ready` before the first one.",
+        description: "Usable sales over 7 days, 30 days and 12 months with their medians (from three sales) and the previous window of the same length, the price-band mix, and the size of the sold-before list. Updated daily; 503 `not_ready` until the first day's figures are ready.",
         parameters: [
             {
                 name: "fields",
@@ -2949,7 +2949,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Up to ten words whose sales moved over the last 30 days.",
-        description: "Words with three sales or more in 30 days against the 30 before, in the stored order, words with a deny class left out. Never the sold names.",
+        description: "Words with three sales or more in 30 days against the 30 before, the largest rise first, words with a deny class left out. Never the sold names.",
         parameters: [
             {
                 name: "fields",
@@ -3005,7 +3005,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Today's domain auctions by venue, ending and length, the next seven days and the tracked counts.",
-        description: "The scanner's daily auction statistics in a neutral order (venues in catalog order, endings of the public set in seed order, lengths ascending) and the counts of the names we track. Figures are null and lists empty before the first read of the day.",
+        description: "The day's auction statistics in a neutral order (venues in catalog order, endings of the public set in seed order, lengths ascending) and the counts of the names we track. Figures are null and lists empty until the first figures are ready.",
         parameters: [
             {
                 name: "fields",
@@ -3053,7 +3053,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The seven auction venues with their verified rules and today's counts.",
-        description: "Each venue's currency, listing kinds, close, payment and bidder rules and first-year rule per kind, each with the day it was verified, plus the venue's line of today's pulse. Catalog order.",
+        description: "Each venue's currency, listing kinds, close, payment and bidder rules and first-year rule per kind, plus the venue's line of today's pulse. Catalog order.",
         parameters: [
             {
                 name: "fields",
@@ -3213,8 +3213,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "One trend: its latest row, its head words, its figures at every edition and its latest observations.",
-        description: "The editions are one row per published edition that carried the trend, oldest first. The observations are the latest reading of each measurement, figures only; `TrendObservation` keeps no day series.",
+        summary: "One trend: its latest row, its head words, its figures at every edition and its observations.",
+        description: "The editions are one row per published edition that carried the trend, oldest first. The observations are the figures of each measurement, with no day series.",
         parameters: [
             {
                 name: "slug",
@@ -3246,7 +3246,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The trend categories, the `category` filter of `GET /trends`.",
-        description: "Every category in the stored display order, served whole.",
+        description: "Every category in display order, served whole.",
         parameters: [
             {
                 name: "fields",
@@ -3270,7 +3270,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "The admitted trend candidates the editions draw from, with their observations.",
-        description: "Each candidate's normalised phrase, definition, head and seed words, open names on the founder and investor endings and its latest observations, figures only. Keyset on `canonical`; 100 rows a page unless `limit` asks fewer.",
+        description: "Each candidate's normalised phrase, definition, head and seed words, open names on the founder and investor endings and its observations, figures only. Keyset on `canonical`; 100 rows a page unless `limit` asks fewer.",
         parameters: [
             {
                 name: "limit",
@@ -3607,7 +3607,7 @@ export const OPERATIONS = {
                 required: true,
                 type: "string",
                 format: "date",
-                example: "2026-11-02",
+                example: "2026-11-10",
                 description: "The edition day, UTC."
             },
             {
@@ -3631,8 +3631,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "Every enum the payloads use, read from the code catalogs.",
-        description: "Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services.",
+        summary: "Every enum the payloads use.",
+        description: "Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.",
         parameters: [
             {
                 name: "fields",
@@ -3655,8 +3655,8 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "How current the scanner's passes are: the day's counts and each lane's state.",
-        description: "Names scanned today and checked in the last 24 hours, and per scanner lane the names its current or last pass covered and whether it is running.",
+        summary: "The day's counts and the state of each part of the data.",
+        description: "Counts for today and for the last 24 hours, and for each part of the data the names covered and whether it is running.",
         parameters: [
             {
                 name: "fields",
@@ -3728,7 +3728,7 @@ export const OPERATIONS = {
         plan: null,
         metered: null,
         summary: "Registrar identities and the auction venue and parking service catalogs.",
-        description: "Registrars in catalog order with their IANA id and homepage, the seven auction venues and the parking services the scanner recognises.",
+        description: "Registrars in catalog order with their IANA id and homepage, the auction venues and the parking services the catalog knows. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.",
         parameters: [
             {
                 name: "fields",
@@ -3845,7 +3845,7 @@ export const OPERATIONS = {
         tier: "free",
         plan: null,
         metered: null,
-        summary: "Liveness, with no database read.",
+        summary: "Liveness: `ok` with the server time.",
         description: "Answers `ok` with the server time. Not counted against the free tier's per-address limits.",
         parameters: [
             {

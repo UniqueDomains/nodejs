@@ -10,8 +10,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The stored answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.
-         * @description Read from the stored lookup rows, never live (`POST /names/{name}/check` is the live path). Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict and the value facts. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.
+         * The answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales.
+         * @description `POST /names/{name}/check` runs a live check of the name. Free carries the website lookup's public contract: the rating as a band, no value, no checked time. Keyed adds the regular price behind a promotion, the exact rating, the verdict, the value facts, the word's meaning-abroad flag and what the name is. A name outside the catalog answers 200 with `tracked: false` and empty facts, never 404. Its status is `not_checked`, which also covers a taken name the catalog does not track: it never means the name is free.
          */
         get: operations["get_name"];
         put?: never;
@@ -33,7 +33,7 @@ export interface paths {
         put?: never;
         /**
          * The keyed name resource for up to 100 names in one call.
-         * @description One entry per name, in the request's order: the keyed `GET /names/{name}` resource, `{ name, tracked: false }` for a name the catalog never stored, or `{ name, error: "validation_failed" }` for an entry that is not a name. No live read. Billed one request per name sent, refused entries included.
+         * @description One entry per name, in the request's order: the keyed `GET /names/{name}` resource, `{ name, tracked: false }` for a name outside the catalog, or `{ name, error: "validation_failed" }` for an entry that is not a name. Billed one request per name sent, refused entries included.
          */
         post: operations["batch_names"];
         delete?: never;
@@ -52,8 +52,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Reads one name live from its registry and a registrar, stores the answer and returns the keyed name resource.
-         * @description Billed `Live=1` when the live read answered (200, `checked: true`) or when the registry was asked and did not conclude (202); `Live=0` when the answer came from storage (200, `checked: false`). Asking `value` or `history` answers 202 with the stored resource so far, `Retry-After: 30` and `Location`; the check never runs the appraisal (`POST /names/{name}/appraise` does). 2,000 live checks a UTC day for the whole API, 200 per consumer.
+         * Runs a live check of one name and returns the keyed name resource.
+         * @description Billed `Live=1` when the live check answered (200, `checked: true`) or ran and did not conclude (202); `Live=0` when no live check ran (200, `checked: false`). Asking `value` or `history` answers 202 with the resource so far, `Retry-After: 30` and `Location`; the check never runs the appraisal (`POST /names/{name}/appraise` does). 2,000 live checks a UTC day for the whole API, 200 per consumer.
          */
         post: operations["check_name"];
         delete?: never;
@@ -70,8 +70,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Every stored registrar quote for one name, and the renewal-trap flag.
-         * @description Cheapest first year first. The quote list stays out of the free tier; the free price facts are the `price` block of `GET /names/{name}`. A name the catalog never stored answers `quotes: []`.
+         * Every registrar quote for one name, and the renewal-trap flag.
+         * @description Cheapest first year first. The quote list stays out of the free tier; the free price facts are the `price` block of `GET /names/{name}`. A name outside the catalog answers `quotes: []`.
          */
         get: operations["get_name_prices"];
         put?: never;
@@ -90,8 +90,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The latest stored registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder.
-         * @description The record's observation time is its UTC day on free (`observedOn`) and its exact time on keyed (`observedAt`). `transport` says whether RDAP or WHOIS answered. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.
+         * The registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder.
+         * @description `transport` names the record's format, `rdap` or `whois`. A name outside the catalog answers 200 with `read: false` and empty facts, never 404.
          */
         get: operations["get_name_registry"];
         put?: never;
@@ -110,8 +110,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The stored registry record versions of one name and what moved between them.
-         * @description Versions and registrar moves oldest first, the distinct transfers the records name, and the lock removals of the last 90 days. A name the catalog never stored answers empty lists.
+         * The past versions of one name's registry record and what moved between them.
+         * @description Versions and registrar moves oldest first, the distinct transfers the records name, and the lock removals of the last 90 days. A name outside the catalog answers empty lists.
          */
         get: operations["get_name_registry_history"];
         put?: never;
@@ -130,8 +130,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The latest stored DNS reading of one name, with its parking venue.
-         * @description NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the reading points at. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.
+         * The DNS records of one name, with its parking venue.
+         * @description NS, A, AAAA, CNAME and MX records, whether a website answers, and the parking venue the records point at. A name outside the catalog answers 200 with `read: false` and empty facts, never 404.
          */
         get: operations["get_name_dns"];
         put?: never;
@@ -151,7 +151,7 @@ export interface paths {
         };
         /**
          * The change events of one name, newest first.
-         * @description Price, status, expiry, lifecycle, registrar, transfer, lock, renewal, nameserver, parking and auction events, kept 90 days. `before` and `after` carry the allowlisted values of each type only. A name the catalog never stored answers an empty list.
+         * @description Price, status, expiry, lifecycle, registrar, transfer, lock, renewal, nameserver, parking and auction events of the last 90 days. `before` and `after` carry the allowlisted values of each type only. A name outside the catalog answers an empty list.
          */
         get: operations["list_name_changes"];
         put?: never;
@@ -171,7 +171,7 @@ export interface paths {
         };
         /**
          * The web history of one name as our bands: archive captures, authority band and language.
-         * @description Every field is null when the name has no history row.
+         * @description Every field is null when the name has no history record yet.
          */
         get: operations["get_name_history"];
         put?: never;
@@ -190,8 +190,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The stored value estimate of one name and its last 20 estimates.
-         * @description `current` is null when no estimate of the current model is stored. Never runs the appraisal: `POST /names/{name}/appraise` does.
+         * The value estimate of one name and its last 20 estimates.
+         * @description `current` is null when the name has no current estimate. Never runs the appraisal: `POST /names/{name}/appraise` does.
          */
         get: operations["get_name_value"];
         put?: never;
@@ -212,8 +212,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Runs the appraisal of one stored name when its estimate is missing, and returns the value resource.
-         * @description A fresh estimate answers 200 with `Appraisal=0` and no run. A run this call started answers 200 with `Appraisal=1`; a run another call holds answers 202 with `Retry-After: 30` and `Appraisal=0`, and a run another call finished meanwhile 200 with `Appraisal=0`. The name must be stored: run `POST /names/{name}/check` first. 5,000 runs a UTC day for the whole API.
+         * Runs the appraisal of one catalog name when its estimate is missing, and returns the value resource.
+         * @description A fresh estimate answers 200 with `Appraisal=0` and no run. A run this call started answers 200 with `Appraisal=1`; a run another call holds answers 202 with `Retry-After: 30` and `Appraisal=0`, and a run another call finished meanwhile 200 with `Appraisal=0`. The name must be in the catalog (`tracked: true`): for a name outside it, run `POST /names/{name}/check` first. 5,000 runs a UTC day for the whole API.
          */
         post: operations["appraise_name"];
         delete?: never;
@@ -230,8 +230,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The similar-sales aggregate of one name and the endings its word sold on.
-         * @description Aggregates only: the tier of the sales behind the figure, their count and median, and the endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name the catalog never stored answers 200 with `tracked: false` and empty facts, never 404.
+         * The similar-sales aggregate of one name and how many endings its word sold on.
+         * @description Aggregates only: the tier of the sales behind the figure, their count and median, and how many endings the word sold on in 12 months. Keyed may read the `sold_before` tier (this exact name sold before); free never does. A name outside the catalog answers 200 with `tier: null` and a count of 0, never 404.
          */
         get: operations["get_name_comps"];
         put?: never;
@@ -331,7 +331,7 @@ export interface paths {
         };
         /**
          * Searches the catalog's words by text and facets, alphabetically.
-         * @description Enabled words only, every word with a deny class left out. Alphabetical order only, keyset-paged by `(word, id)`. Popularity and sentiment are numeric ranges on the stored 0 to 100 scale.
+         * @description Enabled words only, every word with a deny class left out. Alphabetical order only, keyset-paged by `(word, id)`. Popularity and sentiment are numeric ranges on the 0 to 100 scale.
          */
         get: operations["list_words"];
         put?: never;
@@ -351,7 +351,7 @@ export interface paths {
         };
         /**
          * A word's profile: definition, facets, categories, origin and linguistics.
-         * @description Reads the catalog `Word` row and its categories. A word unknown, disabled, offensive or not a word answers 404 with up to five candidates.
+         * @description The word's profile and its categories. A word unknown, disabled, offensive or not a word answers 404 with up to five candidates.
          */
         get: operations["get_word"];
         put?: never;
@@ -370,8 +370,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * A word's endings as the nightly update holds them: counts, the key endings and open names per ending.
-         * @description Reads the `WordEndings` row. A word with no row yet answers zero counts. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.
+         * A word's endings: counts, the key endings, and the endings the word is available on and for sale on.
+         * @description A word with no count yet answers `byGroup`, `openByEnding`, `availableOn` and `forSaleOn` null; zeros and empty lists are real. `availableOn` names the endings where the word is unregistered at the standard price. `forSaleOn` names the endings where it can be bought another way: at a premium price, from a resale listing, or as a name that is expiring or expired. The cheapest ending is a keyed include only: a name chosen by price never reaches the free tier.
          */
         get: operations["get_word_endings"];
         put?: never;
@@ -391,7 +391,7 @@ export interface paths {
         };
         /**
          * A word's catalog names on the endings that sell, by name.
-         * @description Catalog rows only (never a name a live check created), on the endings with a market, name order, keyset-paged by `(name, id)`.
+         * @description Every name of the word the catalog lists on the endings with a market, taken names included, in name order, keyset-paged by `(name, id)`.
          */
         get: operations["list_word_names"];
         put?: never;
@@ -430,8 +430,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * A word's Wikipedia and Wikidata facts.
-         * @description The article title after redirects, its backlinks (capped at 500), its languages, the Wikidata id and description. 404 when no read exists yet.
+         * A word's Wikipedia page and Wikidata entry: title, backlinks, languages and description.
+         * @description The article title after redirects, its backlinks (capped at 500), its languages, the Wikidata id and description. A word with no Wikipedia page answers 200 with null fields; 404 when the word has no notability facts yet.
          */
         get: operations["get_word_notability"];
         put?: never;
@@ -450,7 +450,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * A word's sales and auction aggregates from the nightly update.
+         * A word's sales and auction aggregates.
          * @description Usable sales of the word itself over 12 months and 30 days, the median from three sales, the count of endings it sold on and its open auctions per ending. Aggregates only.
          */
         get: operations["get_word_market"];
@@ -491,7 +491,7 @@ export interface paths {
         };
         /**
          * How well the word fits each ending whose keywords list it.
-         * @description The stored pair fit of the word on each ending (`basis: rated`), else 50 (`basis: default`), in the keyword's rank on the ending. `tld` asks one ending.
+         * @description The pair fit of the word on each ending (`basis: rated`), else 50 (`basis: default`), in the keyword's rank on the ending. `tld` asks one ending.
          */
         get: operations["list_word_fits"];
         put?: never;
@@ -531,7 +531,7 @@ export interface paths {
         };
         /**
          * The state of a word request: queued, ready with its catalog word, refused or failed.
-         * @description Reads the request by its id. `queued` while the intake has not finished; `ready` names the catalog word and whether its first scan of every ending ran; `rejected` the reason code. Not metered.
+         * @description Reads the request by its id. `queued` while the intake has not finished; `ready` names the catalog word and whether every ending of the word has its first status yet; `rejected` the reason code. Not metered.
          */
         get: operations["get_word_request"];
         put?: never;
@@ -551,7 +551,7 @@ export interface paths {
         };
         /**
          * One-word catalog names under filters.
-         * @description Free: at most 20 rows in the engine's neutral order (the cached public list, or the daily shuffle under filters), one page. Keyed: pages of up to 100 in a neutral column order with `sort`, else in the engine's own order, with the estimate, Est. profit, liquidity and verdict on each row.
+         * @description Free: at most 20 rows in the engine's neutral order (the website's `/domains` list, or the daily shuffle under filters), one page. Keyed: pages of up to 100 in a neutral column order with `sort`, else in the engine's own order, with the estimate, Est. profit, liquidity and verdict on each row.
          */
         get: operations["list_domains"];
         put?: never;
@@ -570,8 +570,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * One catalog name, by name or id.
-         * @description The stored name read of `GET /names/{name}` for a name the catalog tracks; a name outside the catalog, a hidden word or, on the free tier, a proper noun answers 404.
+         * One name the catalog lists, by name or id.
+         * @description The name answer of `GET /names/{name}` for a name the catalog lists, whatever its status: a taken name answers 200. A name the catalog does not list, even one `GET /names/{name}` answers with `tracked: true`, a hidden word or, on the free tier, a proper noun answers 404.
          */
         get: operations["get_domain"];
         put?: never;
@@ -670,8 +670,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Catalog headline totals for the latest day.
-         * @description The tracked names by status, the words and the endings covered, from the nightly update.
+         * Catalog headline totals.
+         * @description The tracked names by status, the words and the endings covered.
          */
         get: operations["get_catalog_stats"];
         put?: never;
@@ -750,7 +750,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The ending's latest market figures, and with history its last daily rows.
+         * The ending's market figures, and with history its daily rows.
          * @description Free for a public-set TLD (the website page carries these aggregates), keyed outside it. Scored rows only.
          */
         get: operations["get_tld_stats"];
@@ -771,7 +771,7 @@ export interface paths {
         };
         /**
          * Every dated launch phase of the ending, chronological.
-         * @description From `TldLaunchPhase`, ordered by first day then phase. A known ending with no phase answers `[]`.
+         * @description Ordered by first day then phase. A known ending with no phase answers `[]`.
          */
         get: operations["list_tld_phases"];
         put?: never;
@@ -791,7 +791,7 @@ export interface paths {
         };
         /**
          * The ending's public registry changes, newest first.
-         * @description Delegations, removals, contract terminations and phase changes from `TldChange`, keyset on `(seenAt, id)`.
+         * @description Delegations, removals, contract terminations and phase changes, keyset on `(seenAt, id)`.
          */
         get: operations["list_tld_changes"];
         put?: never;
@@ -811,7 +811,7 @@ export interface paths {
         };
         /**
          * The keywords the catalog attaches to the ending, by type.
-         * @description From `TldKeyword`, ordered by type then the catalog's position; a word with a deny class is left out.
+         * @description Ordered by type then the catalog's position; a word with a deny class is left out.
          */
         get: operations["list_tld_keywords"];
         put?: never;
@@ -830,7 +830,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The 2026 new gTLD round as ICANN publishes it, A to Z, with two simple bands.
+         * ICANN's 2026 new gTLD round, A to Z, with two simple bands.
          * @description Keyset on `(string, applicationId)`. `sort`, `dir`, `page` and `view` are refused.
          */
         get: operations["list_tld_applications"];
@@ -850,8 +850,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Every recorded status or contention change of the round, newest first.
-         * @description From `TldApplicationChange`, keyset on `(seenAt, id)`.
+         * Every status or contention change of the round, newest first.
+         * @description Keyset on `(seenAt, id)`.
          */
         get: operations["list_tld_application_changes"];
         put?: never;
@@ -950,8 +950,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Names tracked under the registrar on the latest footprint day, rounded, with its top endings.
-         * @description From the scanner's footprint figures, keyed by IANA id; 404 for a registrar with no IANA id or no row.
+         * Names tracked under the registrar, rounded, with its top endings.
+         * @description Keyed by IANA id; 404 for a registrar with no IANA id or no figures yet.
          */
         get: operations["get_registrar_footprint"];
         put?: never;
@@ -991,7 +991,7 @@ export interface paths {
         };
         /**
          * Change-only price rows of one ending, newest first.
-         * @description From `TldPriceHistory`, keyset on `(firstSeenAt, id)`, optionally for one registrar.
+         * @description Keyset on `(firstSeenAt, id)`, optionally for one registrar.
          */
         get: operations["list_tld_price_history"];
         put?: never;
@@ -1110,7 +1110,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * The IANA registrar list as the registry sync stores it, by id.
+         * The IANA registrar list, by IANA id.
          * @description Ascending IANA id, keyset on the id.
          */
         get: operations["list_iana_registrars"];
@@ -1151,7 +1151,7 @@ export interface paths {
         };
         /**
          * The domain sales pulse as headline aggregates: windows, price bands and the sold-before count.
-         * @description Usable sales over 7 days, 30 days and 12 months with their medians (from three sales) and the previous window of the same length, the price-band mix, and the size of the sold-before list. From the nightly sales update; 503 `not_ready` before the first one.
+         * @description Usable sales over 7 days, 30 days and 12 months with their medians (from three sales) and the previous window of the same length, the price-band mix, and the size of the sold-before list. Updated daily; 503 `not_ready` until the first day's figures are ready.
          */
         get: operations["get_market_sales"];
         put?: never;
@@ -1231,7 +1231,7 @@ export interface paths {
         };
         /**
          * Up to ten words whose sales moved over the last 30 days.
-         * @description Words with three sales or more in 30 days against the 30 before, in the stored order, words with a deny class left out. Never the sold names.
+         * @description Words with three sales or more in 30 days against the 30 before, the largest rise first, words with a deny class left out. Never the sold names.
          */
         get: operations["list_market_sales_movers"];
         put?: never;
@@ -1271,7 +1271,7 @@ export interface paths {
         };
         /**
          * Today's domain auctions by venue, ending and length, the next seven days and the tracked counts.
-         * @description The scanner's daily auction statistics in a neutral order (venues in catalog order, endings of the public set in seed order, lengths ascending) and the counts of the names we track. Figures are null and lists empty before the first read of the day.
+         * @description The day's auction statistics in a neutral order (venues in catalog order, endings of the public set in seed order, lengths ascending) and the counts of the names we track. Figures are null and lists empty until the first figures are ready.
          */
         get: operations["get_market_auctions"];
         put?: never;
@@ -1311,7 +1311,7 @@ export interface paths {
         };
         /**
          * The seven auction venues with their verified rules and today's counts.
-         * @description Each venue's currency, listing kinds, close, payment and bidder rules and first-year rule per kind, each with the day it was verified, plus the venue's line of today's pulse. Catalog order.
+         * @description Each venue's currency, listing kinds, close, payment and bidder rules and first-year rule per kind, plus the venue's line of today's pulse. Catalog order.
          */
         get: operations["list_market_auction_venues"];
         put?: never;
@@ -1370,8 +1370,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * One trend: its latest row, its head words, its figures at every edition and its latest observations.
-         * @description The editions are one row per published edition that carried the trend, oldest first. The observations are the latest reading of each measurement, figures only; `TrendObservation` keeps no day series.
+         * One trend: its latest row, its head words, its figures at every edition and its observations.
+         * @description The editions are one row per published edition that carried the trend, oldest first. The observations are the figures of each measurement, with no day series.
          */
         get: operations["get_trend"];
         put?: never;
@@ -1391,7 +1391,7 @@ export interface paths {
         };
         /**
          * The trend categories, the `category` filter of `GET /trends`.
-         * @description Every category in the stored display order, served whole.
+         * @description Every category in display order, served whole.
          */
         get: operations["list_trend_categories"];
         put?: never;
@@ -1411,7 +1411,7 @@ export interface paths {
         };
         /**
          * The admitted trend candidates the editions draw from, with their observations.
-         * @description Each candidate's normalised phrase, definition, head and seed words, open names on the founder and investor endings and its latest observations, figures only. Keyset on `canonical`; 100 rows a page unless `limit` asks fewer.
+         * @description Each candidate's normalised phrase, definition, head and seed words, open names on the founder and investor endings and its observations, figures only. Keyset on `canonical`; 100 rows a page unless `limit` asks fewer.
          */
         get: operations["list_trend_pool"];
         put?: never;
@@ -1570,8 +1570,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Every enum the payloads use, read from the code catalogs.
-         * @description Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services.
+         * Every enum the payloads use.
+         * @description Name statuses, registry lifecycles and EPP statuses, lookup states, word shapes and origins, TLD kinds, agenda and event categories, edition lanes, the change types and subjects, the auction venues and the parking services. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.
          */
         get: operations["get_meta_enums"];
         put?: never;
@@ -1590,8 +1590,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * How current the scanner's passes are: the day's counts and each lane's state.
-         * @description Names scanned today and checked in the last 24 hours, and per scanner lane the names its current or last pass covered and whether it is running.
+         * The day's counts and the state of each part of the data.
+         * @description Counts for today and for the last 24 hours, and for each part of the data the names covered and whether it is running.
          */
         get: operations["get_meta_freshness"];
         put?: never;
@@ -1651,7 +1651,7 @@ export interface paths {
         };
         /**
          * Registrar identities and the auction venue and parking service catalogs.
-         * @description Registrars in catalog order with their IANA id and homepage, the seven auction venues and the parking services the scanner recognises.
+         * @description Registrars in catalog order with their IANA id and homepage, the auction venues and the parking services the catalog knows. An auction answer carries its own venue id and label on each row, which may name a venue this list leaves out.
          */
         get: operations["get_meta_providers"];
         put?: never;
@@ -1730,7 +1730,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Liveness, with no database read.
+         * Liveness: `ok` with the server time.
          * @description Answers `ok` with the server time. Not counted against the free tier's per-address limits.
          */
         get: operations["get_health"];
@@ -1866,13 +1866,13 @@ export interface operations {
     get_name: {
         parameters: {
             query?: {
-                /** @description Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps. */
+                /** @description Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps. */
                 fields?: string;
             };
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -1881,7 +1881,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The stored answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales. */
+            /** @description The answer for one domain name: status, drop day, price today, registry facts, word facts and similar sales. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1890,18 +1890,18 @@ export interface operations {
                     /**
                      * @example {
                      *       "data": {
-                     *         "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                     *         "name": "lantern.io",
-                     *         "ending": "io",
+                     *         "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                     *         "name": "get.plumbing",
+                     *         "ending": "plumbing",
                      *         "tracked": true,
-                     *         "status": "parked",
+                     *         "status": "for_sale",
                      *         "lifecycle": "active",
                      *         "drop": {
                      *           "kind": "none"
                      *         },
                      *         "ownableNow": false,
                      *         "price": {
-                     *           "kind": null,
+                     *           "kind": "aftermarket",
                      *           "firstYear": null,
                      *           "registrar": null,
                      *           "renewal": null,
@@ -1910,33 +1910,33 @@ export interface operations {
                      *           "renewalTrap": false
                      *         },
                      *         "registry": {
-                     *           "createdAt": "2014-03-02T10:11:00.000Z",
-                     *           "updatedAt": "2026-02-11T08:00:00.000Z",
-                     *           "expiresAt": "2027-03-02T10:11:00.000Z",
-                     *           "registryUpdatedAt": null,
+                     *           "createdAt": "2020-06-03T08:30:53.000Z",
+                     *           "updatedAt": "2026-08-12T04:41:40.000Z",
+                     *           "expiresAt": "2027-06-03T08:30:53.000Z",
+                     *           "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                      *           "registrar": {
-                     *             "name": "Gandi SAS",
-                     *             "ianaId": 81,
-                     *             "url": "https://www.gandi.net"
+                     *             "name": "GoDaddy.com, LLC",
+                     *             "ianaId": 146,
+                     *             "url": null
                      *           }
                      *         },
-                     *         "parking": "sedo",
-                     *         "length": 7,
-                     *         "format": "oneWord",
+                     *         "parking": "afternic",
+                     *         "length": 3,
+                     *         "format": null,
                      *         "shape": "single",
                      *         "word": {
-                     *           "id": "wrd_48211",
-                     *           "word": "lantern",
-                     *           "slug": "lantern"
+                     *           "id": "wrd_23922",
+                     *           "word": "get",
+                     *           "slug": "get"
                      *         },
                      *         "rating": {
-                     *           "band": "strong"
+                     *           "band": "prime"
                      *         },
                      *         "comps": {
                      *           "tier": "same_word",
-                     *           "count": 7,
-                     *           "medianUsd": 2150,
-                     *           "endingsSoldOn": 4
+                     *           "count": 10,
+                     *           "medianUsd": 2677,
+                     *           "endingsSoldOn": 0
                      *         }
                      *       }
                      *     }
@@ -1947,9 +1947,12 @@ export interface operations {
                             id: string | null;
                             name: string;
                             ending: string;
-                            /** @description The catalog stores the name. */
+                            /** @description The name is in the catalog. */
                             tracked: boolean;
-                            /** @enum {string} */
+                            /**
+                             * @description Where the name stands for a buyer. A list row's status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`.
+                             * @enum {string}
+                             */
                             status: "free" | "free_premium" | "for_sale" | "at_auction" | "expiring" | "expired" | "redemption" | "pending_delete" | "parked" | "in_use" | "registered" | "not_checked" | "not_covered" | "not_a_name";
                             lifecycle?: string | null;
                             drop: {
@@ -1999,6 +2002,17 @@ export interface operations {
                                 word?: string;
                                 slug?: string | null;
                             } | null;
+                            /**
+                             * @description Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score.
+                             * @enum {string|null}
+                             */
+                            crossLanguageFlag?: "none" | "caution" | "avoid" | null;
+                            /** @description Keyed. What the name is; null when the name has no reading yet. */
+                            nameLabel?: {
+                                /** @enum {string} */
+                                type?: "dictionary_word" | "inflected_word" | "compound" | "phrase" | "blend" | "misspelling" | "acronym" | "coinage" | "personal_name" | "place_name" | "brand_like" | "numeric_or_junk";
+                                baseWords?: string[];
+                            } | null;
                             rating: {
                                 /** @enum {string|null} */
                                 band?: "prime" | "strong" | "niche" | "thin" | null;
@@ -2024,10 +2038,10 @@ export interface operations {
                                  * @description `sold_before` (this exact name sold before) on keyed answers only.
                                  * @enum {string|null}
                                  */
-                                tier: "same_word" | "synonyms" | "related" | "market" | null | "sold_before";
+                                tier: "same_word" | "synonyms" | "related" | "same_type" | "market" | null | "sold_before";
                                 count: number;
                                 medianUsd: number | null;
-                                /** @description Endings the word sold on in 12 months. */
+                                /** @description How many endings the word sold on in 12 months. */
                                 endingsSoldOn: number;
                             };
                         };
@@ -2056,7 +2070,7 @@ export interface operations {
     batch_names: {
         parameters: {
             query?: {
-                /** @description Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, error. */
+                /** @description Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, error. */
                 fields?: string;
             };
             header?: never;
@@ -2069,7 +2083,7 @@ export interface operations {
                 /**
                  * @example {
                  *       "names": [
-                 *         "lantern.io",
+                 *         "get.plumbing",
                  *         "zorbly.ai",
                  *         "foo@bar.com"
                  *       ]
@@ -2091,18 +2105,18 @@ export interface operations {
                      * @example {
                      *       "data": [
                      *         {
-                     *           "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                     *           "name": "lantern.io",
-                     *           "ending": "io",
+                     *           "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                     *           "name": "get.plumbing",
+                     *           "ending": "plumbing",
                      *           "tracked": true,
-                     *           "status": "parked",
+                     *           "status": "for_sale",
                      *           "lifecycle": "active",
                      *           "drop": {
                      *             "kind": "none"
                      *           },
                      *           "ownableNow": false,
                      *           "price": {
-                     *             "kind": null,
+                     *             "kind": "aftermarket",
                      *             "firstYear": null,
                      *             "registrar": null,
                      *             "renewal": null,
@@ -2112,34 +2126,34 @@ export interface operations {
                      *             "regularPrice": null
                      *           },
                      *           "registry": {
-                     *             "createdAt": "2014-03-02T10:11:00.000Z",
-                     *             "updatedAt": "2026-02-11T08:00:00.000Z",
-                     *             "expiresAt": "2027-03-02T10:11:00.000Z",
-                     *             "registryUpdatedAt": null,
+                     *             "createdAt": "2020-06-03T08:30:53.000Z",
+                     *             "updatedAt": "2026-08-12T04:41:40.000Z",
+                     *             "expiresAt": "2027-06-03T08:30:53.000Z",
+                     *             "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                      *             "registrar": {
-                     *               "name": "Gandi SAS",
-                     *               "ianaId": 81,
-                     *               "url": "https://www.gandi.net"
+                     *               "name": "GoDaddy.com, LLC",
+                     *               "ianaId": 146,
+                     *               "url": null
                      *             }
                      *           },
-                     *           "parking": "sedo",
-                     *           "length": 7,
-                     *           "format": "oneWord",
+                     *           "parking": "afternic",
+                     *           "length": 3,
+                     *           "format": null,
                      *           "shape": "single",
                      *           "word": {
-                     *             "id": "wrd_48211",
-                     *             "word": "lantern",
-                     *             "slug": "lantern"
+                     *             "id": "wrd_23922",
+                     *             "word": "get",
+                     *             "slug": "get"
                      *           },
                      *           "rating": {
-                     *             "band": "strong",
-                     *             "score": 68
+                     *             "band": "prime",
+                     *             "score": 84
                      *           },
                      *           "comps": {
                      *             "tier": "same_word",
-                     *             "count": 7,
-                     *             "medianUsd": 2150,
-                     *             "endingsSoldOn": 4
+                     *             "count": 10,
+                     *             "medianUsd": 2677,
+                     *             "endingsSoldOn": 0
                      *           },
                      *           "verdict": {
                      *             "rating": "good",
@@ -2168,9 +2182,12 @@ export interface operations {
                             id: string | null;
                             name: string;
                             ending: string;
-                            /** @description The catalog stores the name. */
+                            /** @description The name is in the catalog. */
                             tracked: boolean;
-                            /** @enum {string} */
+                            /**
+                             * @description Where the name stands for a buyer. A list row's status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`.
+                             * @enum {string}
+                             */
                             status: "free" | "free_premium" | "for_sale" | "at_auction" | "expiring" | "expired" | "redemption" | "pending_delete" | "parked" | "in_use" | "registered" | "not_checked" | "not_covered" | "not_a_name";
                             lifecycle?: string | null;
                             drop: {
@@ -2220,6 +2237,17 @@ export interface operations {
                                 word?: string;
                                 slug?: string | null;
                             } | null;
+                            /**
+                             * @description Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score.
+                             * @enum {string|null}
+                             */
+                            crossLanguageFlag?: "none" | "caution" | "avoid" | null;
+                            /** @description Keyed. What the name is; null when the name has no reading yet. */
+                            nameLabel?: {
+                                /** @enum {string} */
+                                type?: "dictionary_word" | "inflected_word" | "compound" | "phrase" | "blend" | "misspelling" | "acronym" | "coinage" | "personal_name" | "place_name" | "brand_like" | "numeric_or_junk";
+                                baseWords?: string[];
+                            } | null;
                             rating: {
                                 /** @enum {string|null} */
                                 band?: "prime" | "strong" | "niche" | "thin" | null;
@@ -2245,10 +2273,10 @@ export interface operations {
                                  * @description `sold_before` (this exact name sold before) on keyed answers only.
                                  * @enum {string|null}
                                  */
-                                tier: "same_word" | "synonyms" | "related" | "market" | null | "sold_before";
+                                tier: "same_word" | "synonyms" | "related" | "same_type" | "market" | null | "sold_before";
                                 count: number;
                                 medianUsd: number | null;
-                                /** @description Endings the word sold on in 12 months. */
+                                /** @description How many endings the word sold on in 12 months. */
                                 endingsSoldOn: number;
                             };
                         } | {
@@ -2278,20 +2306,20 @@ export interface operations {
     check_name: {
         parameters: {
             query?: {
-                /** @description Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, rating, verdict, value, comps, checked. */
+                /** @description Comma-separated top-level keys to keep: id, name, ending, tracked, status, lifecycle, drop, ownableNow, price, registry, parking, length, format, shape, word, crossLanguageFlag, nameLabel, rating, verdict, value, comps, checked. */
                 fields?: string;
             };
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
             };
             cookie?: never;
         };
-        /** @description Optional: the lanes to read. `prices` asks every registrar, `registry` forces the registry record. Default `["availability","registry","dns","prices"]`. */
+        /** @description Optional: the blocks to check. `prices` checks the price at every registrar, not one (their list is `GET /names/{name}/prices`); `registry` checks the registry record too. Default `["availability","registry","dns","prices"]`. */
         requestBody: {
             content: {
                 /**
@@ -2308,7 +2336,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Reads one name live from its registry and a registrar, stores the answer and returns the keyed name resource. */
+            /** @description Runs a live check of one name and returns the keyed name resource. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2317,18 +2345,18 @@ export interface operations {
                     /**
                      * @example {
                      *       "data": {
-                     *         "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                     *         "name": "lantern.io",
-                     *         "ending": "io",
+                     *         "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                     *         "name": "get.plumbing",
+                     *         "ending": "plumbing",
                      *         "tracked": true,
-                     *         "status": "parked",
+                     *         "status": "for_sale",
                      *         "lifecycle": "active",
                      *         "drop": {
                      *           "kind": "none"
                      *         },
                      *         "ownableNow": false,
                      *         "price": {
-                     *           "kind": null,
+                     *           "kind": "aftermarket",
                      *           "firstYear": null,
                      *           "registrar": null,
                      *           "renewal": null,
@@ -2338,34 +2366,34 @@ export interface operations {
                      *           "regularPrice": null
                      *         },
                      *         "registry": {
-                     *           "createdAt": "2014-03-02T10:11:00.000Z",
-                     *           "updatedAt": "2026-02-11T08:00:00.000Z",
-                     *           "expiresAt": "2027-03-02T10:11:00.000Z",
-                     *           "registryUpdatedAt": null,
+                     *           "createdAt": "2020-06-03T08:30:53.000Z",
+                     *           "updatedAt": "2026-08-12T04:41:40.000Z",
+                     *           "expiresAt": "2027-06-03T08:30:53.000Z",
+                     *           "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                      *           "registrar": {
-                     *             "name": "Gandi SAS",
-                     *             "ianaId": 81,
-                     *             "url": "https://www.gandi.net"
+                     *             "name": "GoDaddy.com, LLC",
+                     *             "ianaId": 146,
+                     *             "url": null
                      *           }
                      *         },
-                     *         "parking": "sedo",
-                     *         "length": 7,
-                     *         "format": "oneWord",
+                     *         "parking": "afternic",
+                     *         "length": 3,
+                     *         "format": null,
                      *         "shape": "single",
                      *         "word": {
-                     *           "id": "wrd_48211",
-                     *           "word": "lantern",
-                     *           "slug": "lantern"
+                     *           "id": "wrd_23922",
+                     *           "word": "get",
+                     *           "slug": "get"
                      *         },
                      *         "rating": {
-                     *           "band": "strong",
-                     *           "score": 68
+                     *           "band": "prime",
+                     *           "score": 84
                      *         },
                      *         "comps": {
                      *           "tier": "same_word",
-                     *           "count": 7,
-                     *           "medianUsd": 2150,
-                     *           "endingsSoldOn": 4
+                     *           "count": 10,
+                     *           "medianUsd": 2677,
+                     *           "endingsSoldOn": 0
                      *         },
                      *         "verdict": {
                      *           "rating": "good",
@@ -2386,9 +2414,12 @@ export interface operations {
                             id: string | null;
                             name: string;
                             ending: string;
-                            /** @description The catalog stores the name. */
+                            /** @description The name is in the catalog. */
                             tracked: boolean;
-                            /** @enum {string} */
+                            /**
+                             * @description Where the name stands for a buyer. A list row's status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`.
+                             * @enum {string}
+                             */
                             status: "free" | "free_premium" | "for_sale" | "at_auction" | "expiring" | "expired" | "redemption" | "pending_delete" | "parked" | "in_use" | "registered" | "not_checked" | "not_covered" | "not_a_name";
                             lifecycle?: string | null;
                             drop: {
@@ -2438,6 +2469,17 @@ export interface operations {
                                 word?: string;
                                 slug?: string | null;
                             } | null;
+                            /**
+                             * @description Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score.
+                             * @enum {string|null}
+                             */
+                            crossLanguageFlag?: "none" | "caution" | "avoid" | null;
+                            /** @description Keyed. What the name is; null when the name has no reading yet. */
+                            nameLabel?: {
+                                /** @enum {string} */
+                                type?: "dictionary_word" | "inflected_word" | "compound" | "phrase" | "blend" | "misspelling" | "acronym" | "coinage" | "personal_name" | "place_name" | "brand_like" | "numeric_or_junk";
+                                baseWords?: string[];
+                            } | null;
                             rating: {
                                 /** @enum {string|null} */
                                 band?: "prime" | "strong" | "niche" | "thin" | null;
@@ -2463,13 +2505,13 @@ export interface operations {
                                  * @description `sold_before` (this exact name sold before) on keyed answers only.
                                  * @enum {string|null}
                                  */
-                                tier: "same_word" | "synonyms" | "related" | "market" | null | "sold_before";
+                                tier: "same_word" | "synonyms" | "related" | "same_type" | "market" | null | "sold_before";
                                 count: number;
                                 medianUsd: number | null;
-                                /** @description Endings the word sold on in 12 months. */
+                                /** @description How many endings the word sold on in 12 months. */
                                 endingsSoldOn: number;
                             };
-                            /** @description The live read answered. */
+                            /** @description The live check answered. */
                             checked?: boolean;
                         };
                         meta: components["schemas"]["Meta"];
@@ -2486,18 +2528,18 @@ export interface operations {
                     /**
                      * @example {
                      *       "data": {
-                     *         "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                     *         "name": "lantern.io",
-                     *         "ending": "io",
+                     *         "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                     *         "name": "get.plumbing",
+                     *         "ending": "plumbing",
                      *         "tracked": true,
-                     *         "status": "parked",
+                     *         "status": "for_sale",
                      *         "lifecycle": "active",
                      *         "drop": {
                      *           "kind": "none"
                      *         },
                      *         "ownableNow": false,
                      *         "price": {
-                     *           "kind": null,
+                     *           "kind": "aftermarket",
                      *           "firstYear": null,
                      *           "registrar": null,
                      *           "renewal": null,
@@ -2507,34 +2549,34 @@ export interface operations {
                      *           "regularPrice": null
                      *         },
                      *         "registry": {
-                     *           "createdAt": "2014-03-02T10:11:00.000Z",
-                     *           "updatedAt": "2026-02-11T08:00:00.000Z",
-                     *           "expiresAt": "2027-03-02T10:11:00.000Z",
-                     *           "registryUpdatedAt": null,
+                     *           "createdAt": "2020-06-03T08:30:53.000Z",
+                     *           "updatedAt": "2026-08-12T04:41:40.000Z",
+                     *           "expiresAt": "2027-06-03T08:30:53.000Z",
+                     *           "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                      *           "registrar": {
-                     *             "name": "Gandi SAS",
-                     *             "ianaId": 81,
-                     *             "url": "https://www.gandi.net"
+                     *             "name": "GoDaddy.com, LLC",
+                     *             "ianaId": 146,
+                     *             "url": null
                      *           }
                      *         },
-                     *         "parking": "sedo",
-                     *         "length": 7,
-                     *         "format": "oneWord",
+                     *         "parking": "afternic",
+                     *         "length": 3,
+                     *         "format": null,
                      *         "shape": "single",
                      *         "word": {
-                     *           "id": "wrd_48211",
-                     *           "word": "lantern",
-                     *           "slug": "lantern"
+                     *           "id": "wrd_23922",
+                     *           "word": "get",
+                     *           "slug": "get"
                      *         },
                      *         "rating": {
-                     *           "band": "strong",
-                     *           "score": 68
+                     *           "band": "prime",
+                     *           "score": 84
                      *         },
                      *         "comps": {
                      *           "tier": "same_word",
-                     *           "count": 7,
-                     *           "medianUsd": 2150,
-                     *           "endingsSoldOn": 4
+                     *           "count": 10,
+                     *           "medianUsd": 2677,
+                     *           "endingsSoldOn": 0
                      *         },
                      *         "verdict": {
                      *           "rating": "good",
@@ -2555,9 +2597,12 @@ export interface operations {
                             id: string | null;
                             name: string;
                             ending: string;
-                            /** @description The catalog stores the name. */
+                            /** @description The name is in the catalog. */
                             tracked: boolean;
-                            /** @enum {string} */
+                            /**
+                             * @description Where the name stands for a buyer. A list row's status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`.
+                             * @enum {string}
+                             */
                             status: "free" | "free_premium" | "for_sale" | "at_auction" | "expiring" | "expired" | "redemption" | "pending_delete" | "parked" | "in_use" | "registered" | "not_checked" | "not_covered" | "not_a_name";
                             lifecycle?: string | null;
                             drop: {
@@ -2607,6 +2652,17 @@ export interface operations {
                                 word?: string;
                                 slug?: string | null;
                             } | null;
+                            /**
+                             * @description Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score.
+                             * @enum {string|null}
+                             */
+                            crossLanguageFlag?: "none" | "caution" | "avoid" | null;
+                            /** @description Keyed. What the name is; null when the name has no reading yet. */
+                            nameLabel?: {
+                                /** @enum {string} */
+                                type?: "dictionary_word" | "inflected_word" | "compound" | "phrase" | "blend" | "misspelling" | "acronym" | "coinage" | "personal_name" | "place_name" | "brand_like" | "numeric_or_junk";
+                                baseWords?: string[];
+                            } | null;
                             rating: {
                                 /** @enum {string|null} */
                                 band?: "prime" | "strong" | "niche" | "thin" | null;
@@ -2632,13 +2688,13 @@ export interface operations {
                                  * @description `sold_before` (this exact name sold before) on keyed answers only.
                                  * @enum {string|null}
                                  */
-                                tier: "same_word" | "synonyms" | "related" | "market" | null | "sold_before";
+                                tier: "same_word" | "synonyms" | "related" | "same_type" | "market" | null | "sold_before";
                                 count: number;
                                 medianUsd: number | null;
-                                /** @description Endings the word sold on in 12 months. */
+                                /** @description How many endings the word sold on in 12 months. */
                                 endingsSoldOn: number;
                             };
-                            /** @description The live read answered. */
+                            /** @description The live check answered. */
                             checked?: boolean;
                         };
                         meta: components["schemas"]["Meta"];
@@ -2665,7 +2721,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -2674,7 +2730,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Every stored registrar quote for one name, and the renewal-trap flag. */
+            /** @description Every registrar quote for one name, and the renewal-trap flag. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2745,7 +2801,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -2754,7 +2810,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The latest stored registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder. */
+            /** @description The registry record of one name: dates, registrar, status codes, nameservers, DNSSEC and holder. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2764,31 +2820,43 @@ export interface operations {
                      * @example {
                      *       "data": {
                      *         "read": true,
-                     *         "observedOn": "2026-11-04",
-                     *         "createdAt": "2014-03-02T10:11:00.000Z",
-                     *         "updatedAt": "2026-02-11T08:00:00.000Z",
-                     *         "expiresAt": "2027-03-02T10:11:00.000Z",
-                     *         "registryUpdatedAt": "2026-11-04T06:12:00.000Z",
+                     *         "observedOn": "2026-09-23",
+                     *         "createdAt": "2020-06-03T08:30:53.000Z",
+                     *         "updatedAt": "2026-08-12T04:41:40.000Z",
+                     *         "expiresAt": "2027-06-03T08:30:53.000Z",
+                     *         "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                      *         "registrar": {
-                     *           "name": "Gandi SAS",
-                     *           "ianaId": 81,
-                     *           "url": "https://www.gandi.net"
+                     *           "name": "GoDaddy.com, LLC",
+                     *           "ianaId": 146,
+                     *           "url": null
                      *         },
                      *         "eppStatuses": [
                      *           {
+                     *             "id": "clientDeleteProhibited",
+                     *             "raw": "clientDeleteProhibited"
+                     *           },
+                     *           {
+                     *             "id": "clientRenewProhibited",
+                     *             "raw": "clientRenewProhibited"
+                     *           },
+                     *           {
                      *             "id": "clientTransferProhibited",
-                     *             "raw": "client transfer prohibited"
+                     *             "raw": "clientTransferProhibited"
+                     *           },
+                     *           {
+                     *             "id": "clientUpdateProhibited",
+                     *             "raw": "clientUpdateProhibited"
                      *           }
                      *         ],
                      *         "nameservers": [
-                     *           "ns1.sedoparking.com",
-                     *           "ns2.sedoparking.com"
+                     *           "ns5.afternic.com",
+                     *           "ns6.afternic.com"
                      *         ],
                      *         "dnssec": false,
                      *         "holder": {
                      *           "holder": null,
-                     *           "redactedBy": "REDACTED FOR PRIVACY",
-                     *           "heldAtRegistrar": false
+                     *           "redactedBy": null,
+                     *           "heldAtRegistrar": true
                      *         },
                      *         "transport": "rdap"
                      *       }
@@ -2797,11 +2865,14 @@ export interface operations {
                     "application/json": {
                         data: {
                             read: boolean;
-                            /** Format: date */
+                            /**
+                             * Format: date
+                             * @description UTC day of the record; null with `read: false`.
+                             */
                             observedOn: string | null;
                             /**
                              * Format: date-time
-                             * @description Keyed.
+                             * @description Keyed. The record's exact time.
                              */
                             observedAt?: string | null;
                             /** Format: date-time */
@@ -2863,7 +2934,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -2872,7 +2943,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The stored registry record versions of one name and what moved between them. */
+            /** @description The past versions of one name's registry record and what moved between them. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2884,32 +2955,32 @@ export interface operations {
                      *         "versions": [
                      *           {
                      *             "observedAt": "2025-06-02T04:10:00.000Z",
-                     *             "registrar": "GoDaddy.com, LLC",
+                     *             "registrar": "Gandi SAS",
                      *             "registered": true
                      *           },
                      *           {
-                     *             "observedAt": "2026-02-11T08:02:00.000Z",
-                     *             "registrar": "Gandi SAS",
+                     *             "observedAt": "2026-08-12T05:02:00.000Z",
+                     *             "registrar": "GoDaddy.com, LLC",
                      *             "registered": true
                      *           }
                      *         ],
                      *         "moves": [
                      *           {
-                     *             "at": "2026-02-11T08:02:00.000Z",
-                     *             "from": "GoDaddy.com, LLC",
-                     *             "to": "Gandi SAS"
+                     *             "at": "2026-08-12T05:02:00.000Z",
+                     *             "from": "Gandi SAS",
+                     *             "to": "GoDaddy.com, LLC"
                      *           }
                      *         ],
                      *         "transfers": [
                      *           {
-                     *             "at": "2026-02-10T00:00:00.000Z",
-                     *             "from": "GoDaddy.com, LLC",
-                     *             "to": "Gandi SAS"
+                     *             "at": "2026-08-12T00:00:00.000Z",
+                     *             "from": "Gandi SAS",
+                     *             "to": "GoDaddy.com, LLC"
                      *           }
                      *         ],
                      *         "lockChanges": [
                      *           {
-                     *             "at": "2026-02-09T03:00:00.000Z",
+                     *             "at": "2026-08-10T03:00:00.000Z",
                      *             "kind": "lock_removed"
                      *           }
                      *         ]
@@ -2974,7 +3045,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -2983,7 +3054,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The latest stored DNS reading of one name, with its parking venue. */
+            /** @description The DNS records of one name, with its parking venue. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -2994,17 +3065,23 @@ export interface operations {
                      *       "data": {
                      *         "read": true,
                      *         "ns": [
-                     *           "ns1.atom.com",
-                     *           "ns2.atom.com"
+                     *           "ns6.afternic.com",
+                     *           "ns5.afternic.com"
                      *         ],
                      *         "a": [
-                     *           "52.20.84.62"
+                     *           "76.223.54.146",
+                     *           "13.248.169.48"
                      *         ],
                      *         "aaaa": [],
                      *         "cname": [],
-                     *         "mx": [],
-                     *         "hasWebsite": false,
-                     *         "parking": "atom"
+                     *         "mx": [
+                     *           {
+                     *             "exchange": "",
+                     *             "priority": 0
+                     *           }
+                     *         ],
+                     *         "hasWebsite": true,
+                     *         "parking": "afternic"
                      *       }
                      *     }
                      */
@@ -3062,7 +3139,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -3086,7 +3163,7 @@ export interface operations {
                      *           "observedAt": "2026-11-03T05:41:00.000Z",
                      *           "subject": {
                      *             "kind": "name",
-                     *             "key": "lantern.io"
+                     *             "key": "get.plumbing"
                      *           },
                      *           "before": {
                      *             "registrar": "Network Solutions, LLC",
@@ -3151,7 +3228,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -3218,7 +3295,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -3227,7 +3304,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The stored value estimate of one name and its last 20 estimates. */
+            /** @description The value estimate of one name and its last 20 estimates. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3293,7 +3370,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -3302,7 +3379,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Runs the appraisal of one stored name when its estimate is missing, and returns the value resource. */
+            /** @description Runs the appraisal of one catalog name when its estimate is missing, and returns the value resource. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3401,7 +3478,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -3410,7 +3487,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The similar-sales aggregate of one name and the endings its word sold on. */
+            /** @description The similar-sales aggregate of one name and how many endings its word sold on. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -3420,9 +3497,9 @@ export interface operations {
                      * @example {
                      *       "data": {
                      *         "tier": "same_word",
-                     *         "count": 7,
-                     *         "medianUsd": 2150,
-                     *         "endingsSoldOn": 4
+                     *         "count": 10,
+                     *         "medianUsd": 2677,
+                     *         "endingsSoldOn": 0
                      *       }
                      *     }
                      */
@@ -3432,10 +3509,10 @@ export interface operations {
                              * @description `sold_before` (this exact name sold before) on keyed answers only.
                              * @enum {string|null}
                              */
-                            tier: "same_word" | "synonyms" | "related" | "market" | null | "sold_before";
+                            tier: "same_word" | "synonyms" | "related" | "same_type" | "market" | null | "sold_before";
                             count: number;
                             medianUsd: number | null;
-                            /** @description Endings the word sold on in 12 months. */
+                            /** @description How many endings the word sold on in 12 months. */
                             endingsSoldOn: number;
                         };
                         meta: components["schemas"]["Meta"];
@@ -3469,7 +3546,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description A full domain name on an ending the catalog holds, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
+                 * @description A full domain name on an ending in the catalog, lowercased, IDN as punycode. A bare word, a subdomain, an e-mail address or an unknown ending answers 400 `validation_failed` with `reason` and `suggestion`.
                  * @example get.plumbing
                  */
                 name: string;
@@ -3676,7 +3753,7 @@ export interface operations {
     batch_words: {
         parameters: {
             query?: {
-                /** @description Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics, found. */
+                /** @description Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics, found. */
                 fields?: string;
             };
             header?: never;
@@ -3732,7 +3809,7 @@ export interface operations {
                             slug?: string | null;
                             /** @enum {string|null} */
                             shape?: "single" | "properNoun" | "acronym" | "twoWords" | "phrase" | null;
-                            /** @description Parts of speech as stored, comma-joined tags. */
+                            /** @description Parts of speech, comma-joined tags. */
                             pos?: string | null;
                             definition?: string | null;
                             inflected?: boolean | null;
@@ -3753,11 +3830,16 @@ export interface operations {
                              * @enum {string|null}
                              */
                             denyClass?: "brand" | "trademark" | "person" | "harm" | "vice" | "politics" | "controversy" | null;
+                            /**
+                             * @description What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the word has no reading yet. The flag alone, a fact and never a score.
+                             * @enum {string|null}
+                             */
+                            crossLanguageFlag?: "none" | "caution" | "avoid" | null;
                             /** @enum {string} */
                             origin: "dictionary" | "trend" | "api" | "review";
                             /**
                              * Format: date-time
-                             * @description When the intake added it; null means the dictionary load.
+                             * @description When the intake added it; null for a dictionary word.
                              */
                             addedAt?: string | null;
                             linguistics: {
@@ -3816,7 +3898,7 @@ export interface operations {
                 q?: string;
                 /** @description A substring of the word. */
                 contains?: string;
-                /** @description A part-of-speech tag as stored (`noun`, `verb`, `adjective`, ...). */
+                /** @description A part-of-speech tag (`noun`, `verb`, `adjective`, ...). */
                 pos?: string;
                 /** @description The entry's shape. */
                 shape?: "single" | "properNoun" | "acronym" | "twoWords" | "phrase";
@@ -3912,7 +3994,7 @@ export interface operations {
     get_word: {
         parameters: {
             query?: {
-                /** @description Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, origin, addedAt, linguistics. */
+                /** @description Comma-separated top-level keys to keep: id, word, slug, shape, pos, definition, inflected, size, popularity, sentiment, brandability, style, categories, denyClass, crossLanguageFlag, origin, addedAt, linguistics. */
                 fields?: string;
             };
             header?: never;
@@ -3955,6 +4037,7 @@ export interface operations {
                      *           }
                      *         ],
                      *         "denyClass": null,
+                     *         "crossLanguageFlag": "none",
                      *         "origin": "dictionary",
                      *         "addedAt": null,
                      *         "linguistics": {
@@ -3995,7 +4078,7 @@ export interface operations {
                             slug?: string | null;
                             /** @enum {string|null} */
                             shape?: "single" | "properNoun" | "acronym" | "twoWords" | "phrase" | null;
-                            /** @description Parts of speech as stored, comma-joined tags. */
+                            /** @description Parts of speech, comma-joined tags. */
                             pos?: string | null;
                             definition?: string | null;
                             inflected?: boolean | null;
@@ -4016,11 +4099,16 @@ export interface operations {
                              * @enum {string|null}
                              */
                             denyClass?: "brand" | "trademark" | "person" | "harm" | "vice" | "politics" | "controversy" | null;
+                            /**
+                             * @description What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the word has no reading yet. The flag alone, a fact and never a score.
+                             * @enum {string|null}
+                             */
+                            crossLanguageFlag?: "none" | "caution" | "avoid" | null;
                             /** @enum {string} */
                             origin: "dictionary" | "trend" | "api" | "review";
                             /**
                              * Format: date-time
-                             * @description When the intake added it; null means the dictionary load.
+                             * @description When the intake added it; null for a dictionary word.
                              */
                             addedAt?: string | null;
                             linguistics: {
@@ -4078,7 +4166,7 @@ export interface operations {
     get_word_endings: {
         parameters: {
             query?: {
-                /** @description Comma-separated top-level keys to keep: byGroup, keyEndings, openByEnding, cheapest. */
+                /** @description Comma-separated top-level keys to keep: byGroup, keyEndings, openByEnding, availableOn, forSaleOn, cheapest. */
                 fields?: string;
                 /** @description Comma-separated optional blocks: cheapest (paid). */
                 include?: string;
@@ -4095,7 +4183,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A word's endings as the nightly update holds them: counts, the key endings and open names per ending. */
+            /** @description A word's endings: counts, the key endings, and the endings the word is available on and for sale on. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4105,10 +4193,10 @@ export interface operations {
                      * @example {
                      *       "data": {
                      *         "byGroup": {
-                     *           "scanned": 96,
-                     *           "taken": 71,
-                     *           "available": 18,
-                     *           "forSale": 7
+                     *           "scanned": 5,
+                     *           "taken": 2,
+                     *           "available": 2,
+                     *           "forSale": 1
                      *         },
                      *         "keyEndings": [
                      *           {
@@ -4126,27 +4214,39 @@ export interface operations {
                      *           "io": 1,
                      *           "co": 1,
                      *           "studio": 1
-                     *         }
+                     *         },
+                     *         "availableOn": [
+                     *           "co",
+                     *           "io"
+                     *         ],
+                     *         "forSaleOn": [
+                     *           "studio"
+                     *         ]
                      *       }
                      *     }
                      */
                     "application/json": {
                         data: {
+                            /** @description Null for a word with no count yet; zeros are real. */
                             byGroup: {
                                 scanned?: number;
                                 taken?: number;
                                 available?: number;
                                 forSale?: number;
-                            };
+                            } | null;
                             keyEndings: {
                                 ending?: string;
                                 status?: string | null;
                                 price?: number | null;
                             }[];
-                            /** @description `{ ending: count }`. */
+                            /** @description `{ ending: count }`; null for a word with no count yet; zeros are real. */
                             openByEnding: {
                                 [key: string]: number;
-                            };
+                            } | null;
+                            /** @description `availableOn` names the endings where the word is unregistered at the standard price. */
+                            availableOn: string[] | null;
+                            /** @description `forSaleOn` names the endings where it can be bought another way: at a premium price, from a resale listing, or as a name that is expiring or expired. */
+                            forSaleOn: string[] | null;
                             /** @description Keyed `include=cheapest` only. */
                             cheapest?: {
                                 ending?: string | null;
@@ -4396,7 +4496,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A word's Wikipedia and Wikidata facts. */
+            /** @description A word's Wikipedia page and Wikidata entry: title, backlinks, languages and description. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4461,7 +4561,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description A word's sales and auction aggregates from the nightly update. */
+            /** @description A word's sales and auction aggregates. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4812,7 +4912,7 @@ export interface operations {
                                 slug?: string | null;
                             } | null;
                             /**
-                             * @description On `ready` with a word: whether the first scan of every ending ran.
+                             * @description On `ready` with a word: whether every ending of the word has its first status yet.
                              * @enum {string}
                              */
                             scan?: "pending" | "done";
@@ -4947,7 +5047,10 @@ export interface operations {
                             id: string;
                             name: string;
                             ending: string;
-                            /** @enum {string} */
+                            /**
+                             * @description The status of the row. One name's own answer groups it for a buyer: `resell` reads `for_sale` there (`at_auction` at a drop-catch venue), `premium` reads `free_premium`.
+                             * @enum {string}
+                             */
                             status: "available" | "premium" | "resell" | "expiring" | "expired" | "taken" | "dormant" | "sold" | "unknown";
                             /** @description Price today, USD. */
                             price: number | null;
@@ -5031,7 +5134,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description One catalog name, by name or id. */
+            /** @description One name the catalog lists, by name or id. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5040,18 +5143,18 @@ export interface operations {
                     /**
                      * @example {
                      *       "data": {
-                     *         "id": "dom_3f1c2a9e-8b7d-4e21-9a55-0c6f1d2e7b44",
-                     *         "name": "lantern.io",
-                     *         "ending": "io",
+                     *         "id": "dom_4efccac7-d9df-4c96-a076-3e0cc64220ec",
+                     *         "name": "get.plumbing",
+                     *         "ending": "plumbing",
                      *         "tracked": true,
-                     *         "status": "parked",
+                     *         "status": "for_sale",
                      *         "lifecycle": "active",
                      *         "drop": {
                      *           "kind": "none"
                      *         },
                      *         "ownableNow": false,
                      *         "price": {
-                     *           "kind": null,
+                     *           "kind": "aftermarket",
                      *           "firstYear": null,
                      *           "registrar": null,
                      *           "renewal": null,
@@ -5060,33 +5163,33 @@ export interface operations {
                      *           "renewalTrap": false
                      *         },
                      *         "registry": {
-                     *           "createdAt": "2014-03-02T10:11:00.000Z",
-                     *           "updatedAt": "2026-02-11T08:00:00.000Z",
-                     *           "expiresAt": "2027-03-02T10:11:00.000Z",
-                     *           "registryUpdatedAt": null,
+                     *           "createdAt": "2020-06-03T08:30:53.000Z",
+                     *           "updatedAt": "2026-08-12T04:41:40.000Z",
+                     *           "expiresAt": "2027-06-03T08:30:53.000Z",
+                     *           "registryUpdatedAt": "2026-10-22T13:39:28.000Z",
                      *           "registrar": {
-                     *             "name": "Gandi SAS",
-                     *             "ianaId": 81,
-                     *             "url": "https://www.gandi.net"
+                     *             "name": "GoDaddy.com, LLC",
+                     *             "ianaId": 146,
+                     *             "url": null
                      *           }
                      *         },
-                     *         "parking": "sedo",
-                     *         "length": 7,
-                     *         "format": "oneWord",
+                     *         "parking": "afternic",
+                     *         "length": 3,
+                     *         "format": null,
                      *         "shape": "single",
                      *         "word": {
-                     *           "id": "wrd_48211",
-                     *           "word": "lantern",
-                     *           "slug": "lantern"
+                     *           "id": "wrd_23922",
+                     *           "word": "get",
+                     *           "slug": "get"
                      *         },
                      *         "rating": {
-                     *           "band": "strong"
+                     *           "band": "prime"
                      *         },
                      *         "comps": {
                      *           "tier": "same_word",
-                     *           "count": 7,
-                     *           "medianUsd": 2150,
-                     *           "endingsSoldOn": 4
+                     *           "count": 10,
+                     *           "medianUsd": 2677,
+                     *           "endingsSoldOn": 0
                      *         }
                      *       }
                      *     }
@@ -5097,9 +5200,12 @@ export interface operations {
                             id: string | null;
                             name: string;
                             ending: string;
-                            /** @description The catalog stores the name. */
+                            /** @description The name is in the catalog. */
                             tracked: boolean;
-                            /** @enum {string} */
+                            /**
+                             * @description Where the name stands for a buyer. A list row's status reads here as: `resell` is `for_sale` (`at_auction` at a drop-catch venue), `premium` is `free_premium`.
+                             * @enum {string}
+                             */
                             status: "free" | "free_premium" | "for_sale" | "at_auction" | "expiring" | "expired" | "redemption" | "pending_delete" | "parked" | "in_use" | "registered" | "not_checked" | "not_covered" | "not_a_name";
                             lifecycle?: string | null;
                             drop: {
@@ -5149,6 +5255,17 @@ export interface operations {
                                 word?: string;
                                 slug?: string | null;
                             } | null;
+                            /**
+                             * @description Keyed. What the word means in other languages: `caution` a meaning worth reading first, `avoid` offensive or vulgar; null when the name has no catalog word or the word has no reading yet. The flag alone, a fact and never a score.
+                             * @enum {string|null}
+                             */
+                            crossLanguageFlag?: "none" | "caution" | "avoid" | null;
+                            /** @description Keyed. What the name is; null when the name has no reading yet. */
+                            nameLabel?: {
+                                /** @enum {string} */
+                                type?: "dictionary_word" | "inflected_word" | "compound" | "phrase" | "blend" | "misspelling" | "acronym" | "coinage" | "personal_name" | "place_name" | "brand_like" | "numeric_or_junk";
+                                baseWords?: string[];
+                            } | null;
                             rating: {
                                 /** @enum {string|null} */
                                 band?: "prime" | "strong" | "niche" | "thin" | null;
@@ -5174,10 +5291,10 @@ export interface operations {
                                  * @description `sold_before` (this exact name sold before) on keyed answers only.
                                  * @enum {string|null}
                                  */
-                                tier: "same_word" | "synonyms" | "related" | "market" | null | "sold_before";
+                                tier: "same_word" | "synonyms" | "related" | "same_type" | "market" | null | "sold_before";
                                 count: number;
                                 medianUsd: number | null;
-                                /** @description Endings the word sold on in 12 months. */
+                                /** @description How many endings the word sold on in 12 months. */
                                 endingsSoldOn: number;
                             };
                         };
@@ -5497,7 +5614,10 @@ export interface operations {
                             id: string;
                             name: string;
                             ending: string;
-                            /** @enum {string} */
+                            /**
+                             * @description The status of the row. One name's own answer groups it for a buyer: `resell` reads `for_sale` there (`at_auction` at a drop-catch venue), `premium` reads `free_premium`.
+                             * @enum {string}
+                             */
                             status: "available" | "premium" | "resell" | "expiring" | "expired" | "taken" | "dormant" | "sold" | "unknown";
                             /** @description Price today, USD. */
                             price: number | null;
@@ -5674,7 +5794,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Catalog headline totals for the latest day. */
+            /** @description Catalog headline totals. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -5700,7 +5820,10 @@ export interface operations {
                      */
                     "application/json": {
                         data: {
-                            /** Format: date */
+                            /**
+                             * Format: date
+                             * @description UTC day of the figures.
+                             */
                             day?: string;
                             domains?: {
                                 total?: number;
@@ -5833,7 +5956,7 @@ export interface operations {
                             rdapServer: string | null;
                             category: string | null;
                             phases: {
-                                /** @description `TldLaunchPhase.id`. */
+                                /** @description The phase's id. */
                                 id: string;
                                 /** @enum {unknown} */
                                 phase: "delegation" | "sunrise" | "limited_registration" | "qualified_launch" | "exclusive_registration" | "approved_launch" | "claims" | "general_availability" | "removal" | "contract_termination";
@@ -6018,7 +6141,7 @@ export interface operations {
                      *           {
                      *             "registrar": "namecheap",
                      *             "name": "Namecheap",
-                     *             "homepageUrl": "https://www.namecheap.com?utm_source=unique.domains",
+                     *             "homepageUrl": "https://www.namecheap.com",
                      *             "purchasePrice": 34.98,
                      *             "renewalPrice": 59.98,
                      *             "renewalTrap": false,
@@ -6053,7 +6176,7 @@ export interface operations {
                                 contractTerminated: boolean;
                             };
                             phases: {
-                                /** @description `TldLaunchPhase.id`. */
+                                /** @description The phase's id. */
                                 id: string;
                                 /** @enum {unknown} */
                                 phase: "delegation" | "sunrise" | "limited_registration" | "qualified_launch" | "exclusive_registration" | "approved_launch" | "claims" | "general_availability" | "removal" | "contract_termination";
@@ -6097,7 +6220,7 @@ export interface operations {
                                 } | null;
                             } | null;
                             /**
-                             * @description Simple band of the nightly public score; public-set TLDs only.
+                             * @description Simple band of the public score; public-set TLDs only.
                              * @enum {unknown}
                              */
                             quality?: "prime" | "strong" | "niche" | "thin";
@@ -6156,7 +6279,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The ending's latest market figures, and with history its last daily rows. */
+            /** @description The ending's market figures, and with history its daily rows. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6352,7 +6475,7 @@ export interface operations {
                      */
                     "application/json": {
                         data: {
-                            /** @description `TldLaunchPhase.id`. */
+                            /** @description The phase's id. */
                             id: string;
                             /** @enum {unknown} */
                             phase: "delegation" | "sunrise" | "limited_registration" | "qualified_launch" | "exclusive_registration" | "approved_launch" | "claims" | "general_availability" | "removal" | "contract_termination";
@@ -6435,7 +6558,7 @@ export interface operations {
                             after: Record<string, never> | null;
                             /**
                              * Format: date
-                             * @description UTC day the scanner saw the change.
+                             * @description UTC day the change was seen.
                              */
                             seenOn: string;
                         }[];
@@ -6559,7 +6682,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The 2026 new gTLD round as ICANN publishes it, A to Z, with two simple bands. */
+            /** @description ICANN's 2026 new gTLD round, A to Z, with two simple bands. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6596,7 +6719,7 @@ export interface operations {
                             /** @description Applied-for string, ASCII (A-label for IDNs), lowercased. */
                             string: string;
                             uLabel: string | null;
-                            /** @description Applicant as ICANN names it. */
+                            /** @description The applicant, in ICANN's wording. */
                             applicant: string;
                             applicantCountryCode: string | null;
                             type: string | null;
@@ -6656,7 +6779,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Every recorded status or contention change of the round, newest first. */
+            /** @description Every status or contention change of the round, newest first. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6686,7 +6809,7 @@ export interface operations {
                             after: string | null;
                             /**
                              * Format: date-time
-                             * @description Timestamp the import saw it.
+                             * @description When the change was seen.
                              */
                             seenAt: string;
                         }[];
@@ -6783,7 +6906,7 @@ export interface operations {
                                 /** @description Applied-for string, ASCII (A-label for IDNs), lowercased. */
                                 string: string;
                                 uLabel: string | null;
-                                /** @description Applicant as ICANN names it. */
+                                /** @description The applicant, in ICANN's wording. */
                                 applicant: string;
                                 applicantCountryCode: string | null;
                                 type: string | null;
@@ -6809,7 +6932,7 @@ export interface operations {
                                 after: string | null;
                                 /**
                                  * Format: date-time
-                                 * @description Timestamp the import saw it.
+                                 * @description When the change was seen.
                                  */
                                 seenAt: string;
                             }[];
@@ -6863,7 +6986,7 @@ export interface operations {
                      *           "kind": "registrar",
                      *           "ianaId": 1861,
                      *           "accredited": true,
-                     *           "homepageUrl": "https://porkbun.com?utm_source=unique.domains",
+                     *           "homepageUrl": "https://porkbun.com",
                      *           "siteUrl": "https://porkbun.com",
                      *           "logoUrl": "https://unique.domains/static/registrars/porkbun.svg",
                      *           "endingsPriced": 512
@@ -6880,7 +7003,7 @@ export interface operations {
                             /** @description `registrar`, or a venue's kind (`marketplace`, `parking`, `dropcatch`). */
                             kind: string;
                             ianaId: number | null;
-                            /** @description The IANA record says accredited. */
+                            /** @description Listed as accredited on IANA's registrar list. */
                             accredited: boolean;
                             homepageUrl: string | null;
                             siteUrl: string | null;
@@ -6914,7 +7037,7 @@ export interface operations {
     list_registrar_prices: {
         parameters: {
             query?: {
-                /** @description `true`: the endings its last complete list no longer carries. Paid subscriptions only. */
+                /** @description `true`: the endings the registrar's price list no longer carries. Paid subscriptions only. */
                 delisted?: boolean;
                 /** @description Page size: at most 20 on the free tier, 100 on a paid subscription; a larger value is clamped. */
                 limit?: number;
@@ -6964,7 +7087,7 @@ export interface operations {
                             transferPrice: number | null;
                             isPromo: boolean | null;
                             currency: string | null;
-                            /** @description Paid subscriptions only: the last complete list no longer carries the ending. */
+                            /** @description Paid subscriptions only: the registrar's price list no longer carries the ending. */
                             delisted?: boolean;
                         }[];
                         meta: components["schemas"]["Meta"];
@@ -7037,7 +7160,7 @@ export interface operations {
                      */
                     "application/json": {
                         data: {
-                            /** @description `TldPriceChange.id` as a string. */
+                            /** @description The change's id, as a string. */
                             id: string;
                             /** @description Bare ending. */
                             extension: string;
@@ -7103,7 +7226,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Names tracked under the registrar on the latest footprint day, rounded, with its top endings. */
+            /** @description Names tracked under the registrar, rounded, with its top endings. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7317,7 +7440,7 @@ export interface operations {
                              * @description Last observation.
                              */
                             lastSeenAt: string;
-                            /** @description Reads that saw it. */
+                            /** @description How many times this price set was observed. */
                             observations: number;
                         }[];
                         meta: components["schemas"]["Meta"];
@@ -7392,7 +7515,7 @@ export interface operations {
                      */
                     "application/json": {
                         data: {
-                            /** @description `TldPriceChange.id` as a string. */
+                            /** @description The change's id, as a string. */
                             id: string;
                             /** @description Bare ending. */
                             extension: string;
@@ -7654,13 +7777,13 @@ export interface operations {
                             /** @description `registrar`, or a venue's kind (`marketplace`, `parking`, `dropcatch`). */
                             kind: string;
                             ianaId: number | null;
-                            /** @description The IANA record says accredited. */
+                            /** @description Listed as accredited on IANA's registrar list. */
                             accredited: boolean;
                             homepageUrl: string | null;
                             siteUrl: string | null;
                             logoUrl: string | null;
                             footprint: {
-                                /** @description Scanned names parked at the venue, rounded (to 100, to 10 under 1,000). */
+                                /** @description Tracked names parked at the venue, rounded (to 100, to 10 under 1,000). */
                                 names: number;
                                 listed: number | null;
                                 parked: number | null;
@@ -7770,13 +7893,13 @@ export interface operations {
                             /** @description `registrar`, or a venue's kind (`marketplace`, `parking`, `dropcatch`). */
                             kind: string;
                             ianaId: number | null;
-                            /** @description The IANA record says accredited. */
+                            /** @description Listed as accredited on IANA's registrar list. */
                             accredited: boolean;
                             homepageUrl: string | null;
                             siteUrl: string | null;
                             logoUrl: string | null;
                             footprint: {
-                                /** @description Scanned names parked at the venue, rounded (to 100, to 10 under 1,000). */
+                                /** @description Tracked names parked at the venue, rounded (to 100, to 10 under 1,000). */
                                 names: number;
                                 listed: number | null;
                                 parked: number | null;
@@ -7786,7 +7909,13 @@ export interface operations {
                                 departuresWeek: number;
                             } | null;
                             footprintDay: string | null;
-                            listingTerms: Record<string, never> | null;
+                            listingTerms: {
+                                /**
+                                 * Format: date
+                                 * @description UTC day the terms were verified.
+                                 */
+                                checkedOn?: string;
+                            } | null;
                         };
                         meta: components["schemas"]["Meta"];
                         links: components["schemas"]["Links"];
@@ -7828,7 +7957,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description The IANA registrar list as the registry sync stores it, by id. */
+            /** @description The IANA registrar list, by IANA id. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -7850,7 +7979,7 @@ export interface operations {
                         data: {
                             /** @description IANA registrar id. */
                             id: number;
-                            /** @description Name as IANA publishes it. */
+                            /** @description The registrar's name on IANA's list. */
                             name: string;
                             /** @enum {unknown} */
                             status: "accredited" | "terminated" | "reserved";
@@ -7917,7 +8046,7 @@ export interface operations {
                         data: {
                             /** @description IANA registrar id. */
                             id: number;
-                            /** @description Name as IANA publishes it. */
+                            /** @description The registrar's name on IANA's list. */
                             name: string;
                             /** @enum {unknown} */
                             status: "accredited" | "terminated" | "reserved";
@@ -8508,9 +8637,13 @@ export interface operations {
                             day: string | null;
                             closing: number | null;
                             withBid: number | null;
+                            /** @description The names we track at auction: one-word catalog names on the endings the catalog covers. */
                             counts: {
+                                /** @description Tracked names that close within 24 hours and have a bid. */
                                 today: number;
+                                /** @description Tracked names that closed yesterday (UTC) with a recorded result. */
                                 results: number;
+                                /** @description Tracked names whose auction is open. */
                                 all: number;
                             };
                             byVenue: {
@@ -8717,17 +8850,26 @@ export interface operations {
                             kinds: ("expired" | "user" | "unspecified")[];
                             closeRule: {
                                 value?: string;
-                                /** Format: date */
+                                /**
+                                 * Format: date
+                                 * @description UTC day the rule was verified.
+                                 */
                                 verifiedOn?: string;
                             } | null;
                             paymentRule: {
                                 value?: string;
-                                /** Format: date */
+                                /**
+                                 * Format: date
+                                 * @description UTC day the rule was verified.
+                                 */
                                 verifiedOn?: string;
                             } | null;
                             bidderRule: {
                                 value?: string;
-                                /** Format: date */
+                                /**
+                                 * Format: date
+                                 * @description UTC day the rule was verified.
+                                 */
                                 verifiedOn?: string;
                             } | null;
                             firstYear: {
@@ -8736,7 +8878,10 @@ export interface operations {
                                         registrationIncluded: boolean;
                                         flatFee: number;
                                     };
-                                    /** Format: date */
+                                    /**
+                                     * Format: date
+                                     * @description UTC day the rule was verified.
+                                     */
                                     verifiedOn?: string;
                                 } | null;
                             };
@@ -8958,7 +9103,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description One trend: its latest row, its head words, its figures at every edition and its latest observations. */
+            /** @description One trend: its latest row, its head words, its figures at every edition and its observations. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -9653,12 +9798,12 @@ export interface operations {
                      * @example {
                      *       "data": {
                      *         "persona": "founder",
-                     *         "date": "2026-11-05",
-                     *         "publishAt": "2026-11-05T06:00:00.000Z",
+                     *         "date": "2026-11-11",
+                     *         "publishAt": "2026-11-11T06:00:00.000Z",
                      *         "trendCount": 25,
                      *         "nameCount": 25,
                      *         "openCount": 5,
-                     *         "previousDate": "2026-11-04",
+                     *         "previousDate": "2026-11-10",
                      *         "nextDate": null,
                      *         "trends": [
                      *           {
@@ -9719,13 +9864,18 @@ export interface operations {
                      */
                     "application/json": {
                         data: {
-                            /** @enum {string} */
+                            /**
+                             * @description The page the edition was written for. A day before 2026-11-10 with no founder edition of its own answers the investor edition, read with the founder verdicts: `persona` is then `investor`.
+                             * @enum {string}
+                             */
                             persona?: "founder" | "investor";
                             /** Format: date */
                             date?: string;
                             /** Format: date-time */
                             publishAt?: string;
+                            /** @description Trends in the whole edition. `trends` lists at most 20, the ones the public page shows, so this count can be larger. */
                             trendCount?: number;
+                            /** @description Names in the whole edition; `openCount` of them are open here. */
                             nameCount?: number;
                             openCount?: number;
                             /** Format: date */
@@ -9830,7 +9980,7 @@ export interface operations {
                 persona: "founder" | "investor";
                 /**
                  * @description The edition day, UTC.
-                 * @example 2026-11-02
+                 * @example 2026-11-10
                  */
                 date: string;
             };
@@ -9848,13 +9998,13 @@ export interface operations {
                      * @example {
                      *       "data": {
                      *         "persona": "founder",
-                     *         "date": "2026-11-02",
-                     *         "publishAt": "2026-11-05T06:00:00.000Z",
+                     *         "date": "2026-11-10",
+                     *         "publishAt": "2026-11-10T06:00:00.000Z",
                      *         "trendCount": 25,
                      *         "nameCount": 25,
                      *         "openCount": 5,
-                     *         "previousDate": "2026-11-01",
-                     *         "nextDate": "2026-11-03",
+                     *         "previousDate": "2026-11-05",
+                     *         "nextDate": "2026-11-11",
                      *         "trends": [
                      *           {
                      *             "slug": "agentic-checkout",
@@ -9914,13 +10064,18 @@ export interface operations {
                      */
                     "application/json": {
                         data: {
-                            /** @enum {string} */
+                            /**
+                             * @description The page the edition was written for. A day before 2026-11-10 with no founder edition of its own answers the investor edition, read with the founder verdicts: `persona` is then `investor`.
+                             * @enum {string}
+                             */
                             persona?: "founder" | "investor";
                             /** Format: date */
                             date?: string;
                             /** Format: date-time */
                             publishAt?: string;
+                            /** @description Trends in the whole edition. `trends` lists at most 20, the ones the public page shows, so this count can be larger. */
                             trendCount?: number;
+                            /** @description Names in the whole edition; `openCount` of them are open here. */
                             nameCount?: number;
                             openCount?: number;
                             /** Format: date */
@@ -10022,7 +10177,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Every enum the payloads use, read from the code catalogs. */
+            /** @description Every enum the payloads use. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -10117,7 +10272,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description How current the scanner's passes are: the day's counts and each lane's state. */
+            /** @description The day's counts and the state of each part of the data. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -10601,7 +10756,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Liveness, with no database read. */
+            /** @description Liveness: `ok` with the server time. */
             200: {
                 headers: {
                     [name: string]: unknown;
