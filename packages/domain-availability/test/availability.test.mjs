@@ -15,7 +15,7 @@ const free = () => ({ apiKey: null, baseUrl: server.base });
 const keyed = () => ({ apiKey: KEY, baseUrl: server.base });
 const last = () => server.requests.at(-1);
 
-describe('@uniquedomains/domain-availability', () => {
+describe('domain-availability', () => {
     it('reads the answer for free, asking only for its fields', async () => {
         const answer = await availability('get.plumbing', free());
         assert.deepEqual(answer, recorded('usecase-availability'));

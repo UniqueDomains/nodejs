@@ -11,7 +11,7 @@
 
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { ApiProblemError, createClient, isListingId, LISTINGS, ListingMismatchError, type ApiLinks, type ApiMeta, type ClientOptions, type JsonObject, type JsonValue, type OperationAnswer, type OperationRequestParams } from '@uniquedomains/sdk';
+import { ApiProblemError, createClient, isListingId, LISTINGS, ListingMismatchError, type ApiLinks, type ApiMeta, type ClientOptions, type JsonObject, type JsonValue, type OperationAnswer, type OperationRequestParams } from 'domain-name-api';
 import { convertArgument, parseArgv, stringGlobal, UsageError, type ParsedArgs } from './argv';
 import { findCommand, GLOBAL_STRING_FLAGS, SHORTCUTS, suggestCommands, type Command } from './commands';
 import { renderCommandHelp, renderMainHelp } from './help';
@@ -250,7 +250,7 @@ const printAnswer = (answer: OperationAnswer, command: Command, name: string, ar
 
 const snapshotText = async (): Promise<string> => {
     const require = createRequire(import.meta.url);
-    return readFile(require.resolve('@uniquedomains/sdk/openapi.json'), 'utf8');
+    return readFile(require.resolve('domain-name-api/openapi.json'), 'utf8');
 };
 
 /** With no command found: say why on stderr, naming a global flag that took a command as its value (review R1-11). */

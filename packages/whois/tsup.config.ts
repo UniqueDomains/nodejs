@@ -10,7 +10,7 @@ const shared: Options = {
     sourcemap: false,
     define: { __PACKAGE_VERSION__: JSON.stringify(version) },
     // The SDK stays a dependency, never bundled: one copy of the error classes and the operation table per install.
-    external: ['@uniquedomains/sdk'],
+    external: ['domain-name-api'],
 };
 
 export default defineConfig([

@@ -1,4 +1,4 @@
-import { ApiProblemError, createClient, RateLimitError, ValidationError } from '@uniquedomains/sdk';
+import { ApiProblemError, createClient, RateLimitError, ValidationError } from 'domain-name-api';
 
 // This page renders on the server, so the call and any key stay there: UD_API_KEY, when set, never reaches the browser.
 const ud = createClient();

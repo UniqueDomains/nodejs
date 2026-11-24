@@ -12,7 +12,7 @@ const shared: Options = {
     shims: true,
     define: { __CLI_VERSION__: JSON.stringify(version) },
     // The SDK stays a dependency, never bundled: one copy of the operation table per install.
-    external: ['@uniquedomains/sdk'],
+    external: ['domain-name-api'],
 };
 
 export default defineConfig([

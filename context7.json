@@ -6,7 +6,7 @@
   "rules": [
     "The API works without a key on its free endpoints: 60 calls an hour and 100 a UTC day from one address.",
     "A key belongs on a server, never in a page a visitor loads.",
-    "Prefer the namespaced methods of @uniquedomains/sdk (ud.names.get) over request, and the use-case packages for WHOIS, availability, registrar prices and appraisal.",
+    "Prefer the namespaced methods of domain-name-api (ud.names.get) over request, and the use-case packages for WHOIS, availability, registrar prices and appraisal.",
     "A method answers the API's data directly; .withMeta() adds the meta, the links and the rate-limit facts."
   ]
 }

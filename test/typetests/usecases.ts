@@ -4,9 +4,9 @@
 
 /** Checked by `npm run typecheck`, never run: the answers carry the API's types, and a wrong option fails to compile. */
 
-import { appraisal, comparableSales } from '@uniquedomains/domain-appraisal';
-import { availability, availabilityBatch, check } from '@uniquedomains/domain-availability';
-import { cheapest, priceHistory, pricesForTld, renewalTraps } from '@uniquedomains/registrar-prices';
+import { appraisal, comparableSales } from 'domain-appraisal';
+import { availability, availabilityBatch, check } from 'domain-availability';
+import { cheapest, priceHistory, pricesForTld, renewalTraps } from 'registrar-prices';
 import { whois, whoisHistory } from '@uniquedomains/whois';
 
 export const answers = async () => {

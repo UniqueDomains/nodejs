@@ -1,18 +1,22 @@
-# @uniquedomains/sdk
+# Domain name API for Node.js
 
-A typed Node client for the [Unique.domains API](https://unique.domains/api). One call tells you [whether a domain name is taken](https://unique.domains/availability), [what its registry record says](https://unique.domains/whois), [what nine registrars charge for its ending](https://unique.domains/registrars) and [what similar names sold for](https://unique.domains/sales), from a record of 37 million names read every day. 62 of the 87 operations answer with no key.
+Is `get.plumbing` taken? `await ud.names.get('get.plumbing')` answers `registered`: created on 3 June 2020, held at GoDaddy.com, LLC, expiring on 3 June 2027, with 10 similar sales at a median of $2,677. That is one call of `domain-name-api`, the typed Node client of the [Unique.domains API](https://unique.domains/api). On a name, it answers [whether it is taken](https://unique.domains/availability), [what its registry record](https://unique.domains/whois) and its DNS say, [what nine registrars charge for its ending](https://unique.domains/registrars), [what similar names sold for](https://unique.domains/sales), its estimated value and whether it had a website before. On its word: the definition, the pronunciation, how easy it is to say and to remember, and the trademarks on it in the US and the EU. Around it: [the day's auctions](https://unique.domains/auctions) and the names dropping each day. 37 million names, read every day. 62 of the 87 operations answer with no key.
 
 ```bash
-npm install @uniquedomains/sdk
+npm install domain-name-api
 ```
 
 Node 20 or later. ESM and CommonJS.
+
+One family on the [Unique.domains API](https://unique.domains/api): [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal), [`registrar-prices`](https://www.npmjs.com/package/registrar-prices) and [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois).
+
+Up to version 0.2.1 this package was published as `@uniquedomains/sdk`. Same code, same methods.
 
 ## The first call
 
 <!-- example: first-call -->
 ```js
-import { createClient } from '@uniquedomains/sdk';
+import { createClient } from 'domain-name-api';
 
 const ud = createClient();
 const name = await ud.names.get('get.plumbing');
@@ -79,7 +83,7 @@ An answer that is not a success throws an `ApiProblemError`, or one of its kinds
 
 <!-- example: errors -->
 ```js
-import { ApiProblemError, PlanRequiredError, RateLimitError } from '@uniquedomains/sdk';
+import { ApiProblemError, PlanRequiredError, RateLimitError } from 'domain-name-api';
 
 try {
     await ud.names.prices('get.plumbing');
@@ -159,7 +163,7 @@ When the id is only known at run time (a command or tool loop), use `requestOper
 
 <!-- example: request-operation -->
 ```js
-import { isOperationId } from '@uniquedomains/sdk';
+import { isOperationId } from 'domain-name-api';
 
 const id = 'list_tlds';
 if (isOperationId(id)) {
@@ -215,7 +219,7 @@ Some lists are also public datasets on GitHub (`ud.meta.datasets()` reads this l
 
 ## The OpenAPI document
 
-The document this version was built from ships with the package as `@uniquedomains/sdk/openapi.json`. The live one is at `https://api.unique.domains/v1/meta/openapi.json`.
+The document this version was built from ships with the package as `domain-name-api/openapi.json`. The live one is at `https://api.unique.domains/v1/meta/openapi.json`.
 
 ## Also
 

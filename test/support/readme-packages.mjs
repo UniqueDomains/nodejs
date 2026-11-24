@@ -19,7 +19,7 @@ export const forReadme = (fn) => {
     };
 };
 
-/** The module a README's `from '@uniquedomains/<package>'` becomes: every function wrapped, every class as it is. */
+/** The module a README's import of a use-case package becomes: every function wrapped, every class as it is. */
 export const wrapAll = (module) => Object.fromEntries(Object.entries(module).map(([name, value]) => [
     name,
     typeof value === 'function' && !/^[A-Z]/.test(name) && name !== 'createClient' ? forReadme(value) : value,

@@ -19,10 +19,13 @@ import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { packageFolders } from './lib/packages.mjs';
+import { manifestOf, packageFolders } from './lib/packages.mjs';
 import { loadRecorded, startFixtureServer } from '../test/support/fixture-server.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
+// Each package by its name on npm, read from its package.json (`domain-name-api` for the folder `sdk`, since 0.3.0).
+const SDK = manifestOf('sdk').name;
+const CLI = manifestOf('cli').name;
 const USE_CASES = [
     { name: 'whois', bin: 'ud-whois', call: 'whois', fn: ['whois', 'dns', 'whoisHistory'], arg: 'get.plumbing', read: 'registrar.name' },
     { name: 'domain-availability', bin: 'ud-availability', call: 'availability', fn: ['availability', 'check', 'availabilityBatch'], arg: 'get.plumbing', read: 'status' },
@@ -49,22 +52,22 @@ try {
     writeFileSync(join(project, 'package.json'), '{ "name": "ud-pack-check", "private": true }\n');
     run('npm', ['install', '--no-audit', '--no-fund', '--ignore-scripts', ...files], project);
 
-    run(process.execPath, ['-e', 'const s = require("@uniquedomains/sdk"); const ud = s.createClient({ apiKey: null }); if (typeof ud.request !== "function" || typeof ud.names.get !== "function" || !(new s.RateLimitError({ code: "rate_limited", detail: "x", status: 429, title: "x", type: "x", instance: "/" }, {}) instanceof s.ApiProblemError)) process.exit(1);'], project);
-    run(process.execPath, ['--input-type=module', '-e', 'import { createClient, OPERATIONS, NAMESPACE_METHODS } from "@uniquedomains/sdk"; if (!createClient || !OPERATIONS.get_name || NAMESPACE_METHODS.names.get !== "get_name") process.exit(1);'], project);
+    run(process.execPath, ['-e', `const s = require("${SDK}"); const ud = s.createClient({ apiKey: null }); if (typeof ud.request !== "function" || typeof ud.names.get !== "function" || !(new s.RateLimitError({ code: "rate_limited", detail: "x", status: 429, title: "x", type: "x", instance: "/" }, {}) instanceof s.ApiProblemError)) process.exit(1);`], project);
+    run(process.execPath, ['--input-type=module', '-e', `import { createClient, OPERATIONS, NAMESPACE_METHODS } from "${SDK}"; if (!createClient || !OPERATIONS.get_name || NAMESPACE_METHODS.names.get !== "get_name") process.exit(1);`], project);
 
     // The README's first example, as a user runs it after `npm install`, against the fixture server.
     const server = await startFixtureServer();
     try {
-        const firstExample = 'import { createClient } from "@uniquedomains/sdk"; const ud = createClient({ apiKey: null, baseUrl: process.argv[1] }); const name = await ud.names.get("get.plumbing"); console.log(name.status);';
+        const firstExample = `import { createClient } from "${SDK}"; const ud = createClient({ apiKey: null, baseUrl: process.argv[1] }); const name = await ud.names.get("get.plumbing"); console.log(name.status);`;
         const printed = await runAsync(process.execPath, ['--input-type=module', '-e', firstExample, server.base], project);
         const status = loadRecorded().find((fixture) => fixture.name === 'usecase-availability').response.body.data.status;
         if (printed.trim() !== status) throw new Error(`the README's first example printed "${printed.trim()}", not "${status}"`);
 
         for (const useCase of USE_CASES) {
-            const specifier = `@uniquedomains/${useCase.name}`;
+            const specifier = manifestOf(useCase.name).name;
             const names = JSON.stringify(useCase.fn);
             run(process.execPath, ['-e', `const p = require("${specifier}"); if (!${names}.every((name) => typeof p[name] === "function") || typeof p.PlanRequiredError !== "function") process.exit(1);`], project);
-            const script = `import { ${useCase.call}, PlanRequiredError } from "${specifier}"; import { PlanRequiredError as FromSdk } from "@uniquedomains/sdk"; if (PlanRequiredError !== FromSdk) process.exit(3); const answer = await ${useCase.call}(process.argv[1], { apiKey: null, baseUrl: process.argv[2] }); console.log(${useCase.read.split('.').reduce((path, key) => `${path}?.${key}`, 'answer')});`;
+            const script = `import { ${useCase.call}, PlanRequiredError } from "${specifier}"; import { PlanRequiredError as FromSdk } from "${SDK}"; if (PlanRequiredError !== FromSdk) process.exit(3); const answer = await ${useCase.call}(process.argv[1], { apiKey: null, baseUrl: process.argv[2] }); console.log(${useCase.read.split('.').reduce((path, key) => `${path}?.${key}`, 'answer')});`;
             const answer = (await runAsync(process.execPath, ['--input-type=module', '-e', script, useCase.arg, server.base], project)).trim();
             if (!answer || answer === 'undefined') throw new Error(`${specifier} printed "${answer}"`);
 
@@ -72,14 +75,15 @@ try {
             if (!/^\d+\.\d+\.\d+$/.test(run(binPath, ['--version'], project).trim())) throw new Error(`${useCase.bin} --version`);
             if (!run(binPath, ['--help'], project).includes(`${useCase.bin} <`)) throw new Error(`${useCase.bin} --help shows no usage`);
             JSON.parse(await runAsync(binPath, [useCase.arg, '--base', server.base], project));
-            // What the plan's first line promises: `npx @uniquedomains/<package> ...` finds the one bin. Offline here.
+            // What the README's first block promises: `npx <package> ...` (`npx domain-availability get.plumbing`) finds the
+            // one bin under the package's name on npm. Offline here.
             const viaNpx = await runAsync('npx', ['--offline', '--no', specifier, useCase.arg, '--base', server.base], project);
             if (!viaNpx.trim()) throw new Error(`npx ${specifier} printed nothing`);
         }
     } finally {
         await server.close();
     }
-    run(process.execPath, ['-e', 'const c = require("@uniquedomains/cli"); if (typeof c.run !== "function") process.exit(1);'], project);
+    run(process.execPath, ['-e', `const c = require("${CLI}"); if (typeof c.run !== "function") process.exit(1);`], project);
     for (const bin of ['ud', 'uniquedomains']) {
         const version = run(join(project, 'node_modules', '.bin', bin), ['--version'], project).trim();
         if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error(`${bin} --version printed "${version}"`);

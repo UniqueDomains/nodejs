@@ -1,22 +1,26 @@
 # Domain availability check for Node.js
 
-Is the name free, and what will it cost to keep? One call answers both, with no key: the name's status, its drop day, its price today and its renewal price, from a record of 37 million names read every day. A live check needs a key, and a list of names at once needs a key on the Investor plan. To try a name with no code, use [unique.domains/availability](https://unique.domains/availability).
+Is `get.plumbing` available? `await availability('get.plumbing')` answers `registered` and `ownableNow: false`: taken, with no day set for it to come free. For a name nobody holds, the same call gives its price today and its renewal price; for a name on its way out, the day it is due to come free. `check()` runs a live check of one name, and `availabilityBatch()` answers for a whole list in one call. 37 million names, read every day. `availability()` answers with no key. To try a name with no code, use [unique.domains/availability](https://unique.domains/availability).
 
 ```bash
-npx @uniquedomains/domain-availability get.plumbing
+npx domain-availability get.plumbing
 ```
 
 ```bash
-npm install @uniquedomains/domain-availability
+npm install domain-availability
 ```
 
-Node 20 or later. ESM and CommonJS. Built on [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk).
+Node 20 or later. ESM and CommonJS.
+
+One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal), [`registrar-prices`](https://www.npmjs.com/package/registrar-prices) and [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois).
+
+Up to version 0.2.1 this package was published as `@uniquedomains/domain-availability`. Same code, same methods.
 
 ## The answer
 
 <!-- example: availability -->
 ```js
-import { availability } from '@uniquedomains/domain-availability';
+import { availability } from 'domain-availability';
 
 const answer = await availability('get.plumbing');
 console.log(answer.status, answer.ownableNow, answer.price.firstYear);
@@ -30,7 +34,7 @@ Runs a live check of the name and returns the full answer. It needs a key. Live 
 
 <!-- example: check fixture -->
 ```js
-import { check } from '@uniquedomains/domain-availability';
+import { check } from 'domain-availability';
 
 const answer = await check('zorbly.io', { apiKey: process.env.UD_API_KEY });
 console.log(answer.status, answer.checked);
@@ -40,7 +44,7 @@ console.log(answer.status, answer.checked);
 
 <!-- example: refused -->
 ```js
-import { check, PlanRequiredError } from '@uniquedomains/domain-availability';
+import { check, PlanRequiredError } from 'domain-availability';
 
 try {
     await check('zorbly.io');
@@ -56,7 +60,7 @@ Up to 100 names, with their answers in the order you sent them. It needs a key o
 
 <!-- example: batch fixture -->
 ```js
-import { availabilityBatch } from '@uniquedomains/domain-availability';
+import { availabilityBatch } from 'domain-availability';
 
 const answers = await availabilityBatch(['zorbly.io', 'zorbly.ai', 'foo@bar.com'], { apiKey: process.env.UD_API_KEY });
 for (const answer of answers) console.log(answer.name, answer.error ?? answer.status ?? 'not in the catalog');

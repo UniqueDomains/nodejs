@@ -21,7 +21,7 @@ import { findReadmes, renderModule, runExample } from './lib/readme.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'test', 'readme');
-/** The module a README's `from '@uniquedomains/<package>'` becomes; null for a package that has none (the CLI). */
+/** The module of a package's folder that a README's import of it becomes; null for a package that has none (the CLI). */
 const specifierOf = (name) => (existsSync(join(ROOT, 'test', 'support', `readme-${name}.mjs`)) ? `../support/readme-${name}.mjs` : null);
 
 /** Writes one module per README and removes those of READMEs that are gone. Answers what it wrote. */

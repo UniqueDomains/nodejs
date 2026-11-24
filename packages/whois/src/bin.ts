@@ -4,7 +4,7 @@
 
 /** `ud-whois`, never `whois`: a bin of that name would shadow the system's command (plan decision 18). */
 
-import type { DataOf } from '@uniquedomains/sdk';
+import type { DataOf } from 'domain-name-api';
 import { main, onePositional } from '../../../shared/usecase/bin';
 import { whois, whoisHistory } from './index';
 

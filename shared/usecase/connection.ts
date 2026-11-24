@@ -8,7 +8,7 @@
  * already made) and what to ask (the operation's own options). `connect` splits the two.
  */
 
-import { createClient, type ClientOptions, type UniqueDomainsClient } from '@uniquedomains/sdk';
+import { createClient, type ClientOptions, type UniqueDomainsClient } from 'domain-name-api';
 
 /*----------------------------------
 - TYPES

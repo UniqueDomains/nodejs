@@ -10,7 +10,7 @@
  * the whole envelope is one `ud` command away.
  */
 
-import { ApiProblemError, isListingId, LISTINGS, ListingMismatchError, type ApiCall, type ClientOptions, type JsonValue, type ListingId } from '@uniquedomains/sdk';
+import { ApiProblemError, isListingId, LISTINGS, ListingMismatchError, type ApiCall, type ClientOptions, type JsonValue, type ListingId } from 'domain-name-api';
 import { renderData } from '../../packages/cli/src/render';
 
 /*----------------------------------

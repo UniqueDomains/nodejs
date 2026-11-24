@@ -24,7 +24,7 @@ describe('the starter templates (plan decision 19)', () => {
 
     it('the Next.js example pins the SDK at the lockstep version', () => {
         const { version } = JSON.parse(read('packages', 'sdk', 'package.json'));
-        assert.equal(JSON.parse(read('examples', 'nextjs-domain-search', 'package.json')).dependencies['@uniquedomains/sdk'], version);
+        assert.equal(JSON.parse(read('examples', 'nextjs-domain-search', 'package.json')).dependencies['domain-name-api'], version);
     });
 
     it('the Next.js page never runs on the client: no directive, and the client reads the key on the server', () => {
@@ -159,7 +159,11 @@ describe('the release workflow (plan lane N2)', () => {
     const release = read('.github', 'workflows', 'release.yml');
 
     it('publishes the list of workspaces, and uploads every package', () => {
-        assert.match(release, /for package in \$\(node scripts\/list-packages\.mjs\); do/);
+        assert.match(release, /packages="\$\(node scripts\/list-packages\.mjs --with-names\)"/);
+        assert.match(release, /while read -r package name <&3; do/);
+        assert.match(release, /done 3<<< "\$packages"/);
+        // Each package is read and published by its name on npm, never by a scope added to its folder (lane R).
+        assert.doesNotMatch(release, /name="@uniquedomains\/\$\{package\}"/);
         assert.doesNotMatch(release, /for package in sdk cli/);
         assert.match(release, /packages\/\*\/dist/);
         assert.match(release, /packages\/\*\/LICENSE/);

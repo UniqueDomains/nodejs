@@ -15,7 +15,7 @@ const free = () => ({ apiKey: null, baseUrl: server.base });
 const keyed = () => ({ apiKey: KEY, baseUrl: server.base });
 const last = () => server.requests.at(-1);
 
-describe('@uniquedomains/registrar-prices', () => {
+describe('registrar-prices', () => {
     it('reads every registrar\'s price for free, sending no key', async () => {
         assert.deepEqual(await pricesForTld('io', free()), recorded('prices-list-tld-prices').data);
         assert.equal(last().path, '/v1/prices/tlds/io');

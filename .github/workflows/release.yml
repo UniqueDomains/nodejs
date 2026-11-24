@@ -67,11 +67,15 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - run: npm install -g npm@^11.5.1
-      - name: Publish @uniquedomains/sdk, then every other package
+      - name: Publish domain-name-api, then every other package
         run: |
           version="${GITHUB_REF_NAME#v}"
-          for package in $(node scripts/list-packages.mjs); do
-            name="@uniquedomains/${package}"
+          # Each line is a folder and its package's name on npm, read from its package.json: since 0.3.0 a name is no
+          # longer `@uniquedomains/<folder>` (the SDK's folder `sdk` publishes `domain-name-api`). Read first, so a
+          # failure of the list fails the step. The list comes in on descriptor 3, so no npm command in the loop can
+          # read the lines still to come from its standard input.
+          packages="$(node scripts/list-packages.mjs --with-names)"
+          while read -r package name <&3; do
             # A re-run after a partial publish skips what is already on the registry.
             if npm view "${name}@${version}" version >/dev/null 2>&1; then
               echo "${name}@${version} is already published."
@@ -90,7 +94,7 @@ jobs:
               exit 1
             fi
             echo "$output"
-          done
+          done 3<<< "$packages"
       - name: GitHub release
         env:
           GH_TOKEN: ${{ github.token }}

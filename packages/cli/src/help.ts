@@ -8,7 +8,7 @@
  * generated table only, so the help is always the document's own words.
  */
 
-import { TAGS } from '@uniquedomains/sdk';
+import { TAGS } from 'domain-name-api';
 import { COMMANDS, GLOBAL_FLAGS, SHORTCUTS, type Command, type FlagSpec } from './commands';
 
 /*----------------------------------

@@ -1,10 +1,12 @@
-# @uniquedomains/cli
+# Domain name API from the command line
 
-Every operation of the [Unique.domains API](https://unique.domains/api) as a command: [is a name taken](https://unique.domains/availability), [its registry record](https://unique.domains/whois), [what nine registrars charge for an ending](https://unique.domains/registrars), [today's auctions](https://unique.domains/auctions). 87 commands; 62 run with no key. Nothing to install for a first try:
+Nothing to install for a first answer:
 
 ```bash
 npx @uniquedomains/cli get-name get.plumbing
 ```
+
+It answers that `get.plumbing` is `registered` at GoDaddy.com, LLC until 3 June 2027, with 10 similar sales at a median of $2,677. Every operation of the [Unique.domains API](https://unique.domains/api) is a command: [is a name taken](https://unique.domains/availability), [its registry record](https://unique.domains/whois), [what nine registrars charge for an ending](https://unique.domains/registrars), [what similar names sold for](https://unique.domains/sales), its estimated value, the trademarks on its word, [today's auctions](https://unique.domains/auctions). 87 commands; 62 run with no key.
 
 Or install it once, which gives the `ud` command (and `uniquedomains`, the same command, for machines where another `ud` is installed):
 
@@ -14,6 +16,8 @@ ud get-name get.plumbing
 ```
 
 Node 20 or later.
+
+One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal), [`registrar-prices`](https://www.npmjs.com/package/registrar-prices) and [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois).
 
 ## Commands
 
@@ -65,7 +69,7 @@ ud --rapidapi-key "$RAPIDAPI_KEY" --listing whois get-name-registry get.plumbing
 
 ## Also
 
-- [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk): the typed client behind this command.
+- [`domain-name-api`](https://www.npmjs.com/package/domain-name-api): the typed client behind this command.
 - [`@uniquedomains/mcp-server`](https://www.npmjs.com/package/@uniquedomains/mcp-server): the same API as tools for AI assistants, in [its own repository](https://github.com/UniqueDomains/mcp-server).
 - [The datasets](https://github.com/UniqueDomains) on GitHub.
 

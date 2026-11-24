@@ -1,13 +1,13 @@
 /*----------------------------------
-- @uniquedomains/domain-appraisal
+- domain-appraisal
 ----------------------------------*/
 
 /** What a name may be worth: free comparable sales, the value and a new appraisal with a key. */
 
-import type { CallOptions, OperationCall } from '@uniquedomains/sdk';
+import type { CallOptions, OperationCall } from 'domain-name-api';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
 
-export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaError, RateLimitError, ValidationError } from '@uniquedomains/sdk';
+export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaError, RateLimitError, ValidationError } from 'domain-name-api';
 export type { ConnectionOptions };
 
 /**

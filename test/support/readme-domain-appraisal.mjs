@@ -1,4 +1,4 @@
-// What a README's `from '@uniquedomains/domain-appraisal'` becomes: see readme-packages.mjs.
+// What a README's `from 'domain-appraisal'` becomes: see readme-packages.mjs.
 import * as source from '../../packages/domain-appraisal/dist/index.js';
 import { wrapAll } from './readme-packages.mjs';
 

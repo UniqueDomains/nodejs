@@ -1,7 +1,7 @@
 {
   "name": "@uniquedomains/cli",
-  "version": "0.2.1",
-  "description": "Domain data from the command line: npx @uniquedomains/cli get-name get.plumbing. Status, WHOIS record, nine registrars' prices, auctions. 87 commands, 62 need no key.",
+  "version": "0.3.0",
+  "description": "Domain name API from the command line: npx @uniquedomains/cli get-name get.plumbing. Availability, WHOIS, DNS, registrar prices, auctions, sales, estimated value, trademarks and word data. 87 commands, 62 need no key.",
   "license": "MIT",
   "author": "Unique.domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",
@@ -12,9 +12,17 @@
   },
   "bugs": "https://github.com/UniqueDomains/nodejs/issues",
   "keywords": [
+    "domain name api",
+    "domain api",
+    "domain cli",
+    "domain availability",
+    "whois",
+    "rdap",
+    "registrar prices",
+    "domain auctions",
+    "domain sales",
     "domain-names",
     "domains",
-    "whois",
     "tld",
     "registrar",
     "cli",
@@ -57,6 +65,6 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@uniquedomains/sdk": "0.2.1"
+    "domain-name-api": "0.3.0"
   }
 }

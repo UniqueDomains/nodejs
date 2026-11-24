@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { OPERATIONS } from '@uniquedomains/sdk';
+import { OPERATIONS } from 'domain-name-api';
 import { COMMANDS, findCommand, GLOBAL_FLAGS, kebab, SHORTCUTS } from '../dist/index.js';
 
 // Read from the one catalog the parser and the help read (review R1-19).

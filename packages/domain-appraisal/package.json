@@ -1,7 +1,7 @@
 {
-  "name": "@uniquedomains/domain-appraisal",
-  "version": "0.2.1",
-  "description": "Domain appraisal for Node.js: what similar names sold for, as a count and a median, free with no key. The estimated value with a key.",
+  "name": "domain-appraisal",
+  "version": "0.3.0",
+  "description": "Domain appraisal for Node.js: the estimated value of a domain name and what similar names sold for, as a count and a median. Start with no key.",
   "license": "MIT",
   "author": "Unique.domains (https://unique.domains)",
   "homepage": "https://unique.domains/api",
@@ -12,6 +12,14 @@
   },
   "bugs": "https://github.com/UniqueDomains/nodejs/issues",
   "keywords": [
+    "domain appraisal",
+    "domain name appraisal",
+    "domain value",
+    "domain valuation",
+    "comparable sales",
+    "domain sales",
+    "domain api",
+    "domain name api",
     "domain-appraisal",
     "domain-value",
     "appraisal",
@@ -56,6 +64,6 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@uniquedomains/sdk": "0.2.1"
+    "domain-name-api": "0.3.0"
   }
 }

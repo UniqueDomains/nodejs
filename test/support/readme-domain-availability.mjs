@@ -1,4 +1,4 @@
-// What a README's `from '@uniquedomains/domain-availability'` becomes: see readme-packages.mjs.
+// What a README's `from 'domain-availability'` becomes: see readme-packages.mjs.
 import * as source from '../../packages/domain-availability/dist/index.js';
 import { wrapAll } from './readme-packages.mjs';
 

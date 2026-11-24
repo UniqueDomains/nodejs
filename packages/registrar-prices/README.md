@@ -1,22 +1,26 @@
-# Registrar price comparison for Node.js
+# Registrar prices for Node.js
 
-The first-year price is not the price you keep paying: `.agency` costs $3.50 for the first year at Dynadot and $28.04 a year after that. This package reads what nine registrars charge for an ending, the endings whose renewal is a trap (over 300 today) and each price change, served only once the new price read the same on the next morning. All of that is free and needs no key. The cheapest registrar across many endings needs a key, and an ending's price history needs a key on the Investor plan. The nine price lists and the traps are also a page: [unique.domains/registrars](https://unique.domains/registrars).
+What does `.io` cost? `await pricesForTld('io')` answers with nine prices: the cheapest first year is $20.91 at Porkbun, and it renews there at $51.80. The first-year price is not the price you keep paying: `.agency` costs $3.50 for the first year at Dynadot and $28.04 a year after that. This package reads what nine registrars charge for an ending, the cheapest registrar across many endings, an ending's price history, the endings whose renewal is a trap (over 300) and each price change, served only once the new price read the same on the next morning. `pricesForTld()` answers with no key. The nine price lists and the traps are also a page: [unique.domains/registrars](https://unique.domains/registrars).
 
 ```bash
-npx @uniquedomains/registrar-prices io
+npx registrar-prices io
 ```
 
 ```bash
-npm install @uniquedomains/registrar-prices
+npm install registrar-prices
 ```
 
-Node 20 or later. ESM and CommonJS. Built on [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk).
+Node 20 or later. ESM and CommonJS.
+
+One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal) and [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois).
+
+Up to version 0.2.1 this package was published as `@uniquedomains/registrar-prices`. Same code, same methods.
 
 ## Every registrar's price for an ending
 
 <!-- example: prices -->
 ```js
-import { pricesForTld } from '@uniquedomains/registrar-prices';
+import { pricesForTld } from 'registrar-prices';
 
 const prices = await pricesForTld('io');
 for (const row of prices) console.log(row.name, row.purchasePrice, row.renewalPrice);
@@ -30,7 +34,7 @@ A trap is an ending whose cheapest first year renews at a much higher price. Fre
 
 <!-- example: traps -->
 ```js
-import { renewalTraps } from '@uniquedomains/registrar-prices';
+import { renewalTraps } from 'registrar-prices';
 
 const { data, meta } = await renewalTraps().withMeta();
 console.log(meta.trapCount, data[0].tld, data[0].multiple);
@@ -42,7 +46,7 @@ Confirmed changes across the registrars, newest first. Free, you read the ten ne
 
 <!-- example: changes -->
 ```js
-import { priceChanges } from '@uniquedomains/registrar-prices';
+import { priceChanges } from 'registrar-prices';
 
 const changes = await priceChanges();
 for (const change of changes) console.log(change.extension, change.registrarName, change.oldPrice, change.newPrice);
@@ -56,7 +60,7 @@ The cheapest registrar for each of up to 100 endings:
 
 <!-- example: cheapest fixture -->
 ```js
-import { cheapest } from '@uniquedomains/registrar-prices';
+import { cheapest } from 'registrar-prices';
 
 const rows = await cheapest(['ai', 'io'], { apiKey: process.env.UD_API_KEY });
 for (const row of rows) console.log(row.ending, row.cheapestYear1?.registrar ?? 'no price', row.cheapestYear1?.price ?? '');
@@ -66,7 +70,7 @@ How an ending's prices changed, newest first, on the Investor plan. A loop walks
 
 <!-- example: history fixture -->
 ```js
-import { priceHistory } from '@uniquedomains/registrar-prices';
+import { priceHistory } from 'registrar-prices';
 
 for await (const row of priceHistory('io', { apiKey: process.env.UD_API_KEY, maxRows: 50 })) {
     console.log(row.registrar, row.purchasePrice, row.firstSeenAt);
@@ -77,7 +81,7 @@ Without a key, both throw a `PlanRequiredError`:
 
 <!-- example: refused -->
 ```js
-import { cheapest, PlanRequiredError } from '@uniquedomains/registrar-prices';
+import { cheapest, PlanRequiredError } from 'registrar-prices';
 
 try {
     await cheapest(['ai', 'io']);

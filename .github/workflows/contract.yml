@@ -54,7 +54,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: npm test
-      - name: The CLI against the live free API
+      - name: The CLI and the use-case packages against the live free API
         run: npm run smoke
       # About thirty keyless calls; a spent window on the runner's shared address ends it with a warning annotation.
       - name: The README examples against the live free API

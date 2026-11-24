@@ -10,7 +10,7 @@
  */
 
 import { GLOBAL_BOOLEAN_FLAGS, GLOBAL_FLAGS, GLOBAL_STRING_FLAGS, type Command, type FlagSpec } from './commands';
-import type { OperationParameter, ParameterType } from '@uniquedomains/sdk';
+import type { OperationParameter, ParameterType } from 'domain-name-api';
 
 /*----------------------------------
 - TYPES

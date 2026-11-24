@@ -1,13 +1,13 @@
 /*----------------------------------
-- @uniquedomains/domain-availability
+- domain-availability
 ----------------------------------*/
 
 /** Whether a name can be registered: the answer, the live check and many names at once. */
 
-import type { ApiCall, ApiResult, CallOptions, DataOf, EnvelopeOf, OperationCall } from '@uniquedomains/sdk';
+import type { ApiCall, ApiResult, CallOptions, DataOf, EnvelopeOf, OperationCall } from 'domain-name-api';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
 
-export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaError, RateLimitError, ValidationError } from '@uniquedomains/sdk';
+export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaError, RateLimitError, ValidationError } from 'domain-name-api';
 export type { ConnectionOptions };
 
 /*----------------------------------

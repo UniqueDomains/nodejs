@@ -10,12 +10,14 @@
  * Markers: `<!-- example: <name> -->` runs in both; `<!-- example: <name> fixture -->` runs against the fixture server
  * only (a key the nightly job does not hold); `<!-- example: <name> skip -->` never runs, at most three a README.
  * A block may leave out the import of `createClient` and the `const ud = createClient();` line: the first example of
- * a README shows them, and the rest read as its continuation. A block imports from `@uniquedomains/<package>`, each
- * package through its own module of `test/support`, so an example that names the wrong package fails.
+ * a README shows them, and the rest read as its continuation. A block imports from a package by its name on npm
+ * (`domain-name-api`, `domain-availability`, `@uniquedomains/whois`), each package through the module of its folder in
+ * `test/support`, so an example that names the wrong package, or an old name, fails.
  */
 
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { folderOfPackage } from './packages.mjs';
 
 /*----------------------------------
 - CONSTANTS
@@ -25,7 +27,8 @@ const MARKER = /^<!-- example: ([a-z0-9]+(?:-[a-z0-9]+)*)(?: (skip|fixture))? --
 // Both fence characters and any length, with an info string after the language (CommonMark): ```js title=x, ~~~js.
 const FENCE = /^(`{3,}|~{3,})\s*([^\s`]*).*$/;
 const SCRIPT_LANGUAGES = new Set(['js', 'javascript', 'mjs', 'cjs', 'ts', 'typescript', 'jsx', 'tsx']);
-const PACKAGE_IMPORT = /^import \{([^}]+)\} from '@uniquedomains\/([a-z-]+)';?$/;
+// The package by its name on npm (`domain-name-api`, `domain-availability`, `@uniquedomains/whois`), mapped to its folder.
+const PACKAGE_IMPORT = /^import \{([^}]+)\} from '((?:@uniquedomains\/)?[a-z-]+)';?$/;
 export const MAX_SKIPS = 3;
 
 /*----------------------------------
@@ -93,7 +96,8 @@ export const renderModule = (examples, specifierOf, file = 'README.md') => {
                 continue;
             }
             const match = PACKAGE_IMPORT.exec(line.trim());
-            const from = match ? specifier(match[2]) : null;
+            const folder = match ? folderOfPackage(match[2]) : null;
+            const from = folder ? specifier(folder) : null;
             if (!match || !from) throw new Error(`${file}:${example.line}: ${example.name} imports something other than names from a package of this repository on one line`);
             const names = imports.get(from) ?? new Set();
             for (const name of match[1].split(',').map((entry) => entry.trim()).filter(Boolean)) names.add(name);

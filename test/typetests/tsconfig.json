@@ -4,11 +4,11 @@
     "noEmit": true,
     "noUnusedLocals": false,
     "paths": {
-      "@uniquedomains/sdk": ["../../packages/sdk/src/index.ts"],
+      "domain-name-api": ["../../packages/sdk/src/index.ts"],
       "@uniquedomains/whois": ["../../packages/whois/src/index.ts"],
-      "@uniquedomains/domain-availability": ["../../packages/domain-availability/src/index.ts"],
-      "@uniquedomains/registrar-prices": ["../../packages/registrar-prices/src/index.ts"],
-      "@uniquedomains/domain-appraisal": ["../../packages/domain-appraisal/src/index.ts"]
+      "domain-availability": ["../../packages/domain-availability/src/index.ts"],
+      "registrar-prices": ["../../packages/registrar-prices/src/index.ts"],
+      "domain-appraisal": ["../../packages/domain-appraisal/src/index.ts"]
     }
   },
   "include": ["."]

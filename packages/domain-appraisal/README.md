@@ -1,22 +1,26 @@
 # Domain appraisal for Node.js
 
-What did similar names sell for? One call answers with no key and no sign-up: for `get.plumbing`, 10 similar sales with a median of $2,677. The summary comes from 12 months of domain sales, about 40,000 of them. The estimated value of a name needs a key. The newest sales and the market's totals are a page: [unique.domains/sales](https://unique.domains/sales).
+What is a name worth, and what did similar names sell for? `await comparableSales('get.plumbing')` answers 10 similar sales with a median of $2,677, from 12 months of domain sales, about 40,000 of them. `appraisal()` gives the estimated value of a name and its past estimates. `comparableSales()` answers with no key and no sign-up. The newest sales and the market's totals are a page: [unique.domains/sales](https://unique.domains/sales).
 
 ```bash
-npx @uniquedomains/domain-appraisal get.plumbing
+npx domain-appraisal get.plumbing
 ```
 
 ```bash
-npm install @uniquedomains/domain-appraisal
+npm install domain-appraisal
 ```
 
-Node 20 or later. ESM and CommonJS. Built on [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk).
+Node 20 or later. ESM and CommonJS.
+
+One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`registrar-prices`](https://www.npmjs.com/package/registrar-prices) and [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois).
+
+Up to version 0.2.1 this package was published as `@uniquedomains/domain-appraisal`. Same code, same methods.
 
 ## Comparable sales
 
 <!-- example: comparable-sales -->
 ```js
-import { comparableSales } from '@uniquedomains/domain-appraisal';
+import { comparableSales } from 'domain-appraisal';
 
 const sales = await comparableSales('get.plumbing');
 console.log(sales.tier, sales.count, sales.medianUsd);
@@ -30,7 +34,7 @@ The value of a name and its last 20 estimates. It needs a key. `current` is `nul
 
 <!-- example: value fixture -->
 ```js
-import { appraisal } from '@uniquedomains/domain-appraisal';
+import { appraisal } from 'domain-appraisal';
 
 const { current } = await appraisal('zorbly.io', { apiKey: process.env.UD_API_KEY });
 console.log(current ? current.value : 'No estimate yet.');
@@ -40,7 +44,7 @@ Without a key, the call throws a `PlanRequiredError`:
 
 <!-- example: refused -->
 ```js
-import { appraisal, PlanRequiredError } from '@uniquedomains/domain-appraisal';
+import { appraisal, PlanRequiredError } from 'domain-appraisal';
 
 try {
     await appraisal('zorbly.io');
@@ -52,11 +56,11 @@ try {
 
 ## A new appraisal
 
-Runs the appraisal when a catalog name's estimate is missing, and answers the value. It needs a key on the Investor plan. Appraisals are counted apart from your calls, in Appraisal units your plan or RapidAPI subscription includes each month: this spends one when this call starts a run, and none when it reuses an estimate. When another call holds the run, the API answers 202 with the answer so far, so `current` may be `null`: ask again in about 30 seconds. The name must be in the catalog already: [`check` in `@uniquedomains/domain-availability`](https://www.npmjs.com/package/@uniquedomains/domain-availability) adds it.
+Runs the appraisal when a catalog name's estimate is missing, and answers the value. It needs a key on the Investor plan. Appraisals are counted apart from your calls, in Appraisal units your plan or RapidAPI subscription includes each month: this spends one when this call starts a run, and none when it reuses an estimate. When another call holds the run, the API answers 202 with the answer so far, so `current` may be `null`: ask again in about 30 seconds. The name must be in the catalog already: [`check` in `domain-availability`](https://www.npmjs.com/package/domain-availability) adds it.
 
 <!-- example: appraise fixture -->
 ```js
-import { appraise } from '@uniquedomains/domain-appraisal';
+import { appraise } from 'domain-appraisal';
 
 const { current } = await appraise('zorbly.io', { apiKey: process.env.UD_API_KEY });
 console.log(current ? current.value : 'Still running: ask again in about 30 seconds.');

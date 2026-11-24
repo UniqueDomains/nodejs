@@ -2,7 +2,7 @@
 - BIN: ud-appraise
 ----------------------------------*/
 
-import type { DataOf } from '@uniquedomains/sdk';
+import type { DataOf } from 'domain-name-api';
 import { main, onePositional, UsageError } from '../../../shared/usecase/bin';
 import { appraisal, appraise, comparableSales } from './index';
 

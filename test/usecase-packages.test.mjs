@@ -13,31 +13,40 @@ const read = (dir, file) => readFileSync(join(ROOT, 'packages', dir, file), 'utf
 /** Every function of a package, the operation it calls, and whether the README calls it free. */
 const PACKAGES = [
     {
-        dir: 'whois', title: 'WHOIS lookup for Node.js, with history', bin: 'ud-whois', listing: 'whois', page: 'whois', phrase: 'whois', keywords: ['whois', 'rdap', 'domain', 'registry', 'dns'],
+        dir: 'whois', free: 'whois', former: null, name: '@uniquedomains/whois', title: 'WHOIS lookup for Node.js, with history', bin: 'ud-whois', listing: 'whois', page: 'whois', phrase: 'whois', keywords: ['whois', 'rdap', 'domain', 'registry', 'dns'],
         functions: { whois: 'get_name_registry', dns: 'get_name_dns', whoisHistory: 'get_name_registry_history' },
     },
     {
-        dir: 'domain-availability', title: 'Domain availability check for Node.js', bin: 'ud-availability', listing: 'availability', page: 'availability', phrase: 'domain-availability', keywords: ['domain-availability'],
+        dir: 'domain-availability', free: 'availability', former: '@uniquedomains/domain-availability', name: 'domain-availability', title: 'Domain availability check for Node.js', bin: 'ud-availability', listing: 'availability', page: 'availability', phrase: 'domain-availability', keywords: ['domain-availability'],
         functions: { availability: 'get_name', check: 'check_name', availabilityBatch: 'batch_names' },
     },
     {
-        dir: 'registrar-prices', title: 'Registrar price comparison for Node.js', bin: 'ud-prices', listing: 'price-comparison', page: 'price-comparison', phrase: 'registrar-prices', keywords: ['registrar-prices'],
+        dir: 'registrar-prices', free: 'pricesForTld', former: '@uniquedomains/registrar-prices', name: 'registrar-prices', title: 'Registrar prices for Node.js', bin: 'ud-prices', listing: 'price-comparison', page: 'price-comparison', phrase: 'registrar-prices', keywords: ['registrar-prices'],
         functions: { pricesForTld: 'list_tld_prices', renewalTraps: 'list_price_traps', priceChanges: 'list_price_changes', cheapest: 'list_cheapest_prices', priceHistory: 'list_tld_price_history' },
     },
     {
-        dir: 'domain-appraisal', title: 'Domain appraisal for Node.js', bin: 'ud-appraise', listing: 'appraisal', page: 'appraisal', phrase: 'domain-appraisal', keywords: ['domain-appraisal'],
+        dir: 'domain-appraisal', free: 'comparableSales', former: '@uniquedomains/domain-appraisal', name: 'domain-appraisal', title: 'Domain appraisal for Node.js', bin: 'ud-appraise', listing: 'appraisal', page: 'appraisal', phrase: 'domain-appraisal', keywords: ['domain-appraisal'],
         functions: { comparableSales: 'get_name_comps', appraisal: 'get_name_value', appraise: 'appraise_name' },
     },
 ];
+
+/** The six packages of the family line, by their names on npm (listing texts v3.0, section A). */
+const FAMILY = ['domain-name-api', '@uniquedomains/cli', 'domain-availability', 'domain-appraisal', 'registrar-prices', '@uniquedomains/whois'];
 
 const operationOf = (id) => {
     for (const item of Object.values(DOCUMENT.paths)) for (const operation of Object.values(item)) if (operation?.operationId === id) return operation;
     throw new Error(`no operation ${id}`);
 };
 
+/**
+ * The words of a function's own section, up to its first call there. The opening above the first `##` names functions
+ * without saying which need a key (Gaetan's D9 of 2026-11-24), so a function's section starts below it.
+ */
 const sectionOfFunction = (readme, name) => {
-    const at = readme.search(new RegExp(`\\b${name}\\(`));
-    assert.ok(at >= 0, `the README never calls ${name}`);
+    const body = readme.indexOf('\n## ');
+    const found = readme.slice(body).search(new RegExp(`\\b${name}\\(`));
+    assert.ok(body >= 0 && found >= 0, `the README never calls ${name} below its opening`);
+    const at = body + found;
     const start = readme.lastIndexOf('\n## ', at);
     return readme.slice(start, at);
 };
@@ -87,10 +96,10 @@ describe('the use-case packages (plan decision 18)', () => {
             const manifest = JSON.parse(read(spec.dir, 'package.json'));
             const readme = read(spec.dir, 'README.md');
 
-            it('depends on the SDK at the lockstep version, nothing else', () => {
-                assert.equal(manifest.name, `@uniquedomains/${spec.dir}`);
+            it('depends on the SDK at the lockstep version, by its name on npm, nothing else', () => {
+                assert.equal(manifest.name, spec.name);
                 assert.equal(manifest.version, version);
-                assert.deepEqual(manifest.dependencies, { '@uniquedomains/sdk': version });
+                assert.deepEqual(manifest.dependencies, { 'domain-name-api': version });
             });
 
             it('publishes its code, its README and its license, publicly, with the repository\'s folder', () => {
@@ -150,16 +159,29 @@ describe('the use-case packages (plan decision 18)', () => {
                 }
             });
 
-            it('its first paragraph names what is free', () => {
-                assert.match(readme.split('\n')[2], /free|with no key/);
+            it('its first paragraph names the function that answers with no key, and never what needs a key (D9)', () => {
+                const opening = readme.split('\n')[2];
+                assert.match(opening, new RegExp(`\`${spec.free}\\(\\)\` answers with no key`));
+                assert.doesNotMatch(opening, /needs? a key|with a key|Investor plan/i);
+            });
+
+            it('names the other packages of the family by their names on npm, and its former name if it had one', () => {
+                const family = readme.split('\n').find((line) => line.startsWith('One family on the [Unique.domains API](https://unique.domains/api): '));
+                assert.ok(family, 'the family line');
+                for (const sibling of FAMILY.filter((entry) => entry !== spec.name)) assert.ok(family.includes(`[\`${sibling}\`](https://www.npmjs.com/package/${sibling})`), sibling);
+                assert.ok(!family.includes(`[\`${spec.name}\`]`), 'leaves its own name out');
+                if (spec.former) assert.ok(readme.includes(`Up to version 0.2.1 this package was published as \`${spec.former}\`. Same code, same methods.`));
+                else assert.doesNotMatch(readme, /Up to version/);
+                assert.ok(readme.includes(`npx ${spec.name} `), 'the npx line names the package as npm does');
+                assert.ok(readme.includes(`npm install ${spec.name}\n`), 'the install line names the package as npm does');
             });
 
         });
     }
 
-    it('the appraisal README opens by saying the comparable sales answer with no key and the value needs a key (decision 48, in the words of 2026-11-11)', () => {
+    it('the appraisal README opens on what a name is worth, then says the comparable sales answer with no key (batch 1 of 2026-11-24, D9)', () => {
         const opening = read('domain-appraisal', 'README.md').split('\n')[2];
-        assert.match(opening, /^What did similar names sell for\? One call answers with no key/);
-        assert.match(opening, /The estimated value of a name needs a key\./);
+        assert.match(opening, /^What is a name worth, and what did similar names sell for\?/);
+        assert.match(opening, /`comparableSales\(\)` answers with no key and no sign-up\./);
     });
 });

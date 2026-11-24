@@ -1,6 +1,6 @@
 # WHOIS lookup for Node.js, with history
 
-WHOIS has no single format: every registry answers its own way, and many now answer over RDAP only. This package skips that work. One call returns a domain name's registry record already parsed: dates, registrar, status codes, nameservers, DNSSEC and holder. The record and the name's DNS are free and need no key. The history of past records needs a key on the Investor plan. To see a record before you install anything, look one up at [unique.domains/whois](https://unique.domains/whois).
+Where is `get.plumbing` registered, and until when? `await whois('get.plumbing')` answers: GoDaddy.com, LLC, created on 3 June 2020, expiring on 3 June 2027, four status codes, two nameservers, no DNSSEC. WHOIS has no single format: every registry answers its own way, and many now answer over RDAP only. This package skips that work: one call returns the registry record already parsed, another the name's DNS, another the history of its past records with the registrar moves between them. `whois()` answers with no key. To see a record before you install anything, look one up at [unique.domains/whois](https://unique.domains/whois).
 
 ```bash
 npx @uniquedomains/whois get.plumbing
@@ -10,7 +10,9 @@ npx @uniquedomains/whois get.plumbing
 npm install @uniquedomains/whois
 ```
 
-Node 20 or later. ESM and CommonJS. Built on [`@uniquedomains/sdk`](https://www.npmjs.com/package/@uniquedomains/sdk).
+Node 20 or later. ESM and CommonJS.
+
+One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal) and [`registrar-prices`](https://www.npmjs.com/package/registrar-prices).
 
 ## The registry record
 

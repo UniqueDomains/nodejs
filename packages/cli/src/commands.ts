@@ -9,7 +9,7 @@
  * operation table, so a regenerated snapshot adds its commands with no change here.
  */
 
-import { isOperationId, OPERATIONS, type BodyProperty, type OperationDefinition, type OperationId, type OperationParameter, type ParameterType } from '@uniquedomains/sdk';
+import { isOperationId, OPERATIONS, type BodyProperty, type OperationDefinition, type OperationId, type OperationParameter, type ParameterType } from 'domain-name-api';
 
 /*----------------------------------
 - TYPES

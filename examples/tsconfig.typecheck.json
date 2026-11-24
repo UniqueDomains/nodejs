@@ -7,7 +7,7 @@
     "checkJs": true,
     "types": ["node", "react"],
     "paths": {
-      "@uniquedomains/sdk": ["../packages/sdk/src/index.ts"]
+      "domain-name-api": ["../packages/sdk/src/index.ts"]
     }
   },
   "include": ["nextjs-domain-search/app", "availability-widget/widget.js"]

@@ -1,6 +1,6 @@
 # Domain search with Next.js
 
-An App Router page that looks up a domain name on the server, with [`@uniquedomains/sdk`](../../packages/sdk). No key needed.
+An App Router page that looks up a domain name on the server, with [`domain-name-api`](../../packages/sdk). No key needed.
 
 ```bash
 npm install

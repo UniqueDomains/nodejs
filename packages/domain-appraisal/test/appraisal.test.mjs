@@ -15,7 +15,7 @@ const free = () => ({ apiKey: null, baseUrl: server.base });
 const keyed = () => ({ apiKey: KEY, baseUrl: server.base });
 const last = () => server.requests.at(-1);
 
-describe('@uniquedomains/domain-appraisal', () => {
+describe('domain-appraisal', () => {
     it('reads the comparable sales for free, sending no key', async () => {
         assert.deepEqual(await comparableSales('get.plumbing', free()), recorded('usecase-comps'));
         assert.equal(last().path, '/v1/names/get.plumbing/comps');

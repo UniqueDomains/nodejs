@@ -23,10 +23,12 @@ const tag = process.argv[2];
 if (!tag || !/^v\d+\.\d+\.\d+$/.test(tag)) throw new Error('Usage: release-notes.mjs v<major>.<minor>.<patch> (no pre-release tags)');
 
 const version = tag.slice(1);
+// The SDK's name on npm, read from its package.json (`domain-name-api` since 0.3.0), never built from its folder.
+const sdk = manifestOf('sdk').name;
 for (const name of packageFolders()) {
     const manifest = manifestOf(name);
     if (manifest.version !== version) throw new Error(`packages/${name} is ${manifest.version}, the tag says ${version}`);
-    if (name !== 'sdk' && manifest.dependencies?.['@uniquedomains/sdk'] !== version) throw new Error(`packages/${name} depends on @uniquedomains/sdk ${manifest.dependencies?.['@uniquedomains/sdk']}, not ${version}`);
+    if (name !== 'sdk' && manifest.dependencies?.[sdk] !== version) throw new Error(`packages/${name} depends on ${sdk} ${manifest.dependencies?.[sdk]}, not ${version}`);
 }
 
 // stderr is dropped: on the first tag `git describe` finds no previous tag, which is expected, not an error to show.

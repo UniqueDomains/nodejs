@@ -13,6 +13,16 @@ export const packageFolders = () => JSON.parse(readFileSync(join(ROOT, 'package.
 
 export const manifestOf = (folder) => JSON.parse(readFileSync(join(ROOT, 'packages', folder, 'package.json'), 'utf8'));
 
+/**
+ * Each package's folder and its name on npm, in the workspaces' order. The name is read from its `package.json`, never
+ * built from the folder: since 0.3.0 the SDK's folder `sdk` publishes `domain-name-api`, and three use-case packages
+ * publish without the scope.
+ */
+export const workspacePackages = () => packageFolders().map((folder) => ({ folder, name: manifestOf(folder).name }));
+
+/** The folder of the package a specifier names (`domain-name-api`, `@uniquedomains/whois`), or null for any other. */
+export const folderOfPackage = (name) => workspacePackages().find((entry) => entry.name === name)?.folder ?? null;
+
 /** The version a new package's placeholder takes: below any real one, so the tag's version becomes `latest`. */
 export const PLACEHOLDER_VERSION = '0.0.1';
 

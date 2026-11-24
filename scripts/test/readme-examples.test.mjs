@@ -44,14 +44,18 @@ describe('README examples (plan decision 17)', () => {
 
     it('gather the SDK imports and add the client where an example leaves it out', () => {
         const source = renderModule(parseExamples([
-            block('<!-- example: first -->', "import { createClient } from '@uniquedomains/sdk';\n\nconst ud = createClient();\nconsole.log(ud);"),
-            block('<!-- example: next -->', "import { RateLimitError } from '@uniquedomains/sdk';\nconsole.log(ud, RateLimitError);"),
+            block('<!-- example: first -->', "import { createClient } from 'domain-name-api';\n\nconst ud = createClient();\nconsole.log(ud);"),
+            block('<!-- example: next -->', "import { RateLimitError } from 'domain-name-api';\nconsole.log(ud, RateLimitError);"),
             block('<!-- example: never skip -->', 'throw new Error();'),
         ].join('\n')), './sdk.mjs');
         assert.match(source, /^import \{ createClient, RateLimitError \} from '\.\/sdk\.mjs';$/m);
         assert.equal(source.match(/const ud = createClient\(\);/g).length, 2);
         assert.doesNotMatch(source, /never/);
         assert.throws(() => renderModule(parseExamples(block('<!-- example: other -->', "import fs from 'node:fs';")), './sdk.mjs'), /imports something other/);
+        // A README that still imports a name the package had before 0.3.0 fails, so no example teaches it (npm unscoped names, lane R).
+        for (const old of ['@uniquedomains/sdk', '@uniquedomains/domain-availability']) {
+            assert.throws(() => renderModule(parseExamples(block('<!-- example: old -->', `import { createClient } from '${old}';\nconsole.log(createClient);`)), (name) => `./${name}.mjs`), /imports something other/, old);
+        }
     });
 
     it('fail an example that prints nothing or prints undefined', async () => {

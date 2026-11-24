@@ -5,7 +5,7 @@
 
 /**
  * `npm publish` packs a workspace package's own folder only, so the root `LICENSE` is copied into each package, and
- * the SDK also gets the snapshot as `openapi.json` (exported as `@uniquedomains/sdk/openapi.json`: the CLI's
+ * the SDK also gets the snapshot as `openapi.json` (exported as `domain-name-api/openapi.json`: the CLI's
  * `ud openapi` prints it and the MCP server generates its tools from it). Both copies are git-ignored: the root files
  * stay the only sources.
  *

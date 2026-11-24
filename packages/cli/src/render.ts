@@ -10,7 +10,7 @@
  * are left out with a line saying so: `--json` shows everything.
  */
 
-import type { JsonValue } from '@uniquedomains/sdk';
+import type { JsonValue } from 'domain-name-api';
 
 /*----------------------------------
 - TYPES

@@ -1,13 +1,13 @@
 /*----------------------------------
-- @uniquedomains/registrar-prices
+- registrar-prices
 ----------------------------------*/
 
 /** What registrars charge for an ending, where a first year hides a high renewal, and what moved. */
 
-import type { CallOptions, OperationCall } from '@uniquedomains/sdk';
+import type { CallOptions, OperationCall } from 'domain-name-api';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
 
-export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaError, RateLimitError, ValidationError } from '@uniquedomains/sdk';
+export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaError, RateLimitError, ValidationError } from 'domain-name-api';
 export type { ConnectionOptions };
 
 /*----------------------------------

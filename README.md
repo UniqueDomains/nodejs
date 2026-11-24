@@ -1,4 +1,4 @@
-# Unique.domains for Node
+# Domain name API for Node.js, by Unique.domains
 
 One line, no key, a real answer:
 
@@ -9,7 +9,7 @@ npx @uniquedomains/cli get-name get.plumbing
 ```json
 {
   "name": "get.plumbing",
-  "status": "for_sale",
+  "status": "registered",
   "registry": {
     "createdAt": "2020-06-03",
     "expiresAt": "2027-06-03",
@@ -27,12 +27,12 @@ This repository holds six packages. The first two are generated from the API's O
 
 | Package | What it is |
 |---|---|
-| [`@uniquedomains/sdk`](packages/sdk) | A typed client. Methods grouped by what they read (`ud.names.get`, `ud.prices.tld`, ...), each answering the API's data. |
+| [`domain-name-api`](packages/sdk) | A typed client. Methods grouped by what they read (`ud.names.get`, `ud.prices.tld`, ...), each answering the API's data. |
 | [`@uniquedomains/cli`](packages/cli) | The `ud` command. Every operation is a command: `get_name` is `ud get-name`. |
 | [`@uniquedomains/whois`](packages/whois) | WHOIS lookup: a name's registry record and DNS for free, its past records with a key. The `ud-whois` command. |
-| [`@uniquedomains/domain-availability`](packages/domain-availability) | Availability check: a name's status and price for free, a live check with a key. The `ud-availability` command. |
-| [`@uniquedomains/registrar-prices`](packages/registrar-prices) | Price comparison: every registrar's price for an ending, renewal traps and changes for free, the cheapest across endings with a key. The `ud-prices` command. |
-| [`@uniquedomains/domain-appraisal`](packages/domain-appraisal) | Appraisal: comparable sales for free, the value with a key. The `ud-appraise` command. |
+| [`domain-availability`](packages/domain-availability) | Availability check: a name's status and price for free, a live check with a key. The `ud-availability` command. |
+| [`registrar-prices`](packages/registrar-prices) | Price comparison: every registrar's price for an ending, renewal traps and changes for free, the cheapest across endings with a key. The `ud-prices` command. |
+| [`domain-appraisal`](packages/domain-appraisal) | Appraisal: comparable sales for free, the value with a key. The `ud-appraise` command. |
 
 [`examples/`](examples) holds three starters: a [Next.js page](examples/nextjs-domain-search), a [Google Sheets function](examples/google-sheets) and an [availability widget](examples/availability-widget).
 
@@ -42,7 +42,7 @@ npx @uniquedomains/cli get-name get.plumbing
 
 <!-- example: first-call -->
 ```js
-import { createClient } from '@uniquedomains/sdk';
+import { createClient } from 'domain-name-api';
 
 const ud = createClient();
 const name = await ud.names.get('get.plumbing');
@@ -89,7 +89,7 @@ npm test
 - `npm test` also runs every README example against the fixture server (`test/support/fixture-server.mjs`). Every `js` block of a README follows a marker, `<!-- example: <name> -->`; `fixture` after the name runs it against the fixture server only (a key the nightly job does not hold), `skip` never runs it (at most three a README). `scripts/readme-examples.mjs` extracts them into `test/readme/`.
 - `npm run examples:live` runs the README examples not marked `fixture` against the live free API, keyless.
 - `node scripts/record-fixtures.mjs --only <names>` records fixtures from the live free API, spending only their calls.
-- `npm run smoke` runs the built CLI against the live free API.
+- `npm run smoke` runs the built CLI against the live free API, then each use-case package through `npx` under its name on npm, from its packed tarball.
 - A tag `v<version>` publishes every package from GitHub Actions with provenance, the SDK first. The packages share one version, and a tag never carries a pre-release.
 - A new package first gets a placeholder `0.0.1` from `node scripts/publish-placeholder.mjs` (`--dry-run` to see it), since npm sets up trusted publishing only for a package that exists; the tag then publishes its real version with provenance.
 - A publish by hand, `npm publish --workspace packages/<folder>`, builds the package first through its `prepack` script. The SDK goes first: the others depend on it.
