@@ -1,6 +1,6 @@
 {
   "name": "@uniquedomains/cli",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Domain name API from the command line: npx @uniquedomains/cli get-name get.plumbing. Availability, WHOIS, DNS, registrar prices, auctions, sales, estimated value, trademarks and word data. 87 commands, 62 need no key.",
   "license": "MIT",
   "author": "Unique.domains (https://unique.domains)",
@@ -65,6 +65,6 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "domain-name-api": "0.3.0"
+    "domain-name-api": "0.4.0"
   }
 }

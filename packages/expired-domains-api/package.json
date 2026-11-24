@@ -1,6 +1,6 @@
 {
   "name": "expired-domains-api",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Expired domains API for Node.js: the one-word domain names expiring, expired and dropping each day, by ending, with the day each one comes free. Start with no key.",
   "license": "MIT",
   "author": "Unique.domains (https://unique.domains)",
@@ -63,6 +63,6 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "domain-name-api": "0.3.0"
+    "domain-name-api": "0.4.0"
   }
 }

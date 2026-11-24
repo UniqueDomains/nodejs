@@ -1,6 +1,6 @@
 {
   "name": "domain-availability",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Domain availability check for Node.js: is the name available, the day it comes free, what it costs today and what it renews at, for one name or a whole list, with a live check when you need it. Start with no key.",
   "license": "MIT",
   "author": "Unique.domains (https://unique.domains)",
@@ -62,6 +62,6 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "domain-name-api": "0.3.0"
+    "domain-name-api": "0.4.0"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "domain-auctions",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Domain auctions for Node.js: the names closing today at seven auction venues, with their bids and deadlines, each venue's rules, the auction of any one name and how past auctions ended. Start with no key.",
   "license": "MIT",
   "author": "Unique.domains (https://unique.domains)",
@@ -61,6 +61,6 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "domain-name-api": "0.3.0"
+    "domain-name-api": "0.4.0"
   }
 }
