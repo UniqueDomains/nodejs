@@ -14,7 +14,7 @@ Node 20 or later. ESM and CommonJS.
 
 One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal) and [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois).
 
-Up to version 0.2.1 this package was published as `@uniquedomains/registrar-prices`. Same code, same methods.
+Up to version 0.2.1 this package was published as `@uniquedomains/registrar-prices`. Same code, same methods: switch every import at once, the two names do not share their error classes.
 
 ## Every registrar's price for an ending
 

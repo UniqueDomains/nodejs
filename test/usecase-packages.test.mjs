@@ -30,6 +30,9 @@ const PACKAGES = [
     },
 ];
 
+/** The former-name line of a renamed package (listing texts v3.0, section A, with D13 of 2026-11-24). */
+const formerLine = (old) => `Up to version 0.2.1 this package was published as \`${old}\`. Same code, same methods: switch every import at once, the two names do not share their error classes.`;
+
 /** The six packages of the family line, by their names on npm (listing texts v3.0, section A). */
 const FAMILY = ['domain-name-api', '@uniquedomains/cli', 'domain-availability', 'domain-appraisal', 'registrar-prices', '@uniquedomains/whois'];
 
@@ -170,7 +173,7 @@ describe('the use-case packages (plan decision 18)', () => {
                 assert.ok(family, 'the family line');
                 for (const sibling of FAMILY.filter((entry) => entry !== spec.name)) assert.ok(family.includes(`[\`${sibling}\`](https://www.npmjs.com/package/${sibling})`), sibling);
                 assert.ok(!family.includes(`[\`${spec.name}\`]`), 'leaves its own name out');
-                if (spec.former) assert.ok(readme.includes(`Up to version 0.2.1 this package was published as \`${spec.former}\`. Same code, same methods.`));
+                if (spec.former) assert.ok(readme.includes(formerLine(spec.former)));
                 else assert.doesNotMatch(readme, /Up to version/);
                 assert.ok(readme.includes(`npx ${spec.name} `), 'the npx line names the package as npm does');
                 assert.ok(readme.includes(`npm install ${spec.name}\n`), 'the install line names the package as npm does');
@@ -178,6 +181,10 @@ describe('the use-case packages (plan decision 18)', () => {
 
         });
     }
+
+    it('the SDK README names its former name and says to switch every import at once (D13)', () => {
+        assert.ok(read('sdk', 'README.md').includes(formerLine('@uniquedomains/sdk')));
+    });
 
     it('the appraisal README opens on what a name is worth, then says the comparable sales answer with no key (batch 1 of 2026-11-24, D9)', () => {
         const opening = read('domain-appraisal', 'README.md').split('\n')[2];
