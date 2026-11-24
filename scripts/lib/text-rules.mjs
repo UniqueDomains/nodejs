@@ -44,7 +44,10 @@ export const READER_RULES = [
     { id: 'checked-date', pattern: /\bchecked \d/i, label: AGE },
     { id: 'out-of-date', pattern: /\bout of date\b/i, label: AGE },
     { id: 'its-dates', pattern: /\beach with its dates\b/i, label: AGE },
-    { id: 'with-its-day', pattern: /\bwith (?:its|the) day\b/i, label: AGE },
+    // One exception, Gaetan's D15 of 2026-11-24 ("Narrow the check"): the day a name comes free or drops is a fact of
+    // the name, not the day our data was read, as in expired-domains-api's approved description, "with the day each one
+    // comes free". Only that: "with its day" and any other "with the day" stay refused.
+    { id: 'with-its-day', pattern: /\bwith (?:its day\b|the day\b(?! (?:each one|each name|the name|it) (?:comes free|drops)\b))/i, label: AGE },
     { id: 'dated-by-day', pattern: /\bdated by day\b/i, label: AGE },
     { id: 'fresh', pattern: /\bfresh (?:estimates?|appraisals?|reads?|readings?|records?|answers?|data|status(?:es)?|figures?)\b/i, label: AGE },
     { id: 'dated-example', pattern: /\(\d{4}-\d{2}-\d{2}[,)]/, label: 'a dated example answer (the day goes, 26A)' },

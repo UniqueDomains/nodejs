@@ -129,7 +129,7 @@ describe('scripts/check-text.mjs, the three rules (plan "never where data comes 
         'checked-date': ['Terms checked 3 Oct.'],
         'out-of-date': ['An estimate out of date.'],
         'its-dates': ['505 endings, each with its dates.'],
-        'with-its-day': ['Nameservers, with the day of the record.', 'Each answer, with its day.'],
+        'with-its-day': ['Nameservers, with the day of the record.', 'Each answer, with its day.', 'Each answer with its day.', 'The record, with the day we read it.'],
         'dated-by-day': ['Answers are dated by day.'],
         'fresh': ['A fresh estimate.', 'No fresh estimates.', 'A fresh appraisal.', 'Fresh appraisals.', 'A fresh read.', 'Fresh reads.', 'A fresh reading.', 'Fresh readings.', 'A fresh record.', 'Fresh records.', 'A fresh answer.', 'Fresh answers.', 'Fresh data.', 'A fresh status.', 'Fresh statuses.', 'A fresh figure.', 'Fresh figures.'],
         'dated-example': ['A median of $2,677 (2026-11-11).', 'That answer (2026-11-11, trimmed).'],
@@ -148,6 +148,15 @@ describe('scripts/check-text.mjs, the three rules (plan "never where data comes 
                 assert.deepEqual(brokenRules(sample), [id], `${id}: "${sample}"`);
                 assert.deepEqual(brokenRules(sample, READER_RULES.filter((rule) => rule.id !== id)), [], `${id} is the only rule for "${sample}"`);
             }
+        }
+    });
+
+    it('lets a name\'s drop day pass the with-its-day rule, and nothing else (D15 of 2026-11-24)', () => {
+        const approved = JSON.parse(readFileSync(join(ROOT, 'packages', 'expired-domains-api', 'package.json'), 'utf8')).description;
+        assert.match(approved, /with the day each one comes free/);
+        assert.deepEqual(brokenRules(approved), [], approved);
+        for (const line of ['with its day', 'each answer with its day', 'with the day we read it', 'with the day each one was read', 'with its day each one comes free']) {
+            assert.deepEqual(brokenRules(line), ['with-its-day'], line);
         }
     });
 
