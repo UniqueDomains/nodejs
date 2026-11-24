@@ -26,7 +26,7 @@ const { pulse } = await salesPulse();
 for (const window of pulse.windows) console.log(window.id, window.count, window.medianUsd);
 ```
 
-The answer also carries the same figures for the period before each window, the sales by price band over 30 days and 12 months, and how many names sold more than once.
+The answer also carries the same figures for the period before each window, the sales by price band over 30 days and 12 months, and how many names that sold before can be registered or bought today.
 
 ## By ending
 
@@ -59,7 +59,7 @@ const word = await salesOfWord('harbor');
 console.log(word.sales12m, word.median12mUsd, word.endingsSoldOn, word.lastSaleMonth);
 ```
 
-Without a key, one address reads one word a day: the same word again is answered, and another throws a `RateLimitError` until the next UTC day. A key reads any number of words. A word with no sale in 12 months answers `status: 'none'`.
+Without a key, one address reads one word a day: the same word again is answered, and another throws a `RateLimitError` until the next UTC day. RapidAPI's free Basic plan reads one word a day per subscription. A member key or a paid RapidAPI plan reads any number of words. A word with no sale in 12 months answers `status: 'none'`.
 
 ## The command
 
@@ -72,7 +72,7 @@ ud-sales --movers
 ud-sales --series month
 ```
 
-With no argument, the whole market; an argument with a dot, that ending; any other, that word. A table on a terminal, JSON in a pipe. `ud-sales --help` lists the flags.
+With no argument, the whole market; an argument that starts with a dot, that ending; any other, that word. A table on a terminal, JSON in a pipe. `ud-sales --help` lists the flags.
 
 ## Keys and limits
 

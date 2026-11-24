@@ -83,10 +83,24 @@ describe('ud-sales', () => {
         assert.match(stderr, /^With no key, one address reads one word's sales a day\.$/m);
     });
 
-    it('says nothing of a word a day on another refusal', async () => {
-        const { stderr } = await bin(['--series', 'year']);
+    it('says nothing of a word a day on a spent hourly window, another 429 of the same word call', async () => {
+        const { code, stderr } = await bin(['beacon']);
+        assert.equal(code, 1);
+        assert.match(stderr, /60 calls an hour/);
         assert.doesNotMatch(stderr, /one word's sales a day/);
-        assert.match(stderr, /--series takes day, week, month/);
+    });
+
+    it('names the subscription, not the address, on RapidAPI\'s free Basic plan (review of lane N, 5)', async () => {
+        const { code, stderr } = await bin(['lantern', '--rapidapi-key', 'rk', '--base', server.origin]);
+        assert.equal(code, 1);
+        assert.match(stderr, /^On RapidAPI's free Basic plan, one subscription reads one word's sales a day\.$/m);
+        assert.doesNotMatch(stderr, /With no key/);
+    });
+
+    it('says in its help that an ending, --lengths and --movers go to the Domain Market listing on a RapidAPI key', async () => {
+        const { stdout } = await bin(['--help']);
+        assert.match(stdout, /an ending, --lengths and --movers go to the Domain Market listing/);
+        assert.equal((stdout.match(/A RapidAPI key goes to the Domain Market listing\./g) ?? []).length, 2);
     });
 
     it('reads --lengths, --movers and --series on their calls', async () => {

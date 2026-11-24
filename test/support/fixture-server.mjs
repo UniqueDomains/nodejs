@@ -68,9 +68,9 @@ const keyed = (name, method, path, query, data, plan = null) => [
  * A call whose keyed answer is the Investor plan's: the rows with a member key, the plan's refusal for a Founder key.
  * The keyless answer is a recorded one (a 403, or the free shape), so none is written here.
  */
-const investorOnly = (name, path, query, data) => [
+const investorOnly = (name, path, query, data, cursor = null) => [
     { name: `${name}-founder`, request: { method: 'GET', path, query, header: ['authorization', `Bearer ${FOUNDER_KEY}`] }, response: json(403, problem('plan_required', 403, `GET ${path} needs the Investor plan.`, { product: 'https://app.unique.domains/settings/account' })) },
-    { name, request: { method: 'GET', path, query, header: ['authorization', USECASE_KEY] }, response: json(200, envelope(data, `${path}${query ? `?${query}` : ''}`), { 'x-quota-limit': '10000', 'x-quota-remaining': '9000', 'x-quota-reset': QUOTA_RESET }) },
+    { name, request: { method: 'GET', path, query, header: ['authorization', USECASE_KEY] }, response: json(200, envelope(data, `${path}${query ? `?${query}` : ''}`, cursor), { 'x-quota-limit': '10000', 'x-quota-remaining': '9000', 'x-quota-reset': QUOTA_RESET }) },
 ];
 
 const VALUE = { current: { value: 4200, asOf: '2026-10-30T11:02:00.000Z' }, history: [{ value: 4200, date: '2026-10-30T11:02:00.000Z' }] };
@@ -233,7 +233,8 @@ export const SYNTHETIC = [
     },
     // expired-domains-api, domain-sales and domain-auctions (npm unscoped names, lane N). Every name below is made up, on
     // `.example`: no fixture carries a name of the day's auction sample or of a drop day.
-    ...investorOnly('usecase-drop-names', '/domains/drops', 'ending=io', [{ id: 'dom_anchor', name: 'anchor.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }, { id: 'dom_beacon', name: 'beacon.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }]),
+    ...investorOnly('usecase-drop-names', '/domains/drops', 'ending=io', [{ id: 'dom_anchor', name: 'anchor.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }, { id: 'dom_beacon', name: 'beacon.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }], 'c2'),
+    ...investorOnly('usecase-drop-names-2', '/domains/drops', 'ending=io&cursor=c2', [{ id: 'dom_cove', name: 'cove.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }]),
     // Without a key the API reads no `ending`: it answers the day's counts over every ending.
     { name: 'usecase-drops-ending-free', request: { method: 'GET', path: '/domains/drops', query: 'ending=io' }, response: recordedAt('usecase-drops', 'https://api.unique.domains/v1/domains/drops?ending=io') },
     ...investorOnly('usecase-expiring', '/domains/expiring', '', [expiringRow('anchor.example')]),
@@ -245,6 +246,18 @@ export const SYNTHETIC = [
             { name: 'lantern.example', ending: 'example', venue: 'dynadot', venueLabel: 'Dynadot', endsAt: '2026-11-24T17:00:00.000Z', currency: 'USD', bid: 120, bidCount: 7, verdict: 'Good', firstYear: 169.12, tag: 'jumped' },
             { name: 'orchard.example', ending: 'example', venue: 'dynadot', venueLabel: 'Dynadot', endsAt: '2026-11-24T19:00:00.000Z', currency: 'USD', bid: null, bidCount: 0, verdict: null, firstYear: null, tag: null },
         ], '/market/auctions/sample')),
+    },
+    {
+        // A spent hourly window on a word: not the word of the day, so `ud-sales` adds no line about it.
+        name: 'usecase-sales-word-window',
+        request: { method: 'GET', path: '/market/sales/words/beacon', query: '' },
+        response: json(429, problem('rate_limited', 429, 'You reached the free tier\'s 60 calls an hour per address. Retry in 900 seconds, or use a subscription for more.'), { 'retry-after': '900' }),
+    },
+    {
+        // The same refusal on RapidAPI's free Basic plan, counted per subscription.
+        name: 'usecase-sales-word-second-rapidapi',
+        request: { method: 'GET', path: '/market/sales/words/lantern', query: '', header: ['x-rapidapi-host', 'domain-sales-history1.p.rapidapi.com'] },
+        response: json(429, problem('rate_limited', 429, 'The free tier reads one word a day; today\'s word is "harbor". Retry in 52000 seconds, or use a subscription.'), { 'retry-after': '52000' }),
     },
     {
         // The API's answer to a second word on one day, without a key (the free tier's one word a day).

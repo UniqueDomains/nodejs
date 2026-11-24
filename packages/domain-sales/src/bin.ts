@@ -40,12 +40,12 @@ const endingAction = (raw: string, connection: ClientOptions): BinAction => {
 main({
     bin: 'ud-sales',
     version: __PACKAGE_VERSION__,
-    summary: 'How many domain names sold and at what median price. Free, no key needed: the market, an ending, a word (one a day per address).',
+    summary: 'How many domain names sold and at what median price. Free, no key needed: the market, an ending, a word (one a day per address). On a RapidAPI key, an ending, --lengths and --movers go to the Domain Market listing.',
     usage: ['', '.<ending>', '<word>', '--lengths', '--movers', '--series <day|week|month>'],
     runsWithoutArguments: true,
     flags: [
-        { name: 'lengths', help: 'Sales by name length on .com, .ai, .io and .co.' },
-        { name: 'movers', help: 'Up to ten words whose sales moved over the last 30 days.' },
+        { name: 'lengths', help: 'Sales by name length on .com, .ai, .io and .co. A RapidAPI key goes to the Domain Market listing.' },
+        { name: 'movers', help: 'Up to ten words whose sales moved over the last 30 days. A RapidAPI key goes to the Domain Market listing.' },
         { name: 'series', value: '<day|week|month>', help: 'The sales of each day, week or month, oldest first.' },
     ],
     listing: 'sales-history',
@@ -73,7 +73,11 @@ main({
         return {
             call: salesOfWord(subject, connection),
             empty: (answer: DataOf<'get_market_sales_word'>) => (answer.status === 'none' ? `No sales of "${answer.word}" in 12 months.` : null),
-            explain: (error) => (error.status === 429 && isWordOfTheDay(error.detail) ? 'With no key, one address reads one word\'s sales a day.' : null),
+            // RapidAPI's free Basic plan is gated per subscription, a keyless call per address (D11).
+            explain: (error) => {
+                if (error.status !== 429 || !isWordOfTheDay(error.detail)) return null;
+                return connection.rapidApi ? 'On RapidAPI\'s free Basic plan, one subscription reads one word\'s sales a day.' : 'With no key, one address reads one word\'s sales a day.';
+            },
         };
     },
 });

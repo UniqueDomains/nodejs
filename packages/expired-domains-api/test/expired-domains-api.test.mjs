@@ -49,9 +49,9 @@ describe('expired-domains-api', () => {
     });
 
     it('reads the names of a drop day with a key on the Investor plan, a page at a time', async () => {
-        const names = [];
-        for await (const row of drops({ apiKey: KEY, baseUrl: server.base, ending: 'io' })) names.push(row.name);
-        assert.deepEqual(names, ['anchor.example', 'beacon.example']);
+        const { data, meta } = await drops({ apiKey: KEY, baseUrl: server.base, ending: 'io' }).withMeta();
+        assert.deepEqual(data.map((row) => row.name), ['anchor.example', 'beacon.example']);
+        assert.equal(meta.cursor, 'c2', 'a next page');
         assert.equal(last().headers.authorization, `Bearer ${KEY}`);
     });
 
@@ -91,9 +91,22 @@ describe('ud-expired', () => {
         assert.match(stderr, /With no key the counts cover every ending: --ending narrows the names, with a key on the Investor plan\./);
     });
 
-    it('prints no such note with a key', async () => {
-        const { stderr } = await bin(['--ending', 'io', '--key', KEY]);
+    it('prints no such note with a key on the Investor plan, and its next page keeps the endings (review of lane N, 2)', async () => {
+        const { code, stderr } = await bin(['--ending', '.IO', '--key', KEY]);
+        assert.equal(code, 0);
         assert.doesNotMatch(stderr, /With no key/);
+        assert.match(stderr, /^More rows: npx @uniquedomains\/cli get-domain-drops --ending io --cursor c2 --key <your key>$/m);
+    });
+
+    it('keeps the filters of --expiring in its next page', async () => {
+        const { stderr } = await bin(['--expiring', '--ending', 'io', '--key', KEY]);
+        assert.match(stderr, /^More rows: npx @uniquedomains\/cli list-expiring-domains --ending io --cursor c2 --key <your key>$/m);
+    });
+
+    it('prints the note on RapidAPI\'s free Basic plan too: the note reads the answer, not the key (review of lane N, 3)', async () => {
+        const { code, stderr } = await bin(['--ending', 'io', '--rapidapi-key', 'rk', '--base', server.origin]);
+        assert.equal(code, 0);
+        assert.match(stderr, /With no key the counts cover every ending/);
     });
 
     it('prints the API\'s refusal of a day outside the week and exits 1', async () => {

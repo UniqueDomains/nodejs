@@ -15,8 +15,8 @@ export type { ConnectionOptions };
 ----------------------------------*/
 
 /**
- * The market's sales over 7 days, 30 days and 12 months, each with its count and median price, the price bands of the
- * last 30 days and how many names sold before. Free.
+ * The market's sales over 7 days, 30 days and 12 months, each with its count and median price, the sales by price band
+ * over 30 days and 12 months, and how many names that sold before can be registered or bought today. Free.
  *
  * @example
  * const pulse = await salesPulse();
@@ -74,7 +74,8 @@ export const salesSeries = (options?: ConnectionOptions & CallOptions<'list_mark
 /**
  * One word's sales over 12 months: how many, the median price, how many endings it sold on and the month of its last
  * sale. Free, one word a day per address: the same word again is answered, another throws a `RateLimitError` until the
- * next UTC day. A key reads any number of words.
+ * next UTC day; RapidAPI's free Basic plan reads one word a day per subscription. A member key or a paid RapidAPI plan
+ * reads any number of words.
  *
  * @example
  * const word = await salesOfWord('harbor');

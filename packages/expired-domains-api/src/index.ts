@@ -6,16 +6,14 @@
 
 import type { CallOptions, OperationCall } from 'domain-name-api';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
+import { endingsOf, type Endings } from './endings';
 
 export { ApiProblemError, createClient, NotFoundError, PlanRequiredError, QuotaError, RateLimitError, ValidationError } from 'domain-name-api';
-export type { ConnectionOptions };
+export type { ConnectionOptions, Endings };
 
 /*----------------------------------
 - TYPES
 ----------------------------------*/
-
-/** One ending (`io`, `.io`) or several, as a list or comma-separated. */
-export type Endings = string | readonly string[];
 
 export type DropsOptions = Omit<CallOptions<'get_domain_drops'>, 'ending'> & { ending?: Endings };
 
@@ -24,16 +22,6 @@ export type ExpiringOptions = Omit<CallOptions<'list_expiring_domains'>, 'ending
 /*----------------------------------
 - HELPERS
 ----------------------------------*/
-
-/** `.IO`, `io` and ` io ` are one ending; the API reads a comma list without the dots. */
-const endingsOf = (endings: Endings): string => {
-    const entries = typeof endings === 'string' ? [endings] : endings;
-    if (!Array.isArray(entries)) throw new TypeError('An ending is a string, or a list of them.');
-    return [...new Set(entries.flatMap((entry, index) => {
-        if (typeof entry !== 'string') throw new TypeError(`Entry ${index} is not an ending.`);
-        return entry.split(',').map((ending) => ending.trim().replace(/^\.+/, '').toLowerCase()).filter(Boolean);
-    }))].join(',');
-};
 
 /** The call's options with `ending` written as the API reads it, and left out when it names none. */
 const withEndings = <T extends { ending?: Endings }>(call: T): Omit<T, 'ending'> & { ending?: string } => {

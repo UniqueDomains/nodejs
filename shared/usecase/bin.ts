@@ -43,8 +43,8 @@ export type BinAction = {
     connection?: ClientOptions;
     /** The part of the answer to print, picked from the rows the API answered (one ending of a list of endings). */
     select?: (data: never) => JsonValue;
-    /** One more line on the error output after the answer: what an option did not change. */
-    note?: string;
+    /** One more line on the error output after the answer, read from the answer: what an option did not change. */
+    note?: (data: never) => string | null;
     /** One more line after a problem the API answered: what it means for this command. */
     explain?: (error: ApiProblemError) => string | null;
 };
@@ -233,7 +233,8 @@ const printAnswer = (whole: Answer, action: BinAction, connection: ClientOptions
     }
     if (answer.meta?.cursor && action.nextPage) io.stderr.write(line(`More rows: npx @uniquedomains/cli ${action.nextPage} --cursor ${answer.meta.cursor}${keyPlaceholder(action.connection ?? connection)}`));
     if (answer.status === 202 && answer.location) io.stderr.write(line(`Accepted: the full answer will be at ${answer.location}${answer.retryAfter ? ` in about ${answer.retryAfter} seconds` : ''}.`));
-    if (action.note) io.stderr.write(line(action.note));
+    const noted = action.note?.(whole.data as never) ?? null;
+    if (noted) io.stderr.write(line(noted));
 };
 
 /** The library's refusal of a list's size (a `RangeError` before any call) is the caller's typo, not a crash. */
