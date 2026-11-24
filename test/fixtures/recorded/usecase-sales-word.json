@@ -1,0 +1,38 @@
+{
+  "name": "usecase-sales-word",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/market/sales/words/harbor",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": {
+        "status": "result",
+        "word": "harbor",
+        "sales12m": 11,
+        "median12mUsd": 3400,
+        "endingsSoldOn": 5,
+        "lastSaleMonth": "2026-10"
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/market/sales/words/harbor",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

@@ -448,7 +448,8 @@ describe('namespaced methods (plan decisions 13 and 14)', () => {
     });
 
     it('refuse to iterate a summary, and resolve it on await', async () => {
-        assert.equal((await keyless().domains.drops()).count, 184);
+        // The recorded free answer of /domains/drops (expired-domains-api's), which replaced a written one in lane N.
+        assert.equal((await keyless().domains.drops()).count, loadRecorded().find((fixture) => fixture.name === 'usecase-drops').response.body.data.count);
         await assert.rejects(async () => { for await (const row of keyless().domains.drops()) void row; }, /summary, not a list/);
     });
 

@@ -1,0 +1,46 @@
+{
+  "name": "usecase-sales-movers",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/market/sales/movers",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": [
+        {
+          "word": "agent",
+          "sales30d": 9,
+          "prev30d": 3,
+          "direction": "up",
+          "sales90d": 14,
+          "median12mUsd": 4200,
+          "prevMedian12mUsd": 3100,
+          "endingsSoldOn": [
+            "ai",
+            "com",
+            "io"
+          ]
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/market/sales/movers",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

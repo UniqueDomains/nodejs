@@ -31,12 +31,16 @@ const USE_CASES = [
     { name: 'domain-availability', bin: 'ud-availability', call: 'availability', fn: ['availability', 'check', 'availabilityBatch'], arg: 'get.plumbing', read: 'status' },
     { name: 'registrar-prices', bin: 'ud-prices', call: 'pricesForTld', fn: ['pricesForTld', 'renewalTraps', 'priceChanges', 'cheapest', 'priceHistory'], arg: 'io', read: 'length' },
     { name: 'domain-appraisal', bin: 'ud-appraise', call: 'comparableSales', fn: ['comparableSales', 'appraisal', 'appraise'], arg: 'get.plumbing', read: 'count' },
+    // Their first function takes no argument (`arg: null`); `binArgs` is what the README's `npx` line passes.
+    { name: 'expired-domains-api', bin: 'ud-expired', call: 'drops', fn: ['drops', 'expiring'], arg: null, binArgs: [], read: 'count' },
+    { name: 'domain-sales', bin: 'ud-sales', call: 'salesPulse', fn: ['salesPulse', 'salesByEnding', 'salesByLength', 'salesMovers', 'salesSeries', 'salesOfWord'], arg: null, binArgs: ['.com'], read: 'pulse.windows.length' },
+    { name: 'domain-auctions', bin: 'ud-auctions', call: 'auctions', fn: ['auctions', 'auctionSample', 'auctionVenues', 'auctionOf', 'auctionOutcomes'], arg: null, binArgs: [], read: 'withBid' },
 ];
 const work = mkdtempSync(join(tmpdir(), 'ud-pack-'));
 const run = (command, args, cwd) => execFileSync(command, args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 // The fixture server runs in this process, so a child that calls it must not block the event loop.
-const runAsync = (command, args, cwd) => new Promise((resolve, reject) => {
-    execFile(command, args, { cwd, encoding: 'utf8' }, (error, stdout, stderr) => (error ? reject(new Error(`${error.message}\n${stderr}`)) : resolve(stdout)));
+const runAsync = (command, args, cwd, env = process.env) => new Promise((resolve, reject) => {
+    execFile(command, args, { cwd, encoding: 'utf8', env }, (error, stdout, stderr) => (error ? reject(new Error(`${error.message}\n${stderr}`)) : resolve(stdout)));
 });
 
 try {
@@ -67,17 +71,22 @@ try {
             const specifier = manifestOf(useCase.name).name;
             const names = JSON.stringify(useCase.fn);
             run(process.execPath, ['-e', `const p = require("${specifier}"); if (!${names}.every((name) => typeof p[name] === "function") || typeof p.PlanRequiredError !== "function") process.exit(1);`], project);
-            const script = `import { ${useCase.call}, PlanRequiredError } from "${specifier}"; import { PlanRequiredError as FromSdk } from "${SDK}"; if (PlanRequiredError !== FromSdk) process.exit(3); const answer = await ${useCase.call}(process.argv[1], { apiKey: null, baseUrl: process.argv[2] }); console.log(${useCase.read.split('.').reduce((path, key) => `${path}?.${key}`, 'answer')});`;
-            const answer = (await runAsync(process.execPath, ['--input-type=module', '-e', script, useCase.arg, server.base], project)).trim();
+            const argument = useCase.arg === null ? '' : 'process.argv[2], ';
+            const script = `import { ${useCase.call}, PlanRequiredError } from "${specifier}"; import { PlanRequiredError as FromSdk } from "${SDK}"; if (PlanRequiredError !== FromSdk) process.exit(3); const answer = await ${useCase.call}(${argument}{ apiKey: null, baseUrl: process.argv[1] }); console.log(${useCase.read.split('.').reduce((path, key) => `${path}?.${key}`, 'answer')});`;
+            const answer = (await runAsync(process.execPath, ['--input-type=module', '-e', script, server.base, ...(useCase.arg === null ? [] : [useCase.arg])], project)).trim();
             if (!answer || answer === 'undefined') throw new Error(`${specifier} printed "${answer}"`);
 
             const binPath = join(project, 'node_modules', '.bin', useCase.bin);
             if (!/^\d+\.\d+\.\d+$/.test(run(binPath, ['--version'], project).trim())) throw new Error(`${useCase.bin} --version`);
-            if (!run(binPath, ['--help'], project).includes(`${useCase.bin} <`)) throw new Error(`${useCase.bin} --help shows no usage`);
-            JSON.parse(await runAsync(binPath, [useCase.arg, '--base', server.base], project));
+            // A usage line: `ud-whois <name>`, or a command that runs with no argument (`ud-expired`, `ud-expired --day <day>`).
+            if (!new RegExp(`^  ${useCase.bin}( [<.-]|$)`, 'm').test(run(binPath, ['--help'], project))) throw new Error(`${useCase.bin} --help shows no usage`);
+            const binArgs = useCase.binArgs ?? [useCase.arg];
+            JSON.parse(await runAsync(binPath, [...binArgs, '--base', server.base], project));
             // What the README's first block promises: `npx <package> ...` (`npx domain-availability get.plumbing`) finds the
             // one bin under the package's name on npm. Offline here.
-            const viaNpx = await runAsync('npx', ['--offline', '--no', specifier, useCase.arg, '--base', server.base], project);
+            // The base goes in the environment: right after a package name, npx reads a flag as its own (`npx domain-auctions
+            // --base <url>` never passes `--base` on), which the README's `npx` lines never need.
+            const viaNpx = await runAsync('npx', ['--offline', '--no', specifier, ...binArgs], project, { ...process.env, UD_API_KEY: '', UD_RAPIDAPI_KEY: '', UD_API_BASE: server.base });
             if (!viaNpx.trim()) throw new Error(`npx ${specifier} printed nothing`);
         }
     } finally {

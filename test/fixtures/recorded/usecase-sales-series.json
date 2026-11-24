@@ -1,0 +1,40 @@
+{
+  "name": "usecase-sales-series",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/market/sales/series",
+    "query": "kind=month"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": [
+        {
+          "periodStart": "2026-10-01",
+          "count": 2950,
+          "meanUsd": 4810,
+          "medianUsd": 1100,
+          "comCount": 1702,
+          "aiCount": 214
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/market/sales/series?kind=month",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

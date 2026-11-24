@@ -1,0 +1,46 @@
+{
+  "name": "usecase-sales-lengths",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/market/sales/lengths",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": {
+        "com": [
+          {
+            "length": 4,
+            "count12m": 2140,
+            "median12mUsd": 2900,
+            "prevMedian12mUsd": 2700,
+            "trendWord": "flat",
+            "count30d": 171,
+            "median30dUsd": 3000
+          }
+        ],
+        "ai": [],
+        "io": [],
+        "co": []
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/market/sales/lengths",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

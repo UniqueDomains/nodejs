@@ -10,7 +10,10 @@
     "packages/whois",
     "packages/domain-availability",
     "packages/registrar-prices",
-    "packages/domain-appraisal"
+    "packages/domain-appraisal",
+    "packages/expired-domains-api",
+    "packages/domain-sales",
+    "packages/domain-auctions"
   ],
   "engines": {
     "node": ">=20"
@@ -21,8 +24,8 @@
   },
   "scripts": {
     "generate": "node scripts/generate.mjs",
-    "build": "npm run build --workspace packages/sdk && npm run build --workspace packages/cli --workspace packages/whois --workspace packages/domain-availability --workspace packages/registrar-prices --workspace packages/domain-appraisal",
-    "typecheck": "tsc -p packages/sdk --noEmit && tsc -p packages/sdk/typetests && tsc -p packages/cli --noEmit && tsc -p packages/whois --noEmit && tsc -p packages/domain-availability --noEmit && tsc -p packages/registrar-prices --noEmit && tsc -p packages/domain-appraisal --noEmit && tsc -p test/typetests && tsc -p examples/tsconfig.typecheck.json",
+    "build": "npm run build --workspace packages/sdk && npm run build --workspace packages/cli --workspace packages/whois --workspace packages/domain-availability --workspace packages/registrar-prices --workspace packages/domain-appraisal --workspace packages/expired-domains-api --workspace packages/domain-sales --workspace packages/domain-auctions",
+    "typecheck": "tsc -p packages/sdk --noEmit && tsc -p packages/sdk/typetests && tsc -p packages/cli --noEmit && tsc -p packages/whois --noEmit && tsc -p packages/domain-availability --noEmit && tsc -p packages/registrar-prices --noEmit && tsc -p packages/domain-appraisal --noEmit && tsc -p packages/expired-domains-api --noEmit && tsc -p packages/domain-sales --noEmit && tsc -p packages/domain-auctions --noEmit && tsc -p test/typetests && tsc -p examples/tsconfig.typecheck.json",
     "test": "node --test packages/*/test/*.test.mjs scripts/test/*.test.mjs test/*.test.mjs",
     "check:text": "node scripts/check-text.mjs",
     "check:pack": "node scripts/check-pack.mjs",

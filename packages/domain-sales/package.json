@@ -1,0 +1,67 @@
+{
+  "name": "domain-sales",
+  "version": "0.3.0",
+  "description": "Domain sales for Node.js: how many domain names sold and at what median price, for a word, an ending, a name length or the whole market, over 12 months and 30 days, with the words whose sales are moving. Start with no key.",
+  "license": "MIT",
+  "author": "Unique.domains (https://unique.domains)",
+  "homepage": "https://unique.domains/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniqueDomains/nodejs.git",
+    "directory": "packages/domain-sales"
+  },
+  "bugs": "https://github.com/UniqueDomains/nodejs/issues",
+  "keywords": [
+    "domain sales",
+    "domain name sales",
+    "domain sales data",
+    "domain sales history",
+    "domain sale prices",
+    "domain market",
+    "comparable sales",
+    "domain api",
+    "domain name api",
+    "domain",
+    "domain-names",
+    "unique-domains"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "ud-sales": "dist/bin.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/copy-assets.mjs domain-sales && tsup",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "domain-name-api": "0.3.0"
+  }
+}

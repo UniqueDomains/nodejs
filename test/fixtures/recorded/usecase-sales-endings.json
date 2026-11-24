@@ -1,0 +1,62 @@
+{
+  "name": "usecase-sales-endings",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/market/sales/endings",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": [
+        {
+          "ending": "ai",
+          "count12m": 3466,
+          "median12mUsd": 800,
+          "prevCount12m": 3366,
+          "prevMedian12mUsd": 800,
+          "trendWord": "flat",
+          "count30d": 217,
+          "median30dUsd": 800
+        },
+        {
+          "ending": "com",
+          "count12m": 28739,
+          "median12mUsd": 860,
+          "prevCount12m": 28639,
+          "prevMedian12mUsd": 860,
+          "trendWord": "flat",
+          "count30d": 1796,
+          "median30dUsd": 860
+        },
+        {
+          "ending": "io",
+          "count12m": 1032,
+          "median12mUsd": 400,
+          "prevCount12m": 932,
+          "prevMedian12mUsd": 400,
+          "trendWord": "flat",
+          "count30d": 65,
+          "median30dUsd": 400
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/market/sales/endings",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

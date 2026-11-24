@@ -8,7 +8,10 @@
       "@uniquedomains/whois": ["../../packages/whois/src/index.ts"],
       "domain-availability": ["../../packages/domain-availability/src/index.ts"],
       "registrar-prices": ["../../packages/registrar-prices/src/index.ts"],
-      "domain-appraisal": ["../../packages/domain-appraisal/src/index.ts"]
+      "domain-appraisal": ["../../packages/domain-appraisal/src/index.ts"],
+      "expired-domains-api": ["../../packages/expired-domains-api/src/index.ts"],
+      "domain-sales": ["../../packages/domain-sales/src/index.ts"],
+      "domain-auctions": ["../../packages/domain-auctions/src/index.ts"]
     }
   },
   "include": ["."]

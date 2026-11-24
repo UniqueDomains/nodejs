@@ -1,0 +1,74 @@
+{
+  "name": "usecase-auctions",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/market/auctions",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": {
+        "day": "2026-11-24",
+        "closing": 407548,
+        "withBid": 1401,
+        "counts": {
+          "today": 38,
+          "results": 51,
+          "all": 1204
+        },
+        "byVenue": [
+          {
+            "venue": "godaddy",
+            "closing": 300000,
+            "withBid": 1000,
+            "medianBidUsd": 25
+          }
+        ],
+        "byEnding": [
+          {
+            "ending": "com",
+            "closing": 200000,
+            "withBid": 900,
+            "medianBidUsd": 30
+          }
+        ],
+        "byLength": [
+          {
+            "length": 5,
+            "closing": 1300,
+            "withBid": 240,
+            "medianBidUsd": 45
+          }
+        ],
+        "next7Days": [
+          {
+            "day": "2026-11-24",
+            "closing": 407548
+          },
+          {
+            "day": "2026-11-25",
+            "closing": 398000
+          }
+        ]
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/market/auctions",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

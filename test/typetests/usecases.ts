@@ -8,6 +8,9 @@ import { appraisal, comparableSales } from 'domain-appraisal';
 import { availability, availabilityBatch, check } from 'domain-availability';
 import { cheapest, priceHistory, pricesForTld, renewalTraps } from 'registrar-prices';
 import { whois, whoisHistory } from '@uniquedomains/whois';
+import { drops, expiring } from 'expired-domains-api';
+import { salesByEnding, salesOfWord, salesPulse, salesSeries } from 'domain-sales';
+import { auctionOf, auctionOutcomes, auctions } from 'domain-auctions';
 
 export const answers = async () => {
     const record = await whois('get.plumbing');
@@ -38,5 +41,24 @@ export const answers = async () => {
 
     const count: number = (await comparableSales('get.plumbing')).count;
     const value = (await appraisal('get.plumbing', { apiKey: 'k' })).current;
-    return { read, moved, status, meta, first, count, value };
+    const day = await drops({ day: '2026-11-25', ending: ['io', '.ai'] });
+    const dropping: number | undefined = Array.isArray(day) ? day.length : day.count;
+    for await (const row of expiring({ apiKey: 'k', ending: 'io', after: '2026-11-01' })) void row.expiresOn;
+    // @ts-expect-error a day is a string, YYYY-MM-DD.
+    await drops({ day: 20261125 });
+
+    const twelveMonths = (await salesPulse()).pulse.windows.find((window) => window.id === '12m')?.count;
+    const com: number | undefined = (await salesByEnding()).find((row) => row.ending === 'com')?.count12m;
+    const word: 'result' | 'none' = (await salesOfWord('harbor')).status;
+    // @ts-expect-error a series is by day, week or month.
+    await salesSeries({ kind: 'year' });
+
+    const closing: number | null | undefined = (await auctions()).closing;
+    const auction = await auctionOf('get.plumbing');
+    const bid = auction === null ? null : auction.bid;
+    for await (const row of auctionOutcomes({ apiKey: 'k', venue: 'dynadot' })) void row.median;
+    // @ts-expect-error `everywhere` is not a venue.
+    await auctionOutcomes({ venue: 'everywhere' });
+
+    return { read, moved, status, meta, first, count, value, dropping, twelveMonths, com, word, closing, bid };
 };

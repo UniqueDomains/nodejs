@@ -1,0 +1,66 @@
+{
+  "name": "domain-auctions",
+  "version": "0.3.0",
+  "description": "Domain auctions for Node.js: the names closing today at seven auction venues, with their bids and deadlines, each venue's rules, the auction of any one name and how past auctions ended. Start with no key.",
+  "license": "MIT",
+  "author": "Unique.domains (https://unique.domains)",
+  "homepage": "https://unique.domains/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniqueDomains/nodejs.git",
+    "directory": "packages/domain-auctions"
+  },
+  "bugs": "https://github.com/UniqueDomains/nodejs/issues",
+  "keywords": [
+    "domain auctions",
+    "domain auction",
+    "expired domain auctions",
+    "domain auction api",
+    "domain bids",
+    "auction venues",
+    "domain api",
+    "domain name api",
+    "domain",
+    "domain-names",
+    "unique-domains"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "ud-auctions": "dist/bin.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/copy-assets.mjs domain-auctions && tsup",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "domain-name-api": "0.3.0"
+  }
+}

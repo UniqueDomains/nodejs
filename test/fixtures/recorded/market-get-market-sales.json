@@ -1,6 +1,7 @@
 {
   "name": "market-get-market-sales",
-  "recordedOn": "2026-11-08",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
   "request": {
     "method": "GET",
     "path": "/market/sales",
@@ -9,94 +10,66 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8",
-      "etag": "W/\"FOHtf_pYo1qBhBcSgGPyzMWGKWQ\"",
-      "x-ratelimit-limit": "60",
-      "x-ratelimit-remaining": "21",
-      "x-ratelimit-reset": "11"
+      "content-type": "application/json; charset=utf-8"
     },
     "body": {
       "data": {
         "freshness": {
-          "today": "2026-11-08",
-          "yesterday": "2026-11-07",
-          "rollupAt": "2026-11-08T06:48:50.000Z"
+          "today": "2026-11-24",
+          "yesterday": "2026-11-23",
+          "rollupAt": "2026-11-24T02:30:00.000Z"
         },
         "pulse": {
           "windows": [
             {
               "id": "7d",
-              "count": 0,
-              "prevCount": 0,
-              "medianUsd": null,
-              "prevMedianUsd": null
+              "count": 512,
+              "prevCount": 498,
+              "medianUsd": 1500,
+              "prevMedianUsd": 1450
             },
             {
               "id": "30d",
-              "count": 1438,
-              "prevCount": 3151,
-              "medianUsd": 1800,
-              "prevMedianUsd": 1789
+              "count": 2471,
+              "prevCount": 2390,
+              "medianUsd": 1580,
+              "prevMedianUsd": 1500
             },
             {
               "id": "12m",
-              "count": 38864,
-              "prevCount": 7147,
-              "medianUsd": 750,
-              "prevMedianUsd": 1709
+              "count": 41098,
+              "prevCount": 38864,
+              "medianUsd": 839,
+              "prevMedianUsd": 750
             }
           ],
           "priceBandMix30d": [
             {
               "band": "50_999",
-              "count": 48
+              "count": 1100
             },
             {
               "band": "1000_4999",
-              "count": 1163
-            },
-            {
-              "band": "5000_24999",
-              "count": 178
-            },
-            {
-              "band": "25000_99999",
-              "count": 40
-            },
-            {
-              "band": "100000_up",
-              "count": 9
+              "count": 1200
             }
           ],
           "priceBandMix12m": [
             {
               "band": "50_999",
-              "count": 21944
+              "count": 22000
             },
             {
               "band": "1000_4999",
-              "count": 13524
-            },
-            {
-              "band": "5000_24999",
-              "count": 2718
-            },
-            {
-              "band": "25000_99999",
-              "count": 496
-            },
-            {
-              "band": "100000_up",
-              "count": 182
+              "count": 15000
             }
           ]
         },
         "soldBefore": {
-          "size": 7057
+          "size": 1840
         }
       },
       "meta": {
-        "asOf": "2026-11-08T06:48:50.000Z",
+        "asOf": null,
         "cursor": null,
         "limit": null
       },
@@ -105,8 +78,7 @@
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null,
-        "details": "https://unique.domains/sales"
+        "dataset": null
       }
     }
   }

@@ -1,0 +1,24 @@
+{
+  "name": "usecase-drops-day-refused",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/domains/drops",
+    "query": "day=2020-01-01"
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/problem+json; charset=utf-8"
+    },
+    "body": {
+      "type": "https://unique.domains/api/problems/validation_failed",
+      "title": "A value is not valid",
+      "status": 400,
+      "detail": "`day` is a UTC day from 2026-11-24 to 2026-11-30.",
+      "instance": "/v1/domains/drops",
+      "code": "validation_failed"
+    }
+  }
+}

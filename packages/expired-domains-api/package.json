@@ -1,0 +1,68 @@
+{
+  "name": "expired-domains-api",
+  "version": "0.3.0",
+  "description": "Expired domains API for Node.js: the one-word domain names expiring, expired and dropping each day, by ending, with the day each one comes free. Start with no key.",
+  "license": "MIT",
+  "author": "Unique.domains (https://unique.domains)",
+  "homepage": "https://unique.domains/api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UniqueDomains/nodejs.git",
+    "directory": "packages/expired-domains-api"
+  },
+  "bugs": "https://github.com/UniqueDomains/nodejs/issues",
+  "keywords": [
+    "expired domains",
+    "expired domains api",
+    "expiring domains",
+    "dropping domains",
+    "domain drops",
+    "drop catching",
+    "pending delete",
+    "expired domain names",
+    "domain api",
+    "domain name api",
+    "domain",
+    "domain-names",
+    "unique-domains"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "ud-expired": "dist/bin.js"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "node ../../scripts/copy-assets.mjs expired-domains-api && tsup",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "domain-name-api": "0.3.0"
+  }
+}

@@ -28,13 +28,25 @@ const PACKAGES = [
         dir: 'domain-appraisal', free: 'comparableSales', former: '@uniquedomains/domain-appraisal', name: 'domain-appraisal', title: 'Domain appraisal for Node.js', bin: 'ud-appraise', listing: 'appraisal', page: 'appraisal', phrase: 'domain-appraisal', keywords: ['domain-appraisal'],
         functions: { comparableSales: 'get_name_comps', appraisal: 'get_name_value', appraise: 'appraise_name' },
     },
+    {
+        dir: 'expired-domains-api', free: 'drops', former: null, name: 'expired-domains-api', title: 'Expired domains API for Node.js', bin: 'ud-expired', listing: 'expired', page: 'expired', phrase: 'expired-domains-api', keywords: ['expired domains', 'expired domains api', 'domain drops'],
+        functions: { drops: 'get_domain_drops', expiring: 'list_expiring_domains' },
+    },
+    {
+        dir: 'domain-sales', free: 'salesPulse', former: null, name: 'domain-sales', title: 'Domain sales for Node.js', bin: 'ud-sales', listing: 'sales-history', page: 'sales-history', phrase: 'domain-sales', keywords: ['domain sales', 'domain sales history'],
+        functions: { salesPulse: 'get_market_sales', salesByEnding: 'list_market_sales_endings', salesByLength: 'get_market_sales_lengths', salesMovers: 'list_market_sales_movers', salesSeries: 'list_market_sales_series', salesOfWord: 'get_market_sales_word' },
+    },
+    {
+        dir: 'domain-auctions', free: 'auctions', former: null, name: 'domain-auctions', title: 'Domain auctions for Node.js', bin: 'ud-auctions', listing: 'auctions', page: 'auctions', phrase: 'domain-auctions', keywords: ['domain auctions', 'domain auction api'],
+        functions: { auctions: 'get_market_auctions', auctionSample: 'list_market_auctions_sample', auctionVenues: 'list_market_auction_venues', auctionOf: 'get_name_auction', auctionOutcomes: 'list_market_auction_outcomes' },
+    },
 ];
 
 /** The former-name line of a renamed package (listing texts v3.0, section A, with D13 of 2026-11-24). */
 const formerLine = (old) => `Up to version 0.2.1 this package was published as \`${old}\`. Same code, same methods: switch every import at once, the two names do not share their error classes.`;
 
-/** The six packages of the family line, by their names on npm (listing texts v3.0, section A). */
-const FAMILY = ['domain-name-api', '@uniquedomains/cli', 'domain-availability', 'domain-appraisal', 'registrar-prices', '@uniquedomains/whois'];
+/** The nine packages of the family line, by their names on npm (listing texts v3.1, section D). */
+const FAMILY = ['domain-name-api', '@uniquedomains/cli', 'domain-availability', 'domain-appraisal', 'registrar-prices', '@uniquedomains/whois', 'expired-domains-api', 'domain-sales', 'domain-auctions'];
 
 const operationOf = (id) => {
     for (const item of Object.values(DOCUMENT.paths)) for (const operation of Object.values(item)) if (operation?.operationId === id) return operation;
@@ -54,6 +66,27 @@ const sectionOfFunction = (readme, name) => {
     return readme.slice(start, at);
 };
 
+/** A recorded answer's data. */
+const recordedData = (name) => JSON.parse(readFileSync(join(ROOT, 'test', 'fixtures', 'recorded', `${name}.json`), 'utf8')).response.body.data;
+
+/** A figure as the openings write it: 28,739. */
+const figure = (value) => value.toLocaleString('en-US');
+
+/** The sentence of each opening, written from the recorded answer: the README must say exactly that. */
+const dropsOpening = (day) => {
+    const [first] = [...day.byEnding].sort((left, right) => right.count - left.count);
+    return `${day.count} names dropping, on ${day.byEnding.length} endings, \`.${first.ending}\` ahead with ${first.count}`;
+};
+const pulseOpening = ({ pulse }) => {
+    const [year, month] = ['12m', '30d'].map((id) => pulse.windows.find((window) => window.id === id));
+    return `${figure(year.count)} sales over 12 months at a median of $${figure(year.medianUsd)}, and ${figure(month.count)} over the last 30 days at $${figure(month.medianUsd)}`;
+};
+const endingsOpening = (rows) => {
+    const [com, ai, io] = ['com', 'ai', 'io'].map((ending) => rows.find((row) => row.ending === ending));
+    return `\`.com\` ${figure(com.count12m)} sales at a median of $${figure(com.median12mUsd)}, \`.ai\` ${figure(ai.count12m)} at $${figure(ai.median12mUsd)}, \`.io\` ${figure(io.count12m)} at $${figure(io.median12mUsd)}`;
+};
+const auctionsOpening = (day) => `${figure(day.closing)} names closing at seven venues, ${figure(day.withBid)} of them with a bid`;
+
 /** What a README states in words, against the document's text or a recorded answer. */
 const FIGURES = [
     { dir: 'registrar-prices', says: 'you read eight rows', holds: () => recordedData('usecase-price-traps').length === 8 && /8 rows/.test(operationOf('list_price_traps').description) },
@@ -62,9 +95,13 @@ const FIGURES = [
     { dir: 'domain-appraisal', says: 'in about 30 seconds', holds: () => /Retry-After: 30/.test(operationOf('appraise_name').description) },
     { dir: 'domain-availability', says: 'Up to 100 names', holds: () => /up to 100 names/.test(operationOf('batch_names').summary) },
     { dir: 'registrar-prices', says: 'up to 100 endings', holds: () => /up to 100 endings/.test(operationOf('list_cheapest_prices').summary) },
+    // The openings of lane N: each figure against the recorded answer it was read from (listing texts v3.1).
+    { dir: 'expired-domains-api', says: dropsOpening(recordedData('usecase-drops')), holds: () => true },
+    { dir: 'domain-sales', says: pulseOpening(recordedData('market-get-market-sales')), holds: () => true },
+    { dir: 'domain-sales', says: endingsOpening(recordedData('usecase-sales-endings')), holds: () => true },
+    { dir: 'domain-auctions', says: auctionsOpening(recordedData('usecase-auctions')), holds: () => true },
+    { dir: 'domain-auctions', says: 'up to 20 one-word names', holds: () => /up to 20 single-word names/.test(operationOf('list_market_auctions_sample').summary) },
 ];
-
-const recordedData = (name) => JSON.parse(readFileSync(join(ROOT, 'test', 'fixtures', 'recorded', `${name}.json`), 'utf8')).response.body.data;
 
 describe('the figures the READMEs state (review N2-21)', () => {
     for (const figure of FIGURES) {
@@ -175,7 +212,8 @@ describe('the use-case packages (plan decision 18)', () => {
                 assert.ok(!family.includes(`[\`${spec.name}\`]`), 'leaves its own name out');
                 if (spec.former) assert.ok(readme.includes(formerLine(spec.former)));
                 else assert.doesNotMatch(readme, /Up to version/);
-                assert.ok(readme.includes(`npx ${spec.name} `), 'the npx line names the package as npm does');
+                // `npx domain-availability get.plumbing`, or `npx domain-auctions` alone for a command that needs no argument.
+                assert.ok(readme.split('\n').some((line) => line === `npx ${spec.name}` || line.startsWith(`npx ${spec.name} `)), 'the npx line names the package as npm does');
                 assert.ok(readme.includes(`npm install ${spec.name}\n`), 'the install line names the package as npm does');
             });
 

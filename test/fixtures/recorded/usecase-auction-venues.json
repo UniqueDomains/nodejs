@@ -1,0 +1,67 @@
+{
+  "name": "usecase-auction-venues",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/market/auctions/venues",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": [
+        {
+          "id": "dynadot",
+          "label": "Dynadot",
+          "currency": "USD",
+          "kinds": [
+            "expired",
+            "user"
+          ],
+          "closeRule": {
+            "value": "A bid in the last 5 minutes adds 5 minutes, with no limit.",
+            "verifiedOn": "2026-10-08"
+          },
+          "paymentRule": {
+            "value": "48 hours for an expired auction, 3 days for a user auction.",
+            "verifiedOn": "2026-10-08"
+          },
+          "bidderRule": {
+            "value": "$5 of account spending first; a 10% deposit for bids of $2,000 or more.",
+            "verifiedOn": "2026-10-08"
+          },
+          "firstYear": {
+            "expired": {
+              "value": {
+                "registrationIncluded": false,
+                "flatFee": 0
+              },
+              "verifiedOn": "2026-10-08"
+            }
+          },
+          "today": {
+            "closing": 2100,
+            "withBid": 310,
+            "medianBidUsd": 40
+          }
+        }
+      ],
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/market/auctions/venues",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

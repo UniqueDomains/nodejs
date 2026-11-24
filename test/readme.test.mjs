@@ -38,6 +38,11 @@ const EXPECTED = {
     'domain-appraisal/value': sentTheKey,
     'domain-appraisal/appraise': sentTheKey,
     'domain-appraisal/refused': refusedForTheKey,
+    'expired-domains-api/names': sentTheKey,
+    'expired-domains-api/expiring': sentTheKey,
+    'expired-domains-api/refused': refusedForTheKey,
+    'domain-auctions/outcomes': sentTheKey,
+    'domain-auctions/refused': refusedForTheKey,
 };
 
 const loaded = await Promise.all(readmes.map(async (readme) => ({ readme, examples: (await import(pathToFileURL(readme.module).href)).examples })));
@@ -73,7 +78,7 @@ describe('the README examples, on the fixture server', () => {
         });
     }
 
-    const USE_CASE_PACKAGES = ['whois', 'domain-availability', 'registrar-prices', 'domain-appraisal'];
+    const USE_CASE_PACKAGES = ['whois', 'domain-availability', 'registrar-prices', 'domain-appraisal', 'expired-domains-api', 'domain-sales', 'domain-auctions'];
 
     describe('the use-case READMEs (plan decision 18)', () => {
         for (const slug of USE_CASE_PACKAGES) {

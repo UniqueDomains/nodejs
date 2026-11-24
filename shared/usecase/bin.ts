@@ -41,6 +41,12 @@ export type BinAction = {
     nextPage?: string;
     /** The connection the call used, when the command changed it (another RapidAPI listing). */
     connection?: ClientOptions;
+    /** The part of the answer to print, picked from the rows the API answered (one ending of a list of endings). */
+    select?: (data: never) => JsonValue;
+    /** One more line on the error output after the answer: what an option did not change. */
+    note?: string;
+    /** One more line after a problem the API answered: what it means for this command. */
+    explain?: (error: ApiProblemError) => string | null;
 };
 
 export type BinSpec = {
@@ -53,6 +59,8 @@ export type BinSpec = {
     listing: ListingId;
     /** Throws `UsageError` on arguments that cannot make a call. */
     plan: (args: BinArgs, connection: ClientOptions) => BinAction;
+    /** The command makes its call with no argument at all (the day's figures), so only `--help` prints the help. */
+    runsWithoutArguments?: boolean;
 };
 
 export type Io = {
@@ -183,7 +191,7 @@ const renderHelp = (spec: BinSpec): string => {
         spec.summary,
         '',
         'Usage:',
-        ...spec.usage.map((usage) => `  ${spec.bin} ${usage}`),
+        ...spec.usage.map((usage) => `  ${spec.bin} ${usage}`.trimEnd()),
         '',
         'Flags:',
         ...flags.map((flag) => `  ${label(flag).padEnd(width)}  ${flag.help}`),
@@ -213,7 +221,8 @@ const keyPlaceholder = (connection: ClientOptions): string => {
     return connection.apiKey ? ' --key <your key>' : '';
 };
 
-const printAnswer = (answer: Answer, action: BinAction, connection: ClientOptions, asJson: boolean, io: Io): void => {
+const printAnswer = (whole: Answer, action: BinAction, connection: ClientOptions, asJson: boolean, io: Io): void => {
+    const answer = action.select ? { ...whole, data: action.select(whole.data as never) } : whole;
     if (asJson) {
         io.stdout.write(`${JSON.stringify(answer.data, null, 2)}\n`);
     } else {
@@ -224,6 +233,7 @@ const printAnswer = (answer: Answer, action: BinAction, connection: ClientOption
     }
     if (answer.meta?.cursor && action.nextPage) io.stderr.write(line(`More rows: npx @uniquedomains/cli ${action.nextPage} --cursor ${answer.meta.cursor}${keyPlaceholder(action.connection ?? connection)}`));
     if (answer.status === 202 && answer.location) io.stderr.write(line(`Accepted: the full answer will be at ${answer.location}${answer.retryAfter ? ` in about ${answer.retryAfter} seconds` : ''}.`));
+    if (action.note) io.stderr.write(line(action.note));
 };
 
 /** The library's refusal of a list's size (a `RangeError` before any call) is the caller's typo, not a crash. */
@@ -241,13 +251,14 @@ const planAction = (spec: BinSpec, args: BinArgs, connection: ClientOptions): Bi
 ----------------------------------*/
 
 export const runBin = async (spec: BinSpec, argv: readonly string[], io: Io): Promise<number> => {
+    let action: BinAction | undefined;
     try {
         const args = parseArgs(argv, spec.flags);
         if (args.version) {
             io.stdout.write(`${spec.version}\n`);
             return 0;
         }
-        if (argv.length === 0 || args.help) {
+        if ((argv.length === 0 && !spec.runsWithoutArguments) || args.help) {
             io.stdout.write(renderHelp(spec));
             return 0;
         }
@@ -256,7 +267,7 @@ export const runBin = async (spec: BinSpec, argv: readonly string[], io: Io): Pr
         const unusable = args.positionals.find((value) => /^[.\s]*$/.test(value));
         if (unusable !== undefined) throw new UsageError(`An argument cannot be "${unusable}".`);
         const connection = resolveConnection(args, spec, io.env);
-        const action = planAction(spec, args, connection);
+        action = planAction(spec, args, connection);
         const answer = await action.call.withMeta() as Answer;
         printAnswer(answer, action, connection, args.json ?? !io.isTTY, io);
         return 0;
@@ -267,6 +278,8 @@ export const runBin = async (spec: BinSpec, argv: readonly string[], io: Io): Pr
         }
         if (error instanceof ApiProblemError) {
             printProblem(error, io);
+            const explained = action?.explain?.(error) ?? null;
+            if (explained) io.stderr.write(line(explained));
             return 1;
         }
         if (error instanceof ListingMismatchError) {

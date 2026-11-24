@@ -7,7 +7,7 @@
  * Records the answers the tests replay: one free call per API (the document's tags), the three problem shapes a
  * keyless caller meets (400 `validation_failed`, 403 `keyed_only`, 404 `not_found`), one `.csv` form, and the calls the
  * README examples make that those do not cover. A `pages` entry follows `meta.cursor` to the end, one file a page.
- * About thirty keyless calls, so a whole run stays inside the keyless hourly window; `--only` records some. The 304,
+ * About forty keyless calls, so a whole run stays inside the keyless hourly window; `--only` records some. The 304,
  * the 429s, the 202 and a member key's quota headers cannot be recorded without a key or without spending the window:
  * they live in `SYNTHETIC` of `test/support/fixture-server.mjs`, written by hand from the document's examples.
  *
@@ -50,6 +50,22 @@ const CALLS = [
     { name: 'usecase-price-traps', path: '/prices/traps' },
     { name: 'usecase-price-changes', path: '/prices/changes' },
     { name: 'tlds-public-set', path: '/tlds', query: 'publicSet=true&limit=2&fields=tld,kind', pages: true },
+    // expired-domains-api, domain-sales and domain-auctions (npm unscoped names, lane N). The auction sample is not
+    // recorded: its names are the day's sample, so its fixture is written by hand on `.example` names.
+    { name: 'usecase-drops', path: '/domains/drops' },
+    { name: 'usecase-drops-day-refused', path: '/domains/drops', query: 'day=2020-01-01' },
+    { name: 'usecase-drops-ending-malformed', path: '/domains/drops', query: 'ending=i_o' },
+    { name: 'usecase-expiring-refused', path: '/domains/expiring' },
+    { name: 'usecase-sales-endings', path: '/market/sales/endings' },
+    { name: 'usecase-sales-lengths', path: '/market/sales/lengths' },
+    { name: 'usecase-sales-movers', path: '/market/sales/movers' },
+    { name: 'usecase-sales-series', path: '/market/sales/series', query: 'kind=month' },
+    // One word a day per address without a key: record it on a day no other word was read from this address.
+    { name: 'usecase-sales-word', path: '/market/sales/words/harbor' },
+    { name: 'usecase-auctions', path: '/market/auctions' },
+    { name: 'usecase-auction-venues', path: '/market/auctions/venues' },
+    { name: 'usecase-auction-of', path: '/names/get.plumbing/auction' },
+    { name: 'usecase-auction-outcomes-refused', path: '/market/auctions/outcomes' },
 ];
 
 const onlyAt = process.argv.indexOf('--only');

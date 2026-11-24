@@ -1,0 +1,101 @@
+{
+  "name": "usecase-drops",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/domains/drops",
+    "query": ""
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json; charset=utf-8"
+    },
+    "body": {
+      "data": {
+        "count": 19,
+        "byEnding": [
+          {
+            "ending": "site",
+            "count": 4
+          },
+          {
+            "ending": "online",
+            "count": 3
+          },
+          {
+            "ending": "xyz",
+            "count": 2
+          },
+          {
+            "ending": "store",
+            "count": 2
+          },
+          {
+            "ending": "shop",
+            "count": 2
+          },
+          {
+            "ending": "top",
+            "count": 1
+          },
+          {
+            "ending": "info",
+            "count": 1
+          },
+          {
+            "ending": "live",
+            "count": 1
+          },
+          {
+            "ending": "click",
+            "count": 1
+          },
+          {
+            "ending": "fun",
+            "count": 1
+          },
+          {
+            "ending": "space",
+            "count": 1
+          }
+        ],
+        "sample": [
+          {
+            "ending": "site",
+            "dropsOn": "2026-11-24"
+          },
+          {
+            "ending": "online",
+            "dropsOn": "2026-11-24"
+          },
+          {
+            "ending": "xyz",
+            "dropsOn": "2026-11-24"
+          },
+          {
+            "ending": "site",
+            "dropsOn": "2026-11-24"
+          },
+          {
+            "ending": "shop",
+            "dropsOn": "2026-11-24"
+          }
+        ]
+      },
+      "meta": {
+        "asOf": null,
+        "cursor": null,
+        "limit": null
+      },
+      "links": {
+        "self": "https://api.unique.domains/v1/domains/drops",
+        "next": null,
+        "register": null,
+        "product": null,
+        "dataset": null
+      }
+    }
+  }
+}

@@ -64,6 +64,15 @@ const keyed = (name, method, path, query, data, plan = null) => [
     { name: `${name}-refused`, request: { method, path, query }, response: json(403, keyedOnly(method, path)) },
 ];
 
+/**
+ * A call whose keyed answer is the Investor plan's: the rows with a member key, the plan's refusal for a Founder key.
+ * The keyless answer is a recorded one (a 403, or the free shape), so none is written here.
+ */
+const investorOnly = (name, path, query, data) => [
+    { name: `${name}-founder`, request: { method: 'GET', path, query, header: ['authorization', `Bearer ${FOUNDER_KEY}`] }, response: json(403, problem('plan_required', 403, `GET ${path} needs the Investor plan.`, { product: 'https://app.unique.domains/settings/account' })) },
+    { name, request: { method: 'GET', path, query, header: ['authorization', USECASE_KEY] }, response: json(200, envelope(data, `${path}${query ? `?${query}` : ''}`), { 'x-quota-limit': '10000', 'x-quota-remaining': '9000', 'x-quota-reset': QUOTA_RESET }) },
+];
+
 const VALUE = { current: { value: 4200, asOf: '2026-10-30T11:02:00.000Z' }, history: [{ value: 4200, date: '2026-10-30T11:02:00.000Z' }] };
 const KEYED_NAME = { ...getNameBody('zorbly.io').data, rating: { band: 'strong', score: 68 }, value: { value: 4200, upsidePercent: null, liquidity: 'medium' } };
 
@@ -222,10 +231,26 @@ export const SYNTHETIC = [
         request: { method: 'GET', path: '/domains/expiring', query: 'ending=io&cursor=c3' },
         response: json(200, envelope([expiringRow('ember.io')], '/domains/expiring?ending=io&cursor=c3')),
     },
+    // expired-domains-api, domain-sales and domain-auctions (npm unscoped names, lane N). Every name below is made up, on
+    // `.example`: no fixture carries a name of the day's auction sample or of a drop day.
+    ...investorOnly('usecase-drop-names', '/domains/drops', 'ending=io', [{ id: 'dom_anchor', name: 'anchor.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }, { id: 'dom_beacon', name: 'beacon.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }]),
+    // Without a key the API reads no `ending`: it answers the day's counts over every ending.
+    { name: 'usecase-drops-ending-free', request: { method: 'GET', path: '/domains/drops', query: 'ending=io' }, response: recordedAt('usecase-drops', 'https://api.unique.domains/v1/domains/drops?ending=io') },
+    ...investorOnly('usecase-expiring', '/domains/expiring', '', [expiringRow('anchor.example')]),
+    ...investorOnly('usecase-auction-outcomes', '/market/auctions/outcomes', '', [{ venue: 'dynadot', venueLabel: 'Dynadot', day: '2026-11-23', currency: 'USD', count: 42, median: 180 }]),
     {
-        name: 'drops-summary',
-        request: { method: 'GET', path: '/domains/drops', query: '' },
-        response: json(200, envelope({ count: 184, byEnding: [{ ending: 'online', count: 151 }], sample: [{ ending: 'online', dropsOn: '2026-11-07' }] }, '/domains/drops')),
+        name: 'usecase-auction-sample',
+        request: { method: 'GET', path: '/market/auctions/sample', query: '' },
+        response: json(200, envelope([
+            { name: 'lantern.example', ending: 'example', venue: 'dynadot', venueLabel: 'Dynadot', endsAt: '2026-11-24T17:00:00.000Z', currency: 'USD', bid: 120, bidCount: 7, verdict: 'Good', firstYear: 169.12, tag: 'jumped' },
+            { name: 'orchard.example', ending: 'example', venue: 'dynadot', venueLabel: 'Dynadot', endsAt: '2026-11-24T19:00:00.000Z', currency: 'USD', bid: null, bidCount: 0, verdict: null, firstYear: null, tag: null },
+        ], '/market/auctions/sample')),
+    },
+    {
+        // The API's answer to a second word on one day, without a key (the free tier's one word a day).
+        name: 'usecase-sales-word-second',
+        request: { method: 'GET', path: '/market/sales/words/lantern', query: '' },
+        response: json(429, problem('rate_limited', 429, 'The free tier reads one word a day; today\'s word is "harbor". Retry in 52000 seconds, or use a subscription.'), { 'retry-after': '52000' }),
     },
     {
         name: 'not-ready-then-ok',

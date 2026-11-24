@@ -1,0 +1,25 @@
+{
+  "name": "usecase-expiring-refused",
+  "recordedOn": null,
+  "shapedFrom": "packages/sdk/openapi.json",
+  "request": {
+    "method": "GET",
+    "path": "/domains/expiring",
+    "query": ""
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "content-type": "application/problem+json; charset=utf-8"
+    },
+    "body": {
+      "type": "https://unique.domains/api/problems/keyed_only",
+      "title": "A paid subscription is required",
+      "status": 403,
+      "detail": "GET /domains/expiring needs a Pro, Ultra or Mega subscription, or a member key.",
+      "instance": "/v1/domains/expiring",
+      "code": "keyed_only",
+      "product": "https://unique.domains/pricing"
+    }
+  }
+}

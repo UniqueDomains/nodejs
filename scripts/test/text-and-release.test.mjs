@@ -216,6 +216,9 @@ const NAMES = {
     'domain-availability': 'domain-availability',
     'registrar-prices': 'registrar-prices',
     'domain-appraisal': 'domain-appraisal',
+    'expired-domains-api': 'expired-domains-api',
+    'domain-sales': 'domain-sales',
+    'domain-auctions': 'domain-auctions',
 };
 
 describe('scripts/lib/packages.mjs: each package by its name on npm', () => {
@@ -230,8 +233,9 @@ describe('scripts/lib/packages.mjs: each package by its name on npm', () => {
     });
 
     it('publish-placeholder.mjs publishes a placeholder for each name npm does not know, under that name, and only those', () => {
-        // A stand-in npm: `view` knows the two names that kept their scope and answers E404 for the rest; `publish`
-        // logs the name in the folder it is given. So the run reads each name from its package.json, as npm will.
+        // A stand-in npm, as the registry stands once 0.3.0 is out: `view` knows the six names of 0.3.0 and answers E404
+        // for the three new ones of 0.4.0; `publish` logs the name in the folder it is given. So the run reads each name
+        // from its package.json, as npm will, and publishes exactly the three new names (lane N).
         const work = mkdtempSync(join(tmpdir(), 'ud-placeholder-test-'));
         try {
             const bin = join(work, 'bin');
@@ -240,7 +244,7 @@ describe('scripts/lib/packages.mjs: each package by its name on npm', () => {
                 '#!/usr/bin/env bash',
                 'if [ "$1" = view ]; then',
                 `  echo "$2" >> "${join(work, 'viewed')}"`,
-                '  case "$2" in @uniquedomains/cli|@uniquedomains/whois) echo 0.2.1; exit 0;; esac',
+                '  case "$2" in domain-name-api|@uniquedomains/cli|@uniquedomains/whois|domain-availability|registrar-prices|domain-appraisal) echo 0.3.0; exit 0;; esac',
                 '  echo "npm error code E404" >&2; exit 1',
                 'fi',
                 `if [ "$1" = publish ]; then node -e 'console.log(require(process.argv[1] + "/package.json").name)' "$2" >> "${join(work, 'published')}"; exit 0; fi`,
@@ -249,7 +253,7 @@ describe('scripts/lib/packages.mjs: each package by its name on npm', () => {
             ].join('\n'), { mode: 0o755 });
             const result = spawnSync(process.execPath, [join(ROOT, 'scripts', 'publish-placeholder.mjs'), '--dry-run'], { encoding: 'utf8', env: { ...process.env, PATH: `${bin}:${process.env.PATH}` } });
             assert.equal(result.status, 0, result.stderr);
-            assert.deepEqual(readFileSync(join(work, 'published'), 'utf8').trim().split('\n'), ['domain-name-api', 'domain-availability', 'registrar-prices', 'domain-appraisal']);
+            assert.deepEqual(readFileSync(join(work, 'published'), 'utf8').trim().split('\n'), ['expired-domains-api', 'domain-sales', 'domain-auctions']);
             assert.match(result.stdout, /@uniquedomains\/cli is already on the registry: left alone\./);
             assert.deepEqual(readFileSync(join(work, 'viewed'), 'utf8').trim().split('\n'), Object.values(NAMES), 'each name is read from its package.json');
         } finally {
@@ -349,7 +353,7 @@ describe('the release\'s publish step, run with a stand-in npm', () => {
     it('a second run, after a cut one, skips what npm serves under each real name', () => {
         const { calls, stdout } = runStep(['domain-name-api', '@uniquedomains/cli', 'domain-availability']);
         const published = calls.filter((call) => call.startsWith('npm publish')).map((call) => /--workspace packages\/(\S+)/.exec(call)[1]);
-        assert.deepEqual(published, ['whois', 'registrar-prices', 'domain-appraisal']);
+        assert.deepEqual(published, ['whois', 'registrar-prices', 'domain-appraisal', 'expired-domains-api', 'domain-sales', 'domain-auctions']);
         assert.match(stdout, /domain-name-api@9\.9\.9 is already published\./);
     });
 });

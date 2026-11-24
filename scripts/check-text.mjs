@@ -14,6 +14,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { namesPrinted, recordedNames } from './lib/recorded-names.mjs';
 import { brokenRules, isReaderFile, joinedText, READER_RULES } from './lib/text-rules.mjs';
 
 const ROOT = process.argv[2] ? resolve(process.argv[2]) : join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -50,13 +51,17 @@ const walk = async (dir) => {
 };
 
 const problems = [];
+// A README shows calls, never the rows a recorded answer carries: no real name, and no venue in a market README.
+const recorded = recordedNames(ROOT);
 for (const file of await walk(ROOT)) {
     const path = relative(ROOT, file);
     const reader = isReaderFile(path);
+    const readme = path.split(sep).at(-1) === 'README.md';
     const lines = (await readFile(file, 'utf8')).split('\n');
     lines.forEach((line, index) => {
         for (const { pattern, label } of BANNED) if (pattern.test(line)) problems.push(`${path}:${index + 1}: ${label}`);
         if (reader) for (const id of brokenRules(line)) problems.push(`${path}:${index + 1}: ${LABELS.get(id)}`);
+        if (readme) for (const name of namesPrinted(line, path.split(sep).join('/'), recorded)) problems.push(`${path}:${index + 1}: "${name}" from a recorded answer (a README shows the call, never the rows it answers)`);
     });
     if (reader) {
         // A phrase split by a line wrap: reported once for the file when no single line breaks that rule.
