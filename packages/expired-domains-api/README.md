@@ -55,7 +55,7 @@ for await (const row of expiring({ ending: 'io', apiKey: process.env.UD_API_KEY,
 
 Without a key, or with a key on a plan that does not include it, the call throws a `PlanRequiredError`:
 
-<!-- example: refused -->
+<!-- example: refused fixture -->
 ```js
 import { expiring, PlanRequiredError } from 'expired-domains-api';
 

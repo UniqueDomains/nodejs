@@ -8,8 +8,8 @@
  * `list-tlds --limit 3 --json`. Then packs the built packages (no rebuild), installs the tarballs into an empty folder
  * and runs each use-case package through `npx` under its name on npm, one keyless call each, as its README's first
  * block shows it: `npx domain-availability get.plumbing`, `npx domain-appraisal get.plumbing`, `npx registrar-prices
- * io`, `npx @uniquedomains/whois get.plumbing`, `npx expired-domains-api`, `npx domain-sales .com`, `npx domain-auctions`.
- * Nine keyless calls; run by the nightly contract workflow after the
+ * io`, `npx @uniquedomains/whois get.plumbing`, `npx domain-sales .com`. Seven keyless calls; run by the nightly
+ * contract workflow after the
  * build, never by `npm test`, so the tests stay offline.
  */
 
@@ -32,18 +32,16 @@ const USE_CASES = [
     { folder: 'domain-appraisal', arg: 'get.plumbing' },
     { folder: 'registrar-prices', arg: 'io' },
     { folder: 'whois', arg: 'get.plumbing' },
-    // The day's drops and the day's auctions take no argument.
-    { folder: 'expired-domains-api', arg: null },
+    // One line for the packages of lane N, within the keyless hourly window: the first README example of
+    // expired-domains-api and domain-auctions already makes their command's call live every night, and both bins run
+    // through npx on the packed tarballs in `check-pack.mjs`.
     { folder: 'domain-sales', arg: '.com' },
-    { folder: 'domain-auctions', arg: null },
 ];
 
 /** One line on a use-case package's answer: what its README's first block shows. */
 const summaryOf = (folder, answer) => {
     if (Array.isArray(answer)) return `${answer.length} rows`;
-    if (folder === 'expired-domains-api') return `${answer.count} names dropping`;
     if (folder === 'domain-sales') return `${answer.count12m} sales in 12 months`;
-    if (folder === 'domain-auctions') return `${answer.closing} closing, ${answer.withBid} with a bid`;
     if (folder === 'domain-appraisal') return `${answer.count} sales`;
     return answer.status ?? answer.registrar?.name ?? 'an answer';
 };

@@ -32,7 +32,7 @@ The answer also carries the same figures for the period before each window, the 
 
 Every ending with three sales or more in 12 months, in alphabetical order:
 
-<!-- example: endings -->
+<!-- example: endings fixture -->
 ```js
 import { salesByEnding } from 'domain-sales';
 
@@ -51,7 +51,7 @@ Each row also carries the 12 months before and a trend word, `up`, `down`, `flat
 
 One word's sales over 12 months: how many, the median price, how many endings it sold on and the month of its last sale.
 
-<!-- example: word -->
+<!-- example: word fixture -->
 ```js
 import { salesOfWord } from 'domain-sales';
 

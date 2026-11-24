@@ -78,6 +78,12 @@ describe('the README examples, on the fixture server', () => {
         });
     }
 
+    /**
+     * Keyless examples of the packages of lane N that run on the fixture server only, so the nightly stays inside the
+     * keyless hourly window (the budget test below): each package's first example still runs live every night.
+     */
+    const OFF_THE_NIGHTLY = new Set(['expired-domains-api/refused', 'domain-sales/endings', 'domain-sales/word', 'domain-auctions/sample', 'domain-auctions/one-name', 'domain-auctions/refused']);
+
     const USE_CASE_PACKAGES = ['whois', 'domain-availability', 'registrar-prices', 'domain-appraisal', 'expired-domains-api', 'domain-sales', 'domain-auctions'];
 
     describe('the use-case READMEs (plan decision 18)', () => {
@@ -91,10 +97,13 @@ describe('the README examples, on the fixture server', () => {
                 assert.equal(server.requests.at(-1).method, 'GET');
             });
 
-            it(`${slug}: no example is skipped, and each fixture-only example shows a key`, () => {
+            it(`${slug}: no example is skipped, and each fixture-only example shows a key, or is kept off the nightly for its budget`, () => {
                 const readme = readmes.find((entry) => entry.slug === slug);
                 assert.equal(readme.examples.filter((example) => example.mode === 'skip').length, 0);
-                for (const example of readme.examples.filter((entry) => entry.mode === 'fixture')) assert.match(example.code, /process\.env\.UD_API_KEY/, example.name);
+                for (const example of readme.examples.filter((entry) => entry.mode === 'fixture')) {
+                    if (OFF_THE_NIGHTLY.has(`${slug}/${example.name}`)) assert.doesNotMatch(example.code, /apiKey/, `${example.name} is a keyless call`);
+                    else assert.match(example.code, /process\.env\.UD_API_KEY/, example.name);
+                }
             });
         }
     });
@@ -114,7 +123,7 @@ describe('the README examples, on the fixture server', () => {
     // Here rather than with the other scripts' tests: the generated modules and the server are this file's, and a
     // second process writing those modules would race with the import above.
     describe('the nightly\'s live calls (review N2-17)', () => {
-        it('stay inside the keyless hourly window, an example counted by the requests it makes', async () => {
+        it('stay inside the keyless hourly window of 60: the snapshot reads, every call of the smoke and the README examples', async () => {
             const callsOf = new Map();
             for (const { readme, examples } of loaded) {
                 for (const example of examples.filter((entry) => entry.mode === 'run')) {
@@ -129,10 +138,20 @@ describe('the README examples, on the fixture server', () => {
 
             const exampleCalls = [...callsOf.values()].reduce((sum, calls) => sum + calls, 0);
             const SNAPSHOT_READS = LISTINGS.length + 1;
-            const SMOKE_CALLS = (readFileSync(join(ROOT, 'scripts', 'smoke.mjs'), 'utf8').match(/await ud\(/g) ?? []).length;
+            // Read from the smoke script itself, so a call added there counts here (lane R review): each `await ud(` of
+            // the CLI is one call, and each entry of its USE_CASES list is one `npx <package>` line, one call each.
+            const smoke = readFileSync(join(ROOT, 'scripts', 'smoke.mjs'), 'utf8');
+            const cliCalls = (smoke.match(/await ud\(/g) ?? []).length;
+            const useCaseList = /const USE_CASES = \[([\s\S]*?)\n\];/.exec(smoke);
+            assert.ok(useCaseList, 'the smoke lists its use-case packages in USE_CASES');
+            const useCaseCalls = (useCaseList[1].match(/\{ folder: '/g) ?? []).length;
+            assert.ok(/for \(const \{ folder, arg \} of USE_CASES\)/.test(smoke), 'the smoke runs each USE_CASES entry once');
+            assert.ok(cliCalls > 0 && useCaseCalls > 0);
+            const SMOKE_CALLS = cliCalls + useCaseCalls;
             const HOURLY_WINDOW = 60;
-            assert.ok(SMOKE_CALLS > 0);
-            assert.ok(SNAPSHOT_READS + SMOKE_CALLS + exampleCalls <= HOURLY_WINDOW, `${SNAPSHOT_READS} + ${SMOKE_CALLS} + ${exampleCalls} live calls in one night`);
+            const total = SNAPSHOT_READS + SMOKE_CALLS + exampleCalls;
+            assert.ok(total <= HOURLY_WINDOW, `${total} live calls in one night, over the window of ${HOURLY_WINDOW}: ${SNAPSHOT_READS} snapshot reads + ${SMOKE_CALLS} smoke calls (${cliCalls} CLI, ${useCaseCalls} npx) + ${exampleCalls} README example calls`);
+            console.log(`The nightly's live calls: ${total} of ${HOURLY_WINDOW} (${SNAPSHOT_READS} snapshot reads + ${SMOKE_CALLS} smoke calls + ${exampleCalls} README example calls).`);
         });
     });
 });

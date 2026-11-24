@@ -33,7 +33,7 @@ Each split also carries the median bid in US dollars.
 
 Up to 20 one-word names closing that day, by deadline, each with its venue, its deadline and its bid. Drawn once a day, the same for every caller:
 
-<!-- example: sample -->
+<!-- example: sample fixture -->
 ```js
 import { auctionSample } from 'domain-auctions';
 
@@ -45,7 +45,7 @@ for (const row of names) console.log(row.name, row.endsAt, row.bid ?? 'no bid ye
 
 The open auction of one name: its venue, its deadline, its bid and bid count, and its first-year cost when the venue's rule is known. `null` when the name has no open auction.
 
-<!-- example: one-name -->
+<!-- example: one-name fixture -->
 ```js
 import { auctionOf } from 'domain-auctions';
 
@@ -72,7 +72,7 @@ for await (const row of auctionOutcomes({ apiKey: process.env.UD_API_KEY, maxRow
 
 Without a key, or with a key on a plan that does not include it, the call throws a `PlanRequiredError`:
 
-<!-- example: refused -->
+<!-- example: refused fixture -->
 ```js
 import { auctionOutcomes, PlanRequiredError } from 'domain-auctions';
 
