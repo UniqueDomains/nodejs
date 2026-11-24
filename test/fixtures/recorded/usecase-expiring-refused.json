@@ -1,7 +1,6 @@
 {
   "name": "usecase-expiring-refused",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/domains/expiring",
@@ -10,7 +9,11 @@
   "response": {
     "status": 403,
     "headers": {
-      "content-type": "application/problem+json; charset=utf-8"
+      "content-type": "application/problem+json; charset=utf-8",
+      "etag": "W/\"12c-BUA+uE3oDHczFw6cEu9Bni3zwH0\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "54",
+      "x-ratelimit-reset": "3261"
     },
     "body": {
       "type": "https://unique.domains/api/problems/keyed_only",

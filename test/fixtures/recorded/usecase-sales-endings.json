@@ -1,7 +1,6 @@
 {
   "name": "usecase-sales-endings",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/market/sales/endings",
@@ -10,43 +9,1447 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"umUOs_lSlInvRUtM2efenQpEzvY\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "53",
+      "x-ratelimit-reset": "3261"
     },
     "body": {
       "data": [
         {
+          "ending": "ac",
+          "count12m": 9,
+          "median12mUsd": 102,
+          "prevCount12m": 8,
+          "prevMedian12mUsd": 100,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ad",
+          "count12m": 7,
+          "median12mUsd": 698,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ae",
+          "count12m": 10,
+          "median12mUsd": 1950,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ag",
+          "count12m": 22,
+          "median12mUsd": 230,
+          "prevCount12m": 9,
+          "prevMedian12mUsd": 169,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "agency",
+          "count12m": 3,
+          "median12mUsd": 400,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 995,
+          "trendWord": "flat",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
           "ending": "ai",
           "count12m": 3466,
           "median12mUsd": 800,
-          "prevCount12m": 3366,
-          "prevMedian12mUsd": 800,
+          "prevCount12m": 2200,
+          "prevMedian12mUsd": 2024,
+          "trendWord": "up",
+          "count30d": 71,
+          "median30dUsd": 3295
+        },
+        {
+          "ending": "am",
+          "count12m": 3,
+          "median12mUsd": 2100,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "app",
+          "count12m": 93,
+          "median12mUsd": 1324,
+          "prevCount12m": 48,
+          "prevMedian12mUsd": 2614,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "art",
+          "count12m": 27,
+          "median12mUsd": 1920,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 4,
+          "median30dUsd": 1920
+        },
+        {
+          "ending": "asia",
+          "count12m": 4,
+          "median12mUsd": 696,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "at",
+          "count12m": 18,
+          "median12mUsd": 4590,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "be",
+          "count12m": 11,
+          "median12mUsd": 3365,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 4,
+          "median30dUsd": 3356
+        },
+        {
+          "ending": "bet",
+          "count12m": 28,
+          "median12mUsd": 400,
+          "prevCount12m": 18,
+          "prevMedian12mUsd": 5000,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "bid",
+          "count12m": 3,
+          "median12mUsd": 204,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "bio",
+          "count12m": 6,
+          "median12mUsd": 400,
+          "prevCount12m": 6,
+          "prevMedian12mUsd": 294,
           "trendWord": "flat",
-          "count30d": 217,
-          "median30dUsd": 800
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "biz",
+          "count12m": 16,
+          "median12mUsd": 1195,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 3,
+          "median30dUsd": 1675
+        },
+        {
+          "ending": "bot",
+          "count12m": 24,
+          "median12mUsd": 962,
+          "prevCount12m": 14,
+          "prevMedian12mUsd": 3584,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ca",
+          "count12m": 100,
+          "median12mUsd": 505,
+          "prevCount12m": 15,
+          "prevMedian12mUsd": 1800,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "cafe",
+          "count12m": 8,
+          "median12mUsd": 482,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "capital",
+          "count12m": 6,
+          "median12mUsd": 450,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "cards",
+          "count12m": 3,
+          "median12mUsd": 500,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "care",
+          "count12m": 3,
+          "median12mUsd": 400,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "casino",
+          "count12m": 3,
+          "median12mUsd": 400,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 8000,
+          "trendWord": "flat",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "cc",
+          "count12m": 138,
+          "median12mUsd": 978,
+          "prevCount12m": 25,
+          "prevMedian12mUsd": 588,
+          "trendWord": "up",
+          "count30d": 10,
+          "median30dUsd": 1168
+        },
+        {
+          "ending": "center",
+          "count12m": 3,
+          "median12mUsd": 1000,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ch",
+          "count12m": 50,
+          "median12mUsd": 2500,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 6,
+          "median30dUsd": 2249
+        },
+        {
+          "ending": "chat",
+          "count12m": 9,
+          "median12mUsd": 400,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "city",
+          "count12m": 12,
+          "median12mUsd": 499,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "cl",
+          "count12m": 15,
+          "median12mUsd": 2000,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "click",
+          "count12m": 5,
+          "median12mUsd": 111,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "cloud",
+          "count12m": 6,
+          "median12mUsd": 1400,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 1939,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "club",
+          "count12m": 14,
+          "median12mUsd": 500,
+          "prevCount12m": 5,
+          "prevMedian12mUsd": 2500,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "cn",
+          "count12m": 32,
+          "median12mUsd": 2974,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 5,
+          "median30dUsd": 3889
+        },
+        {
+          "ending": "co",
+          "count12m": 578,
+          "median12mUsd": 794,
+          "prevCount12m": 118,
+          "prevMedian12mUsd": 1225,
+          "trendWord": "up",
+          "count30d": 26,
+          "median30dUsd": 1407
+        },
+        {
+          "ending": "coffee",
+          "count12m": 4,
+          "median12mUsd": 682,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
         },
         {
           "ending": "com",
           "count12m": 28739,
           "median12mUsd": 860,
-          "prevCount12m": 28639,
-          "prevMedian12mUsd": 860,
+          "prevCount12m": 3605,
+          "prevMedian12mUsd": 1370,
+          "trendWord": "up",
+          "count30d": 1872,
+          "median30dUsd": 1472
+        },
+        {
+          "ending": "company",
+          "count12m": 4,
+          "median12mUsd": 2694,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "de",
+          "count12m": 352,
+          "median12mUsd": 3122,
+          "prevCount12m": 11,
+          "prevMedian12mUsd": 3529,
+          "trendWord": "up",
+          "count30d": 34,
+          "median30dUsd": 3025
+        },
+        {
+          "ending": "dev",
+          "count12m": 30,
+          "median12mUsd": 912,
+          "prevCount12m": 9,
+          "prevMedian12mUsd": 4100,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "digital",
+          "count12m": 14,
+          "median12mUsd": 535,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 300,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "domains",
+          "count12m": 4,
+          "median12mUsd": 1612,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 888,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "education",
+          "count12m": 3,
+          "median12mUsd": 400,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "energy",
+          "count12m": 5,
+          "median12mUsd": 204,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 3100,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "es",
+          "count12m": 68,
+          "median12mUsd": 1556,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 4,
+          "median30dUsd": 2686
+        },
+        {
+          "ending": "eu",
+          "count12m": 117,
+          "median12mUsd": 3375,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 1775,
+          "trendWord": "up",
+          "count30d": 13,
+          "median30dUsd": 4452
+        },
+        {
+          "ending": "exchange",
+          "count12m": 6,
+          "median12mUsd": 1252,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "farm",
+          "count12m": 3,
+          "median12mUsd": 215,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "fi",
+          "count12m": 5,
+          "median12mUsd": 5617,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 27138,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "finance",
+          "count12m": 12,
+          "median12mUsd": 270,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 1887,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "fm",
+          "count12m": 3,
+          "median12mUsd": 494,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "fr",
+          "count12m": 62,
+          "median12mUsd": 2892,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 9,
+          "median30dUsd": 2000
+        },
+        {
+          "ending": "fun",
+          "count12m": 13,
+          "median12mUsd": 1999,
+          "prevCount12m": 14,
+          "prevMedian12mUsd": 2900,
           "trendWord": "flat",
-          "count30d": 1796,
-          "median30dUsd": 860
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "games",
+          "count12m": 5,
+          "median12mUsd": 405,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "gg",
+          "count12m": 50,
+          "median12mUsd": 599,
+          "prevCount12m": 22,
+          "prevMedian12mUsd": 1744,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "global",
+          "count12m": 4,
+          "median12mUsd": 1028,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "gr",
+          "count12m": 7,
+          "median12mUsd": 3239,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "group",
+          "count12m": 12,
+          "median12mUsd": 3804,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "health",
+          "count12m": 5,
+          "median12mUsd": 4488,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "hr",
+          "count12m": 3,
+          "median12mUsd": 2804,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "id",
+          "count12m": 28,
+          "median12mUsd": 268,
+          "prevCount12m": 6,
+          "prevMedian12mUsd": 3988,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ie",
+          "count12m": 11,
+          "median12mUsd": 1500,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 2362,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "im",
+          "count12m": 5,
+          "median12mUsd": 599,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "in",
+          "count12m": 22,
+          "median12mUsd": 2600,
+          "prevCount12m": 14,
+          "prevMedian12mUsd": 1622,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "info",
+          "count12m": 119,
+          "median12mUsd": 400,
+          "prevCount12m": 21,
+          "prevMedian12mUsd": 400,
+          "trendWord": "up",
+          "count30d": 7,
+          "median30dUsd": 1650
+        },
+        {
+          "ending": "ink",
+          "count12m": 3,
+          "median12mUsd": 204,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
         },
         {
           "ending": "io",
           "count12m": 1032,
           "median12mUsd": 400,
-          "prevCount12m": 932,
-          "prevMedian12mUsd": 400,
+          "prevCount12m": 223,
+          "prevMedian12mUsd": 898,
+          "trendWord": "up",
+          "count30d": 23,
+          "median30dUsd": 1225
+        },
+        {
+          "ending": "is",
+          "count12m": 6,
+          "median12mUsd": 2534,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "it",
+          "count12m": 27,
+          "median12mUsd": 2780,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 5,
+          "median30dUsd": 1800
+        },
+        {
+          "ending": "land",
+          "count12m": 6,
+          "median12mUsd": 408,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "lat",
+          "count12m": 3,
+          "median12mUsd": 504,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "lc",
+          "count12m": 11,
+          "median12mUsd": 132,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "life",
+          "count12m": 17,
+          "median12mUsd": 998,
+          "prevCount12m": 13,
+          "prevMedian12mUsd": 2488,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "link",
+          "count12m": 5,
+          "median12mUsd": 155,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 1500,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "live",
+          "count12m": 12,
+          "median12mUsd": 400,
+          "prevCount12m": 6,
+          "prevMedian12mUsd": 387,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "lol",
+          "count12m": 5,
+          "median12mUsd": 500,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ltd",
+          "count12m": 3,
+          "median12mUsd": 801,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "luxury",
+          "count12m": 6,
+          "median12mUsd": 646,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "lv",
+          "count12m": 3,
+          "median12mUsd": 2000,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ly",
+          "count12m": 93,
+          "median12mUsd": 102,
+          "prevCount12m": 15,
+          "prevMedian12mUsd": 280,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "market",
+          "count12m": 5,
+          "median12mUsd": 2039,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "markets",
+          "count12m": 4,
+          "median12mUsd": 2690,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "md",
+          "count12m": 7,
+          "median12mUsd": 2200,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "me",
+          "count12m": 88,
+          "median12mUsd": 560,
+          "prevCount12m": 33,
+          "prevMedian12mUsd": 1798,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "media",
+          "count12m": 8,
+          "median12mUsd": 450,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ml",
+          "count12m": 3,
+          "median12mUsd": 2200,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 1866,
           "trendWord": "flat",
-          "count30d": 65,
-          "median30dUsd": 400
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "mn",
+          "count12m": 7,
+          "median12mUsd": 99,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "mobi",
+          "count12m": 3,
+          "median12mUsd": 270,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "money",
+          "count12m": 13,
+          "median12mUsd": 849,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 1119,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "mx",
+          "count12m": 26,
+          "median12mUsd": 218,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 1000,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "my",
+          "count12m": 12,
+          "median12mUsd": 700,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "net",
+          "count12m": 1205,
+          "median12mUsd": 560,
+          "prevCount12m": 164,
+          "prevMedian12mUsd": 216,
+          "trendWord": "up",
+          "count30d": 61,
+          "median30dUsd": 1422
+        },
+        {
+          "ending": "network",
+          "count12m": 14,
+          "median12mUsd": 284,
+          "prevCount12m": 5,
+          "prevMedian12mUsd": 3188,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "news",
+          "count12m": 7,
+          "median12mUsd": 460,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ng",
+          "count12m": 3,
+          "median12mUsd": 1210,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "nl",
+          "count12m": 57,
+          "median12mUsd": 1959,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 15,
+          "median30dUsd": 1786
+        },
+        {
+          "ending": "no",
+          "count12m": 4,
+          "median12mUsd": 2576,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "now",
+          "count12m": 87,
+          "median12mUsd": 320,
+          "prevCount12m": 36,
+          "prevMedian12mUsd": 1694,
+          "trendWord": "up",
+          "count30d": 4,
+          "median30dUsd": 3068
+        },
+        {
+          "ending": "nyc",
+          "count12m": 4,
+          "median12mUsd": 303,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "one",
+          "count12m": 19,
+          "median12mUsd": 225,
+          "prevCount12m": 11,
+          "prevMedian12mUsd": 2400,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "onl",
+          "count12m": 5,
+          "median12mUsd": 400,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "online",
+          "count12m": 22,
+          "median12mUsd": 205,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "org",
+          "count12m": 2315,
+          "median12mUsd": 800,
+          "prevCount12m": 235,
+          "prevMedian12mUsd": 900,
+          "trendWord": "up",
+          "count30d": 128,
+          "median30dUsd": 2226
+        },
+        {
+          "ending": "page",
+          "count12m": 4,
+          "median12mUsd": 1026,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "pl",
+          "count12m": 3,
+          "median12mUsd": 4000,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "plus",
+          "count12m": 3,
+          "median12mUsd": 2500,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "pro",
+          "count12m": 24,
+          "median12mUsd": 400,
+          "prevCount12m": 8,
+          "prevMedian12mUsd": 369,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "pt",
+          "count12m": 20,
+          "median12mUsd": 1978,
+          "prevCount12m": 8,
+          "prevMedian12mUsd": 1614,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "re",
+          "count12m": 7,
+          "median12mUsd": 2200,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "red",
+          "count12m": 3,
+          "median12mUsd": 99,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 102,
+          "trendWord": "flat",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "restaurant",
+          "count12m": 3,
+          "median12mUsd": 815,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "rs",
+          "count12m": 3,
+          "median12mUsd": 1500,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "run",
+          "count12m": 6,
+          "median12mUsd": 202,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "sbs",
+          "count12m": 10,
+          "median12mUsd": 120,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "sc",
+          "count12m": 9,
+          "median12mUsd": 111,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 131,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "se",
+          "count12m": 16,
+          "median12mUsd": 1840,
+          "prevCount12m": 6,
+          "prevMedian12mUsd": 4175,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "sh",
+          "count12m": 64,
+          "median12mUsd": 295,
+          "prevCount12m": 11,
+          "prevMedian12mUsd": 305,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "shop",
+          "count12m": 13,
+          "median12mUsd": 185,
+          "prevCount12m": 5,
+          "prevMedian12mUsd": 588,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "si",
+          "count12m": 331,
+          "median12mUsd": 4000,
+          "prevCount12m": 10,
+          "prevMedian12mUsd": 964,
+          "trendWord": "up",
+          "count30d": 83,
+          "median30dUsd": 3499
+        },
+        {
+          "ending": "site",
+          "count12m": 18,
+          "median12mUsd": 165,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 1498,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "so",
+          "count12m": 23,
+          "median12mUsd": 511,
+          "prevCount12m": 8,
+          "prevMedian12mUsd": 4272,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "solutions",
+          "count12m": 3,
+          "median12mUsd": 250,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "space",
+          "count12m": 7,
+          "median12mUsd": 1009,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 598,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "store",
+          "count12m": 10,
+          "median12mUsd": 594,
+          "prevCount12m": 5,
+          "prevMedian12mUsd": 800,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "studio",
+          "count12m": 6,
+          "median12mUsd": 588,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 1100,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "taxi",
+          "count12m": 3,
+          "median12mUsd": 299,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "tech",
+          "count12m": 7,
+          "median12mUsd": 258,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "to",
+          "count12m": 64,
+          "median12mUsd": 290,
+          "prevCount12m": 21,
+          "prevMedian12mUsd": 145,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "tools",
+          "count12m": 6,
+          "median12mUsd": 410,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "top",
+          "count12m": 48,
+          "median12mUsd": 280,
+          "prevCount12m": 4,
+          "prevMedian12mUsd": 252,
+          "trendWord": "up",
+          "count30d": 8,
+          "median30dUsd": 896
+        },
+        {
+          "ending": "trade",
+          "count12m": 13,
+          "median12mUsd": 503,
+          "prevCount12m": 11,
+          "prevMedian12mUsd": 4999,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "travel",
+          "count12m": 5,
+          "median12mUsd": 400,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "tv",
+          "count12m": 38,
+          "median12mUsd": 2875,
+          "prevCount12m": 25,
+          "prevMedian12mUsd": 5000,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "tw",
+          "count12m": 4,
+          "median12mUsd": 3550,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "uk",
+          "count12m": 28,
+          "median12mUsd": 1000,
+          "prevCount12m": 7,
+          "prevMedian12mUsd": 1500,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "us",
+          "count12m": 116,
+          "median12mUsd": 685,
+          "prevCount12m": 44,
+          "prevMedian12mUsd": 995,
+          "trendWord": "up",
+          "count30d": 5,
+          "median30dUsd": 2478
+        },
+        {
+          "ending": "vc",
+          "count12m": 57,
+          "median12mUsd": 360,
+          "prevCount12m": 29,
+          "prevMedian12mUsd": 4500,
+          "trendWord": "up",
+          "count30d": 2,
+          "median30dUsd": null
+        },
+        {
+          "ending": "vip",
+          "count12m": 33,
+          "median12mUsd": 1342,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 9,
+          "median30dUsd": 1433
+        },
+        {
+          "ending": "wiki",
+          "count12m": 6,
+          "median12mUsd": 852,
+          "prevCount12m": 2,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "win",
+          "count12m": 5,
+          "median12mUsd": 395,
+          "prevCount12m": 3,
+          "prevMedian12mUsd": 7000,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "work",
+          "count12m": 4,
+          "median12mUsd": 232,
+          "prevCount12m": 1,
+          "prevMedian12mUsd": null,
+          "trendWord": "up",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "world",
+          "count12m": 13,
+          "median12mUsd": 304,
+          "prevCount12m": 10,
+          "prevMedian12mUsd": 1488,
+          "trendWord": "up",
+          "count30d": 1,
+          "median30dUsd": null
+        },
+        {
+          "ending": "ws",
+          "count12m": 4,
+          "median12mUsd": 583,
+          "prevCount12m": 0,
+          "prevMedian12mUsd": null,
+          "trendWord": "new",
+          "count30d": 0,
+          "median30dUsd": null
+        },
+        {
+          "ending": "xyz",
+          "count12m": 240,
+          "median12mUsd": 999,
+          "prevCount12m": 146,
+          "prevMedian12mUsd": 2599,
+          "trendWord": "up",
+          "count30d": 10,
+          "median30dUsd": 2249
         }
       ],
       "meta": {
-        "asOf": null,
+        "asOf": "2026-11-24T04:27:25.000Z",
         "cursor": null,
         "limit": null
       },
@@ -55,7 +1458,8 @@
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null
+        "dataset": null,
+        "details": "https://unique.domains/sales"
       }
     }
   }

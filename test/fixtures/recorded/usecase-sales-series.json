@@ -1,7 +1,6 @@
 {
   "name": "usecase-sales-series",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/market/sales/series",
@@ -10,17 +9,205 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"xvPRwedHg2kiGVGFP9_EzTta-0w\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "50",
+      "x-ratelimit-reset": "3260"
     },
     "body": {
       "data": [
         {
+          "periodStart": "2024-11-01",
+          "count": 273,
+          "meanUsd": 11100,
+          "medianUsd": 2065,
+          "comCount": 129,
+          "aiCount": 66
+        },
+        {
+          "periodStart": "2024-12-01",
+          "count": 359,
+          "meanUsd": 17341,
+          "medianUsd": 2500,
+          "comCount": 166,
+          "aiCount": 118
+        },
+        {
+          "periodStart": "2025-01-01",
+          "count": 412,
+          "meanUsd": 16249,
+          "medianUsd": 2000,
+          "comCount": 227,
+          "aiCount": 115
+        },
+        {
+          "periodStart": "2025-02-01",
+          "count": 473,
+          "meanUsd": 15090,
+          "medianUsd": 2325,
+          "comCount": 188,
+          "aiCount": 208
+        },
+        {
+          "periodStart": "2025-03-01",
+          "count": 371,
+          "meanUsd": 16057,
+          "medianUsd": 1999,
+          "comCount": 180,
+          "aiCount": 105
+        },
+        {
+          "periodStart": "2025-04-01",
+          "count": 426,
+          "meanUsd": 179296,
+          "medianUsd": 2200,
+          "comCount": 202,
+          "aiCount": 164
+        },
+        {
+          "periodStart": "2025-05-01",
+          "count": 683,
+          "meanUsd": 12743,
+          "medianUsd": 2000,
+          "comCount": 276,
+          "aiCount": 247
+        },
+        {
+          "periodStart": "2025-06-01",
+          "count": 627,
+          "meanUsd": 11609,
+          "medianUsd": 1999,
+          "comCount": 274,
+          "aiCount": 263
+        },
+        {
+          "periodStart": "2025-07-01",
+          "count": 594,
+          "meanUsd": 34822,
+          "medianUsd": 2248,
+          "comCount": 303,
+          "aiCount": 198
+        },
+        {
+          "periodStart": "2025-08-01",
+          "count": 707,
+          "meanUsd": 8890,
+          "medianUsd": 1401,
+          "comCount": 342,
+          "aiCount": 164
+        },
+        {
+          "periodStart": "2025-09-01",
+          "count": 652,
+          "meanUsd": 9248,
+          "medianUsd": 1584,
+          "comCount": 266,
+          "aiCount": 194
+        },
+        {
+          "periodStart": "2025-10-01",
+          "count": 1466,
+          "meanUsd": 4624,
+          "medianUsd": 513,
+          "comCount": 832,
+          "aiCount": 272
+        },
+        {
+          "periodStart": "2025-11-01",
+          "count": 802,
+          "meanUsd": 10326,
+          "medianUsd": 1620,
+          "comCount": 391,
+          "aiCount": 179
+        },
+        {
+          "periodStart": "2025-12-01",
+          "count": 2026,
+          "meanUsd": 3267,
+          "medianUsd": 400,
+          "comCount": 1232,
+          "aiCount": 324
+        },
+        {
+          "periodStart": "2026-01-01",
+          "count": 5015,
+          "meanUsd": 3175,
+          "medianUsd": 551,
+          "comCount": 3453,
+          "aiCount": 580
+        },
+        {
+          "periodStart": "2026-02-01",
+          "count": 8021,
+          "meanUsd": 3103,
+          "medianUsd": 810,
+          "comCount": 5613,
+          "aiCount": 710
+        },
+        {
+          "periodStart": "2026-03-01",
+          "count": 6937,
+          "meanUsd": 3182,
+          "medianUsd": 660,
+          "comCount": 5176,
+          "aiCount": 414
+        },
+        {
+          "periodStart": "2026-04-01",
+          "count": 4268,
+          "meanUsd": 2288,
+          "medianUsd": 350,
+          "comCount": 2661,
+          "aiCount": 605
+        },
+        {
+          "periodStart": "2026-05-01",
+          "count": 3789,
+          "meanUsd": 3468,
+          "medianUsd": 399,
+          "comCount": 2477,
+          "aiCount": 436
+        },
+        {
+          "periodStart": "2026-06-01",
+          "count": 757,
+          "meanUsd": 8406,
+          "medianUsd": 688,
+          "comCount": 519,
+          "aiCount": 18
+        },
+        {
+          "periodStart": "2026-07-01",
+          "count": 740,
+          "meanUsd": 5941,
+          "medianUsd": 600,
+          "comCount": 507,
+          "aiCount": 21
+        },
+        {
+          "periodStart": "2026-08-01",
+          "count": 1275,
+          "meanUsd": 7418,
+          "medianUsd": 1550,
+          "comCount": 920,
+          "aiCount": 57
+        },
+        {
+          "periodStart": "2026-09-01",
+          "count": 3186,
+          "meanUsd": 3819,
+          "medianUsd": 1740,
+          "comCount": 2436,
+          "aiCount": 116
+        },
+        {
           "periodStart": "2026-10-01",
-          "count": 2950,
-          "meanUsd": 4810,
-          "medianUsd": 1100,
-          "comCount": 1702,
-          "aiCount": 214
+          "count": 3184,
+          "meanUsd": 5750,
+          "medianUsd": 1802,
+          "comCount": 2358,
+          "aiCount": 95
         }
       ],
       "meta": {
@@ -33,7 +220,8 @@
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null
+        "dataset": null,
+        "details": "https://unique.domains/sales"
       }
     }
   }

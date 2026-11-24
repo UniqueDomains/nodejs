@@ -1,0 +1,28 @@
+{
+  "name": "usecase-drops-ending-refused",
+  "recordedOn": "2026-11-24",
+  "request": {
+    "method": "GET",
+    "path": "/domains/drops",
+    "query": "ending=io"
+  },
+  "response": {
+    "status": 403,
+    "headers": {
+      "content-type": "application/problem+json; charset=utf-8",
+      "etag": "W/\"fa-agoyKuyLH5FyMa+btMxc4PJzH6E\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "38",
+      "x-ratelimit-reset": "3206"
+    },
+    "body": {
+      "type": "https://unique.domains/api/problems/keyed_only",
+      "title": "A paid subscription is required",
+      "status": 403,
+      "detail": "Paid subscriptions only: ending.",
+      "instance": "/v1/domains/drops",
+      "code": "keyed_only",
+      "product": "https://unique.domains/pricing"
+    }
+  }
+}

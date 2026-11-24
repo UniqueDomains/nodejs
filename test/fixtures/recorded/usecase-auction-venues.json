@@ -1,7 +1,6 @@
 {
   "name": "usecase-auction-venues",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/market/auctions/venues",
@@ -10,10 +9,48 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"i4r0wJ-c1CSG_OWGP8AuyFsMaoE\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "47",
+      "x-ratelimit-reset": "3259"
     },
     "body": {
       "data": [
+        {
+          "id": "godaddy",
+          "label": "GoDaddy",
+          "currency": "USD",
+          "kinds": [
+            "unspecified"
+          ],
+          "closeRule": {
+            "value": "May extend an auction when bids arrive in its final moments.",
+            "verifiedOn": "2026-10-08"
+          },
+          "paymentRule": {
+            "value": "48 hours, then the card on file is charged.",
+            "verifiedOn": "2026-10-08"
+          },
+          "bidderRule": {
+            "value": "An Auctions membership is required to bid.",
+            "verifiedOn": "2026-10-08"
+          },
+          "firstYear": {
+            "unspecified": {
+              "value": {
+                "registrationIncluded": false,
+                "flatFee": 0
+              },
+              "verifiedOn": "2026-10-08"
+            }
+          },
+          "today": {
+            "closing": 142027,
+            "withBid": 535,
+            "medianBidUsd": 1
+          }
+        },
         {
           "id": "dynadot",
           "label": "Dynadot",
@@ -44,9 +81,157 @@
             }
           },
           "today": {
-            "closing": 2100,
-            "withBid": 310,
-            "medianBidUsd": 40
+            "closing": 41408,
+            "withBid": 603,
+            "medianBidUsd": 45.03
+          }
+        },
+        {
+          "id": "namesilo",
+          "label": "NameSilo",
+          "currency": "USD",
+          "kinds": [
+            "expired"
+          ],
+          "closeRule": null,
+          "paymentRule": {
+            "value": "Taken automatically at the win: account funds, then card, then PayPal.",
+            "verifiedOn": "2026-10-08"
+          },
+          "bidderRule": {
+            "value": "Funds or credit must cover the bid plus a one-year renewal.",
+            "verifiedOn": "2026-10-08"
+          },
+          "firstYear": {
+            "expired": {
+              "value": {
+                "registrationIncluded": false,
+                "flatFee": 0
+              },
+              "verifiedOn": "2026-10-08"
+            }
+          },
+          "today": {
+            "closing": 5216,
+            "withBid": 92,
+            "medianBidUsd": 3.09
+          }
+        },
+        {
+          "id": "namecheap",
+          "label": "Namecheap",
+          "currency": "USD",
+          "kinds": [
+            "expired"
+          ],
+          "closeRule": {
+            "value": "A bid in the last 5 minutes resets the time left to 5 minutes.",
+            "verifiedOn": "2026-10-08"
+          },
+          "paymentRule": {
+            "value": "72 hours; the second bidder then gets 24 hours.",
+            "verifiedOn": "2026-10-08"
+          },
+          "bidderRule": {
+            "value": "A Market subscription ($5 a year) and a $100 minimum balance.",
+            "verifiedOn": "2026-10-08"
+          },
+          "firstYear": {},
+          "today": {
+            "closing": 211004,
+            "withBid": 159,
+            "medianBidUsd": 15
+          }
+        },
+        {
+          "id": "snapnames",
+          "label": "SnapNames",
+          "currency": "USD",
+          "kinds": [
+            "expired"
+          ],
+          "closeRule": {
+            "value": "A bid in the final 5 minutes adds 5 minutes.",
+            "verifiedOn": "2026-10-08"
+          },
+          "paymentRule": {
+            "value": "7 days from the close (14 for verified bidders).",
+            "verifiedOn": "2026-10-08"
+          },
+          "bidderRule": {
+            "value": "An account and a valid credit card.",
+            "verifiedOn": "2026-10-08"
+          },
+          "firstYear": {
+            "expired": {
+              "value": {
+                "registrationIncluded": true,
+                "flatFee": 0
+              },
+              "verifiedOn": "2026-10-08"
+            }
+          },
+          "today": {
+            "closing": 7853,
+            "withBid": 0,
+            "medianBidUsd": null
+          }
+        },
+        {
+          "id": "parkio",
+          "label": "Park.io",
+          "currency": "USD",
+          "kinds": [
+            "expired"
+          ],
+          "closeRule": {
+            "value": "A bid in the last hour moves the close to one hour after it.",
+            "verifiedOn": "2026-10-08"
+          },
+          "paymentRule": {
+            "value": "The card is charged at the win.",
+            "verifiedOn": "2026-10-08"
+          },
+          "bidderRule": null,
+          "firstYear": {
+            "expired": {
+              "value": {
+                "registrationIncluded": true,
+                "flatFee": 0
+              },
+              "verifiedOn": "2026-10-08"
+            }
+          },
+          "today": {
+            "closing": 4,
+            "withBid": 4,
+            "medianBidUsd": 629
+          }
+        },
+        {
+          "id": "domainlore",
+          "label": "DomainLore",
+          "currency": "GBP",
+          "kinds": [
+            "expired"
+          ],
+          "closeRule": {
+            "value": "A bid in the final 10 minutes starts overtime, until 3 minutes pass without a bid.",
+            "verifiedOn": "2026-10-08"
+          },
+          "paymentRule": {
+            "value": "Buyer and seller settle directly: contact within 3 days, complete within 7.",
+            "verifiedOn": "2026-10-08"
+          },
+          "bidderRule": {
+            "value": "A free account, one per person.",
+            "verifiedOn": "2026-10-08"
+          },
+          "firstYear": {},
+          "today": {
+            "closing": 36,
+            "withBid": 8,
+            "medianBidUsd": null
           }
         }
       ],
@@ -60,7 +245,8 @@
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null
+        "dataset": null,
+        "details": "https://unique.domains/auctions"
       }
     }
   }

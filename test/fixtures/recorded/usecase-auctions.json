@@ -1,7 +1,6 @@
 {
   "name": "usecase-auctions",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/market/auctions",
@@ -10,7 +9,11 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"TAUoukoeUFTkFUoiNWG1CwD46Pk\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "48",
+      "x-ratelimit-reset": "3259"
     },
     "body": {
       "data": {
@@ -18,32 +21,128 @@
         "closing": 407548,
         "withBid": 1401,
         "counts": {
-          "today": 38,
-          "results": 51,
-          "all": 1204
+          "today": 50,
+          "results": 58,
+          "all": 42746
         },
         "byVenue": [
           {
             "venue": "godaddy",
-            "closing": 300000,
-            "withBid": 1000,
-            "medianBidUsd": 25
+            "closing": 142027,
+            "withBid": 535,
+            "medianBidUsd": 1
+          },
+          {
+            "venue": "dynadot",
+            "closing": 41408,
+            "withBid": 603,
+            "medianBidUsd": 45.03
+          },
+          {
+            "venue": "namesilo",
+            "closing": 5216,
+            "withBid": 92,
+            "medianBidUsd": 3.09
+          },
+          {
+            "venue": "namecheap",
+            "closing": 211004,
+            "withBid": 159,
+            "medianBidUsd": 15
+          },
+          {
+            "venue": "snapnames",
+            "closing": 7853,
+            "withBid": 0,
+            "medianBidUsd": null
+          },
+          {
+            "venue": "parkio",
+            "closing": 4,
+            "withBid": 4,
+            "medianBidUsd": 629
+          },
+          {
+            "venue": "domainlore",
+            "closing": 36,
+            "withBid": 8,
+            "medianBidUsd": null
           }
         ],
         "byEnding": [
           {
             "ending": "com",
-            "closing": 200000,
-            "withBid": 900,
-            "medianBidUsd": 30
+            "closing": 91358,
+            "withBid": 1025,
+            "medianBidUsd": null
+          },
+          {
+            "ending": "ai",
+            "closing": 829,
+            "withBid": 6,
+            "medianBidUsd": null
+          },
+          {
+            "ending": "io",
+            "closing": 2403,
+            "withBid": 12,
+            "medianBidUsd": null
+          },
+          {
+            "ending": "app",
+            "closing": 683,
+            "withBid": 4,
+            "medianBidUsd": null
+          },
+          {
+            "ending": "co",
+            "closing": 1428,
+            "withBid": 2,
+            "medianBidUsd": null
+          },
+          {
+            "ending": "xyz",
+            "closing": 102821,
+            "withBid": 14,
+            "medianBidUsd": null
           }
         ],
         "byLength": [
           {
+            "length": 1,
+            "closing": 2,
+            "withBid": 0,
+            "medianBidUsd": null
+          },
+          {
+            "length": 2,
+            "closing": 129,
+            "withBid": 0,
+            "medianBidUsd": null
+          },
+          {
+            "length": 3,
+            "closing": 1814,
+            "withBid": 22,
+            "medianBidUsd": null
+          },
+          {
+            "length": 4,
+            "closing": 17962,
+            "withBid": 97,
+            "medianBidUsd": null
+          },
+          {
             "length": 5,
-            "closing": 1300,
-            "withBid": 240,
-            "medianBidUsd": 45
+            "closing": 27606,
+            "withBid": 113,
+            "medianBidUsd": null
+          },
+          {
+            "length": 6,
+            "closing": 35711,
+            "withBid": 131,
+            "medianBidUsd": null
           }
         ],
         "next7Days": [
@@ -53,7 +152,27 @@
           },
           {
             "day": "2026-11-25",
-            "closing": 398000
+            "closing": 253930
+          },
+          {
+            "day": "2026-11-26",
+            "closing": 213677
+          },
+          {
+            "day": "2026-11-27",
+            "closing": 272003
+          },
+          {
+            "day": "2026-11-28",
+            "closing": 213878
+          },
+          {
+            "day": "2026-11-29",
+            "closing": 225078
+          },
+          {
+            "day": "2026-11-30",
+            "closing": 177536
           }
         ]
       },
@@ -67,7 +186,8 @@
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null
+        "dataset": null,
+        "details": "https://unique.domains/auctions"
       }
     }
   }

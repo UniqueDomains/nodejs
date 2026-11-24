@@ -48,8 +48,6 @@ main({
             call: drops({ ...connection, day, ending }),
             nextPage: nextPageOf('get-domain-drops', { day, ending: endings }),
             empty: (answer: DataOf<'get_domain_drops'>) => (!Array.isArray(answer) && answer.count === 0 ? `No names drop on ${day ?? 'this day'}.` : null),
-            // The day's counts came back although an ending was asked: no key, or a free RapidAPI plan, reads no ending.
-            note: (answer: DataOf<'get_domain_drops'>) => (endings !== undefined && !Array.isArray(answer) ? 'With no key the counts cover every ending: --ending narrows the names, with a key on the Investor plan.' : null),
         };
     },
 });

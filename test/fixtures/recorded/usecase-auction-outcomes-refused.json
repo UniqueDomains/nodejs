@@ -1,7 +1,6 @@
 {
   "name": "usecase-auction-outcomes-refused",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/market/auctions/outcomes",
@@ -10,7 +9,11 @@
   "response": {
     "status": 403,
     "headers": {
-      "content-type": "application/problem+json; charset=utf-8"
+      "content-type": "application/problem+json; charset=utf-8",
+      "etag": "W/\"13c-LfF0G4Z56j+F8Ewvd6Trmyht6/U\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "45",
+      "x-ratelimit-reset": "3258"
     },
     "body": {
       "type": "https://unique.domains/api/problems/keyed_only",

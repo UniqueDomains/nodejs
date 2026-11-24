@@ -1,7 +1,6 @@
 {
   "name": "usecase-sales-word",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/market/sales/words/harbor",
@@ -10,16 +9,20 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"aYARyhXdKX96DEy7uw2eOyScg5A\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "49",
+      "x-ratelimit-reset": "3260"
     },
     "body": {
       "data": {
         "status": "result",
         "word": "harbor",
-        "sales12m": 11,
-        "median12mUsd": 3400,
-        "endingsSoldOn": 5,
-        "lastSaleMonth": "2026-10"
+        "sales12m": 0,
+        "median12mUsd": null,
+        "endingsSoldOn": 0,
+        "lastSaleMonth": "2013-07"
       },
       "meta": {
         "asOf": null,
@@ -31,7 +34,8 @@
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null
+        "dataset": null,
+        "details": "https://unique.domains/sales"
       }
     }
   }

@@ -54,7 +54,8 @@ const CALLS = [
     // recorded: its names are the day's sample, so its fixture is written by hand on `.example` names.
     { name: 'usecase-drops', path: '/domains/drops' },
     { name: 'usecase-drops-day-refused', path: '/domains/drops', query: 'day=2020-01-01' },
-    { name: 'usecase-drops-ending-malformed', path: '/domains/drops', query: 'ending=i_o' },
+    // Without a key the API refuses an `ending` (a keyed control: 403, never a silently ignored value).
+    { name: 'usecase-drops-ending-refused', path: '/domains/drops', query: 'ending=io' },
     { name: 'usecase-expiring-refused', path: '/domains/expiring' },
     { name: 'usecase-sales-endings', path: '/market/sales/endings' },
     { name: 'usecase-sales-lengths', path: '/market/sales/lengths' },

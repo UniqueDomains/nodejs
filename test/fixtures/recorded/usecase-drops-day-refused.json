@@ -1,7 +1,6 @@
 {
   "name": "usecase-drops-day-refused",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/domains/drops",
@@ -10,7 +9,11 @@
   "response": {
     "status": 400,
     "headers": {
-      "content-type": "application/problem+json; charset=utf-8"
+      "content-type": "application/problem+json; charset=utf-8",
+      "etag": "W/\"e3-wuWRRs5Va1DnjBwWM1bRMlOxmrA\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "56",
+      "x-ratelimit-reset": "3262"
     },
     "body": {
       "type": "https://unique.domains/api/problems/validation_failed",

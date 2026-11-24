@@ -26,10 +26,21 @@ describe('expired-domains-api', () => {
     });
 
     it('writes the endings as the API reads them: no dot, lowercased, one comma list', async () => {
-        await drops({ ...free(), ending: ['.IO'] });
+        await drops({ apiKey: KEY, baseUrl: server.base, ending: ['.IO'] });
         assert.equal(last().query, 'ending=io');
-        await drops({ ...free(), ending: '' }).catch(() => {});
+        await drops({ apiKey: KEY, baseUrl: server.base, ending: '.Io, AI,io' }).catch(() => {});
+        assert.equal(last().query, 'ending=io%2Cai');
+        await drops({ ...free(), ending: '' });
         assert.equal(last().query, '', 'an empty ending sends none');
+    });
+
+    it('throws PlanRequiredError on an ending without a key: the API refuses the keyed control, never ignores it (D12 as recorded)', async () => {
+        await assert.rejects(drops({ ...free(), ending: 'io' }), (error) => {
+            assert.ok(error instanceof PlanRequiredError);
+            assert.equal(error.code, 'keyed_only');
+            assert.equal(error.detail, recorded('usecase-drops-ending-refused').detail);
+            return true;
+        });
     });
 
     it('passes the API\'s refusal of a day outside the week on as a ValidationError, with its message (side path)', async () => {
@@ -40,10 +51,10 @@ describe('expired-domains-api', () => {
         });
     });
 
-    it('passes the API\'s refusal of a malformed ending on as a ValidationError (side path)', async () => {
-        await assert.rejects(drops({ ...free(), ending: 'i_o' }), (error) => {
+    it('passes the API\'s refusal of a malformed ending on as a ValidationError, with a key (side path)', async () => {
+        await assert.rejects(drops({ apiKey: KEY, baseUrl: server.base, ending: 'i_o' }), (error) => {
             assert.ok(error instanceof ValidationError);
-            assert.equal(error.detail, recorded('usecase-drops-ending-malformed').detail);
+            assert.match(error.detail, /An ending is written without the dot/);
             return true;
         });
     });
@@ -84,17 +95,18 @@ describe('ud-expired', () => {
         assert.deepEqual(JSON.parse(stdout), recorded('usecase-drops').data);
     });
 
-    it('says, without a key, that --ending narrows only the names, and prints the counts of every ending', async () => {
+    it('prints the API\'s refusal of --ending without a key and its plans link, and exits 1 (D12 as recorded)', async () => {
         const { code, stdout, stderr } = await bin(['--ending', '.io']);
-        assert.equal(code, 0);
-        assert.equal(JSON.parse(stdout).count, recorded('usecase-drops').data.count);
-        assert.match(stderr, /With no key the counts cover every ending: --ending narrows the names, with a key on the Investor plan\./);
+        assert.equal(code, 1);
+        assert.equal(stdout, '');
+        assert.match(stderr, /^Paid subscriptions only: ending\.$/m);
+        assert.match(stderr, /^See: https:\/\/unique\.domains\/pricing$/m);
     });
 
-    it('prints no such note with a key on the Investor plan, and its next page keeps the endings (review of lane N, 2)', async () => {
-        const { code, stderr } = await bin(['--ending', '.IO', '--key', KEY]);
+    it('reads the names with --ending and a key on the Investor plan, and its next page keeps the endings (review of lane N, 2)', async () => {
+        const { code, stdout, stderr } = await bin(['--ending', '.IO', '--key', KEY]);
         assert.equal(code, 0);
-        assert.doesNotMatch(stderr, /With no key/);
+        assert.deepEqual(JSON.parse(stdout).map((row) => row.name), ['anchor.example', 'beacon.example']);
         assert.match(stderr, /^More rows: npx @uniquedomains\/cli get-domain-drops --ending io --cursor c2 --key <your key>$/m);
     });
 
@@ -103,11 +115,6 @@ describe('ud-expired', () => {
         assert.match(stderr, /^More rows: npx @uniquedomains\/cli list-expiring-domains --ending io --cursor c2 --key <your key>$/m);
     });
 
-    it('prints the note on RapidAPI\'s free Basic plan too: the note reads the answer, not the key (review of lane N, 3)', async () => {
-        const { code, stderr } = await bin(['--ending', 'io', '--rapidapi-key', 'rk', '--base', server.origin]);
-        assert.equal(code, 0);
-        assert.match(stderr, /With no key the counts cover every ending/);
-    });
 
     it('prints the API\'s refusal of a day outside the week and exits 1', async () => {
         const { code, stderr } = await bin(['--day', '2020-01-01']);

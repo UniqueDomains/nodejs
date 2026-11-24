@@ -1,7 +1,6 @@
 {
   "name": "usecase-drops",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/domains/drops",
@@ -10,64 +9,72 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"wUoJmZJwH2I_-jIuEUtCDTNH0p4\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "57",
+      "x-ratelimit-reset": "3262"
     },
     "body": {
       "data": {
         "count": 19,
         "byEnding": [
           {
-            "ending": "site",
-            "count": 4
+            "ending": "app",
+            "count": 2
+          },
+          {
+            "ending": "cloud",
+            "count": 1
+          },
+          {
+            "ending": "dev",
+            "count": 2
+          },
+          {
+            "ending": "homes",
+            "count": 1
+          },
+          {
+            "ending": "in",
+            "count": 1
+          },
+          {
+            "ending": "lol",
+            "count": 1
           },
           {
             "ending": "online",
-            "count": 3
+            "count": 1
           },
           {
-            "ending": "xyz",
-            "count": 2
+            "ending": "quest",
+            "count": 1
+          },
+          {
+            "ending": "site",
+            "count": 4
           },
           {
             "ending": "store",
             "count": 2
           },
           {
-            "ending": "shop",
-            "count": 2
-          },
-          {
-            "ending": "top",
-            "count": 1
-          },
-          {
-            "ending": "info",
-            "count": 1
-          },
-          {
-            "ending": "live",
-            "count": 1
-          },
-          {
-            "ending": "click",
-            "count": 1
-          },
-          {
-            "ending": "fun",
-            "count": 1
-          },
-          {
-            "ending": "space",
-            "count": 1
+            "ending": "xyz",
+            "count": 3
           }
         ],
         "sample": [
           {
-            "ending": "site",
+            "ending": "xyz",
             "dropsOn": "2026-11-24"
           },
           {
-            "ending": "online",
+            "ending": "in",
+            "dropsOn": "2026-11-24"
+          },
+          {
+            "ending": "app",
             "dropsOn": "2026-11-24"
           },
           {
@@ -76,10 +83,6 @@
           },
           {
             "ending": "site",
-            "dropsOn": "2026-11-24"
-          },
-          {
-            "ending": "shop",
             "dropsOn": "2026-11-24"
           }
         ]
@@ -87,14 +90,15 @@
       "meta": {
         "asOf": null,
         "cursor": null,
-        "limit": null
+        "limit": 20
       },
       "links": {
         "self": "https://api.unique.domains/v1/domains/drops",
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null
+        "dataset": null,
+        "details": "https://unique.domains/whois"
       }
     }
   }

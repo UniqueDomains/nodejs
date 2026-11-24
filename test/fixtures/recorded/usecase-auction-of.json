@@ -1,7 +1,6 @@
 {
   "name": "usecase-auction-of",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/names/get.plumbing/auction",
@@ -10,7 +9,11 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"uD3ulRt1CloNJd3X-DOYlW5cYVI\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "46",
+      "x-ratelimit-reset": "3259"
     },
     "body": {
       "data": null,
@@ -23,7 +26,7 @@
         "self": "https://api.unique.domains/v1/names/get.plumbing/auction",
         "next": null,
         "register": null,
-        "product": null,
+        "product": "https://app.unique.domains/availability/get.plumbing",
         "dataset": null
       }
     }

@@ -235,8 +235,8 @@ export const SYNTHETIC = [
     // `.example`: no fixture carries a name of the day's auction sample or of a drop day.
     ...investorOnly('usecase-drop-names', '/domains/drops', 'ending=io', [{ id: 'dom_anchor', name: 'anchor.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }, { id: 'dom_beacon', name: 'beacon.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }], 'c2'),
     ...investorOnly('usecase-drop-names-2', '/domains/drops', 'ending=io&cursor=c2', [{ id: 'dom_cove', name: 'cove.example', ending: 'example', dropsOn: '2026-11-25', status: 'expiring' }]),
-    // Without a key the API reads no `ending`: it answers the day's counts over every ending.
-    { name: 'usecase-drops-ending-free', request: { method: 'GET', path: '/domains/drops', query: 'ending=io' }, response: recordedAt('usecase-drops', 'https://api.unique.domains/v1/domains/drops?ending=io') },
+    // A malformed ending with a key: the API's validation (keyless, the keyed control is refused before it).
+    { name: 'usecase-drops-ending-malformed', request: { method: 'GET', path: '/domains/drops', query: 'ending=i_o', header: ['authorization', USECASE_KEY] }, response: json(400, problem('validation_failed', 400, 'An ending is written without the dot (`ai`).')) },
     ...investorOnly('usecase-expiring', '/domains/expiring', '', [expiringRow('anchor.example')]),
     ...investorOnly('usecase-auction-outcomes', '/market/auctions/outcomes', '', [{ venue: 'dynadot', venueLabel: 'Dynadot', day: '2026-11-23', currency: 'USD', count: 42, median: 180 }]),
     {

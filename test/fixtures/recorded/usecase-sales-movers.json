@@ -1,7 +1,6 @@
 {
   "name": "usecase-sales-movers",
-  "recordedOn": null,
-  "shapedFrom": "packages/sdk/openapi.json",
+  "recordedOn": "2026-11-24",
   "request": {
     "method": "GET",
     "path": "/market/sales/movers",
@@ -10,27 +9,16 @@
   "response": {
     "status": 200,
     "headers": {
-      "content-type": "application/json; charset=utf-8"
+      "content-type": "application/json; charset=utf-8",
+      "etag": "W/\"15N13TzqaOh2rTdbKWbIQ9gpAjQ\"",
+      "x-ratelimit-limit": "60",
+      "x-ratelimit-remaining": "51",
+      "x-ratelimit-reset": "3261"
     },
     "body": {
-      "data": [
-        {
-          "word": "agent",
-          "sales30d": 9,
-          "prev30d": 3,
-          "direction": "up",
-          "sales90d": 14,
-          "median12mUsd": 4200,
-          "prevMedian12mUsd": 3100,
-          "endingsSoldOn": [
-            "ai",
-            "com",
-            "io"
-          ]
-        }
-      ],
+      "data": [],
       "meta": {
-        "asOf": null,
+        "asOf": "2026-11-24T04:27:25.000Z",
         "cursor": null,
         "limit": null
       },
@@ -39,7 +27,8 @@
         "next": null,
         "register": null,
         "product": null,
-        "dataset": null
+        "dataset": null,
+        "details": "https://unique.domains/sales"
       }
     }
   }
