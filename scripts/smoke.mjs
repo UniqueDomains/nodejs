@@ -59,7 +59,17 @@ try {
     execFileSync('npm', ['install', '--no-audit', '--no-fund', '--ignore-scripts', ...files], { cwd: project, stdio: 'ignore' });
     for (const { folder, arg } of USE_CASES) {
         const specifier = manifestOf(folder).name;
-        const { stdout } = await exec('npx', ['--offline', '--no', specifier, arg], { cwd: project, env });
+        let stdout;
+        try {
+            ({ stdout } = await exec('npx', ['--offline', '--no', specifier, arg], { cwd: project, env }));
+        } catch (error) {
+            // A spent keyless window on the runner's shared address says nothing about the package: a warning, as the
+            // README examples give, and the rest wait for the next night. Any other failure fails the smoke.
+            if (!/Try again in \d+ seconds/.test(error.stderr ?? '')) throw error;
+            const message = `The keyless window is spent at npx ${specifier}; the use-case packages left wait for the next run.`;
+            console.warn(process.env.GITHUB_ACTIONS ? `::warning title=Smoke::${message}` : message);
+            break;
+        }
         const answer = JSON.parse(stdout);
         if (answer === null || typeof answer !== 'object') throw new Error(`npx ${specifier} ${arg} answered ${stdout.slice(0, 200)}`);
         console.log(`npx ${specifier} ${arg}: ${Array.isArray(answer) ? `${answer.length} rows` : (answer.status ?? answer.registrar?.name ?? (answer.count === undefined ? 'an answer' : `${answer.count} sales`))}`);

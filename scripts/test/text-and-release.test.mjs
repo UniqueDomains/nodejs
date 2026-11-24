@@ -229,8 +229,32 @@ describe('scripts/lib/packages.mjs: each package by its name on npm', () => {
         for (const old of ['@uniquedomains/sdk', '@uniquedomains/domain-availability', '@uniquedomains/registrar-prices', '@uniquedomains/domain-appraisal', 'sdk']) assert.equal(folderOfPackage(old), null, old);
     });
 
-    it('a placeholder takes the package\'s name on npm', () => {
-        assert.equal(placeholderManifest(manifestOf('sdk')).name, 'domain-name-api');
+    it('publish-placeholder.mjs publishes a placeholder for each name npm does not know, under that name, and only those', () => {
+        // A stand-in npm: `view` knows the two names that kept their scope and answers E404 for the rest; `publish`
+        // logs the name in the folder it is given. So the run reads each name from its package.json, as npm will.
+        const work = mkdtempSync(join(tmpdir(), 'ud-placeholder-test-'));
+        try {
+            const bin = join(work, 'bin');
+            mkdirSync(bin);
+            writeFileSync(join(bin, 'npm'), [
+                '#!/usr/bin/env bash',
+                'if [ "$1" = view ]; then',
+                `  echo "$2" >> "${join(work, 'viewed')}"`,
+                '  case "$2" in @uniquedomains/cli|@uniquedomains/whois) echo 0.2.1; exit 0;; esac',
+                '  echo "npm error code E404" >&2; exit 1',
+                'fi',
+                `if [ "$1" = publish ]; then node -e 'console.log(require(process.argv[1] + "/package.json").name)' "$2" >> "${join(work, 'published')}"; exit 0; fi`,
+                'exit 1',
+                '',
+            ].join('\n'), { mode: 0o755 });
+            const result = spawnSync(process.execPath, [join(ROOT, 'scripts', 'publish-placeholder.mjs'), '--dry-run'], { encoding: 'utf8', env: { ...process.env, PATH: `${bin}:${process.env.PATH}` } });
+            assert.equal(result.status, 0, result.stderr);
+            assert.deepEqual(readFileSync(join(work, 'published'), 'utf8').trim().split('\n'), ['domain-name-api', 'domain-availability', 'registrar-prices', 'domain-appraisal']);
+            assert.match(result.stdout, /@uniquedomains\/cli is already on the registry: left alone\./);
+            assert.deepEqual(readFileSync(join(work, 'viewed'), 'utf8').trim().split('\n'), Object.values(NAMES), 'each name is read from its package.json');
+        } finally {
+            rmSync(work, { recursive: true, force: true });
+        }
     });
 });
 
