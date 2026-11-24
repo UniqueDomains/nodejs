@@ -101,6 +101,13 @@ describe('ud: answers', () => {
         assert.match(stdout, /Dataset: https:\/\/github\.com\/UniqueDomains\/io-domains/);
     });
 
+    it('names itself uniquedomains-cli/<version> in the User-Agent, whatever the SDK is called on npm (D10)', async () => {
+        const { code } = await ud(['get-name', 'get.plumbing']);
+        assert.equal(code, 0);
+        const { version } = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+        assert.equal(lastRequest().headers['user-agent'], `uniquedomains-cli/${version}`);
+    });
+
     it('ud whoami prints the plan, the month and what is left', async () => {
         const { code, stdout } = await ud(['whoami', '--key', 'ud_live_test'], { tty: true });
         assert.equal(code, 0);
