@@ -23,16 +23,19 @@ That answer (trimmed) comes from a record Unique.domains reads every day: 34 mil
 
 The API has 87 operations. 62 answer with no key, within 60 calls an hour and 100 a day from one address.
 
-This repository holds six packages. The first two are generated from the API's OpenAPI document and cover all of it; the other four each answer one question, from code or as a command:
+This repository holds nine packages. The first two are generated from the API's OpenAPI document and cover all of it; the other seven each answer one question, from code or as a command:
 
 | Package | What it is |
-|---|---|
+| --- | --- |
 | [`domain-name-api`](packages/sdk) | A typed client. Methods grouped by what they read (`ud.names.get`, `ud.prices.tld`, ...), each answering the API's data. |
 | [`@uniquedomains/cli`](packages/cli) | The `ud` command. Every operation is a command: `get_name` is `ud get-name`. |
-| [`@uniquedomains/whois`](packages/whois) | WHOIS lookup: a name's registry record and DNS for free, its past records with a key. The `ud-whois` command. |
-| [`domain-availability`](packages/domain-availability) | Availability check: a name's status and price for free, a live check with a key. The `ud-availability` command. |
-| [`registrar-prices`](packages/registrar-prices) | Price comparison: every registrar's price for an ending, renewal traps and changes for free, the cheapest across endings with a key. The `ud-prices` command. |
-| [`domain-appraisal`](packages/domain-appraisal) | Appraisal: comparable sales for free, the value with a key. The `ud-appraise` command. |
+| [`@uniquedomains/whois`](packages/whois) | WHOIS lookup: a name's registry record, its DNS and its past records. The `ud-whois` command. |
+| [`domain-availability`](packages/domain-availability) | Availability check: a name's status, its price and the day it comes free, for one name or a list, with a live check. The `ud-availability` command. |
+| [`registrar-prices`](packages/registrar-prices) | Registrar prices: every registrar's price for an ending, the cheapest across endings, price history, changes and renewal traps. The `ud-prices` command. |
+| [`domain-appraisal`](packages/domain-appraisal) | Appraisal: a name's estimated value and what similar names sold for. The `ud-appraise` command. |
+| [`expired-domains-api`](packages/expired-domains-api) | Expired domains: the names expiring and dropping each day, by ending. The `ud-expired` command. |
+| [`domain-sales`](packages/domain-sales) | Domain sales: counts and medians by word, ending and name length. The `ud-sales` command. |
+| [`domain-auctions`](packages/domain-auctions) | Domain auctions: the day's closings and bids at seven venues, their rules and past outcomes. The `ud-auctions` command. |
 
 [`examples/`](examples) holds three starters: a [Next.js page](examples/nextjs-domain-search), a [Google Sheets function](examples/google-sheets) and an [availability widget](examples/availability-widget).
 
@@ -93,7 +96,7 @@ npm test
 - A tag `v<version>` publishes every package from GitHub Actions with provenance, the SDK first. The packages share one version, and a tag never carries a pre-release.
 - A new package first gets a placeholder `0.0.1` from `node scripts/publish-placeholder.mjs` (`--dry-run` to see it), since npm sets up trusted publishing only for a package that exists; the tag then publishes its real version with provenance.
 - A publish by hand, `npm publish --workspace packages/<folder>`, builds the package first through its `prepack` script. The SDK goes first: the others depend on it.
-- `shared/usecase/` is bundled into the four use-case packages by their builds; it is not a package of its own.
+- `shared/usecase/` is bundled into the seven use-case packages by their builds; it is not a package of its own.
 
 ## License
 
