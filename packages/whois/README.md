@@ -12,7 +12,7 @@ npm install @uniquedomains/whois
 
 Node 20 or later. ESM and CommonJS.
 
-One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal) and [`registrar-prices`](https://www.npmjs.com/package/registrar-prices).
+One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`@uniquedomains/cli`](https://www.npmjs.com/package/@uniquedomains/cli) (the same from a terminal), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal), [`registrar-prices`](https://www.npmjs.com/package/registrar-prices), [`expired-domains-api`](https://www.npmjs.com/package/expired-domains-api), [`domain-sales`](https://www.npmjs.com/package/domain-sales) and [`domain-auctions`](https://www.npmjs.com/package/domain-auctions).
 
 ## The registry record
 

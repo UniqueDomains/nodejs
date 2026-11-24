@@ -17,7 +17,7 @@ ud get-name get.plumbing
 
 Node 20 or later.
 
-One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal), [`registrar-prices`](https://www.npmjs.com/package/registrar-prices) and [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois).
+One family on the [Unique.domains API](https://unique.domains/api): [`domain-name-api`](https://www.npmjs.com/package/domain-name-api) (every operation, typed), [`domain-availability`](https://www.npmjs.com/package/domain-availability), [`domain-appraisal`](https://www.npmjs.com/package/domain-appraisal), [`registrar-prices`](https://www.npmjs.com/package/registrar-prices), [`@uniquedomains/whois`](https://www.npmjs.com/package/@uniquedomains/whois), [`expired-domains-api`](https://www.npmjs.com/package/expired-domains-api), [`domain-sales`](https://www.npmjs.com/package/domain-sales) and [`domain-auctions`](https://www.npmjs.com/package/domain-auctions).
 
 ## Commands
 
