@@ -29,7 +29,7 @@ for (const row of day.byEnding) console.log(row.ending, row.count);
 
 `drops({ day })` reads another day, written `YYYY-MM-DD`, from today (UTC) to six days ahead; a day outside them throws a `ValidationError`. Without a key, or with a key on the Founder plan, the answer is these counts for every ending, never a name, and a call that asks for an `ending` throws a `PlanRequiredError`: the names, and the endings that narrow them, are on the Investor plan.
 
-With a key on the Investor plan, the same call answers the names themselves, by name, and `ending` narrows them (`'io'`, `'.io'` or a list). A loop walks the pages:
+With a key on the Investor plan, or a paid RapidAPI subscription, the same call answers the names themselves, by name, and `ending` narrows them (`'io'`, `'.io'` or a list). A loop walks the pages:
 
 <!-- example: names fixture -->
 ```js

@@ -1,6 +1,6 @@
 {
-  "projectTitle": "Unique Domains API (Node SDK)",
-  "description": "Node.js clients for the Unique Domains API: domain names, registry records, availability, registrar prices, comparable sales and the domain market.",
+  "projectTitle": "Unique.domains API (Node SDK)",
+  "description": "Node.js clients for the Unique.domains API: domain names, registry records, availability, registrar prices, comparable sales and the domain market.",
   "folders": ["packages", "examples"],
   "excludeFolders": ["test", "typetests", "generated", "dist", "node_modules"],
   "rules": [

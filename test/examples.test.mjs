@@ -143,7 +143,7 @@ describe('context7.json (plan decision 20)', () => {
     const config = JSON.parse(read('context7.json'));
 
     it('names the project, the folders and what to leave out', () => {
-        assert.equal(config.projectTitle, 'Unique Domains API (Node SDK)');
+        assert.equal(config.projectTitle, 'Unique.domains API (Node SDK)');
         assert.deepEqual(config.folders, ['packages', 'examples']);
         for (const folder of ['test', 'generated']) assert.ok(config.excludeFolders.includes(folder), folder);
     });

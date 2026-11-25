@@ -59,7 +59,7 @@ console.log(auction ? `${auction.bid} ${auction.currency} until ${auction.endsAt
 
 ## How past auctions ended
 
-Per venue, day and currency, how many confirmed auctions ended and their median amount, newest day first. `venue` keeps one venue, and a loop walks the pages. This one needs a key on the Investor plan:
+Per venue, day and currency, how many confirmed auctions ended and their median amount, newest day first. `venue` keeps one venue, and a loop walks the pages. This one needs a key on the Investor plan, or a paid RapidAPI subscription:
 
 <!-- example: outcomes fixture -->
 ```js
