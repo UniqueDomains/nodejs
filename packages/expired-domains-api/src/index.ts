@@ -2,7 +2,7 @@
 - expired-domains-api
 ----------------------------------*/
 
-/** The names in their last days before they come free, and the names at or past their expiry date. */
+/** The names in their last days before they come free, and the names nearing their expiry date or past it. */
 
 import type { CallOptions, OperationCall } from 'domain-name-api';
 import { connect, type ConnectionOptions } from '../../../shared/usecase/connection';
@@ -37,7 +37,7 @@ const withEndings = <T extends { ending?: Endings }>(call: T): Omit<T, 'ending'>
 /**
  * The names dropping on one day, today by default; `day` runs from today (UTC) to six days ahead. Free: how many names
  * drop, the split by ending and the ending and drop day of five of them, never a name. With a key on the Investor plan,
- * the names themselves, which `ending` narrows, and a loop over the call walks the pages.
+ * or a paid RapidAPI subscription, the names themselves, which `ending` narrows, and a loop over the call walks the pages.
  *
  * @example
  * const day = await drops();
@@ -48,8 +48,8 @@ export const drops = (options?: ConnectionOptions & DropsOptions): OperationCall
 };
 
 /**
- * The names at or past their expiry date, soonest first, each with its drop day once it is set. `ending` narrows them,
- * `after` and `before` bound the expiry day, and a loop over the call walks the pages. Needs a key on the Investor plan.
+ * The names nearing their expiry date or past it, soonest first, each with its drop day once it is set. `ending`
+ * narrows them, `after` and `before` bound the expiry day, and a loop over the call walks the pages. Needs a key on the Investor plan, or a paid RapidAPI subscription.
  *
  * @example
  * const names = await expiring({ ending: 'io', apiKey: process.env.UD_API_KEY });

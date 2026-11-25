@@ -248,6 +248,12 @@ export const SYNTHETIC = [
         ], '/market/auctions/sample')),
     },
     {
+        // A word that never sold: the API answers its status and the word alone.
+        name: 'usecase-sales-word-never',
+        request: { method: 'GET', path: '/market/sales/words/quillet', query: '' },
+        response: json(200, envelope({ status: 'none', word: 'quillet' }, '/market/sales/words/quillet')),
+    },
+    {
         // A spent hourly window on a word: not the word of the day, so `ud-sales` adds no line about it.
         name: 'usecase-sales-word-window',
         request: { method: 'GET', path: '/market/sales/words/beacon', query: '' },

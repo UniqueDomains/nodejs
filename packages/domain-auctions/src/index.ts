@@ -64,7 +64,7 @@ export const auctionOf = (name: string, options?: ConnectionOptions & CallOption
 
 /**
  * How confirmed auctions ended: per venue, day and currency, the count and the median amount, newest day first. `venue`
- * keeps one venue, and a loop over the call walks the pages. Needs a key on the Investor plan.
+ * keeps one venue, and a loop over the call walks the pages. Needs a key on the Investor plan, or a paid RapidAPI subscription.
  *
  * @example
  * const outcomes = await auctionOutcomes({ apiKey: process.env.UD_API_KEY });

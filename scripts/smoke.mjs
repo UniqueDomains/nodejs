@@ -6,11 +6,12 @@
 /**
  * Runs the built `ud` bin as a user would, keyless, against the public host: `get-name harbor.io` and
  * `list-tlds --limit 3 --json`. Then packs the built packages (no rebuild), installs the tarballs into an empty folder
- * and runs each use-case package through `npx` under its name on npm, one keyless call each, as its README's first
+ * and runs five of the seven use-case packages through `npx` under their names on npm, one keyless call each, as its README's first
  * block shows it: `npx domain-availability get.plumbing`, `npx domain-appraisal get.plumbing`, `npx registrar-prices
  * io`, `npx @uniquedomains/whois get.plumbing`, `npx domain-sales .com`. Seven keyless calls; run by the nightly
- * contract workflow after the
- * build, never by `npm test`, so the tests stay offline.
+ * contract workflow after the build, never by `npm test`, so the tests stay offline. `expired-domains-api` and
+ * `domain-auctions` run through `npx` in `check-pack.mjs`, against the fixture server, to keep the nightly under its
+ * hourly window of 60 calls.
  */
 
 import { execFile, execFileSync } from 'node:child_process';

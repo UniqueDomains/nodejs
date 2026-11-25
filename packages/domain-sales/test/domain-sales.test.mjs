@@ -75,6 +75,17 @@ describe('ud-sales', () => {
         assert.deepEqual(JSON.parse((await bin(['harbor'])).stdout), recorded('usecase-sales-word').data);
     });
 
+    it('says, on a terminal, when a word sold before but not in 12 months, and when it never sold (review of lane N, n2)', async () => {
+        const { lastSaleMonth } = recorded('usecase-sales-word').data;
+        const older = await bin(['harbor', '--no-json']);
+        assert.equal(older.code, 0);
+        assert.ok(older.stdout.includes(`No sales of "harbor" in 12 months; its last sale was in ${lastSaleMonth}.`));
+        const never = await bin(['quillet', '--no-json']);
+        assert.equal(never.code, 0);
+        assert.match(never.stdout, /^No sale of "quillet" on record\.$/m);
+        assert.deepEqual(JSON.parse((await bin(['quillet'])).stdout), { status: 'none', word: 'quillet' });
+    });
+
     it('prints one line on a second word with no key: a word a day (side path)', async () => {
         const { code, stdout, stderr } = await bin(['lantern']);
         assert.equal(code, 1);

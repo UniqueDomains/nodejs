@@ -27,7 +27,7 @@ console.log(day.closing, day.withBid);
 for (const next of day.next7Days) console.log(next.day, next.closing);
 ```
 
-Each split also carries the median bid in US dollars.
+Each venue's line also carries its median bid in US dollars, when it has one.
 
 ## The day's sample
 

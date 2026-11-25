@@ -1,6 +1,6 @@
 # Domain sales for Node.js
 
-What do domain names sell for? `await salesPulse()` answers 41,098 sales over 12 months at a median of $839, and 2,471 over the last 30 days at $1,580. `salesByEnding()` splits them: `.com` 28,739 sales at a median of $860, `.ai` 3,466 at $800, `.io` 1,032 at $400. `salesOfWord('harbor')` gives one word's count, its median, the endings it sold on and the month of its last sale. `salesByLength()`, `salesMovers()` and `salesSeries()` give the same market by name length, by the words whose sales moved and day by day. Counts and medians, never a single sale. `salesPulse()` answers with no key. The newest sales are a page: [unique.domains/sales](https://unique.domains/sales).
+What do domain names sell for? `await salesPulse()` answers 41,098 sales over 12 months at a median of $839, and 2,471 over the last 30 days at $1,580. `salesByEnding()` splits them: `.com` 28,739 sales at a median of $860, `.ai` 3,466 at $800, `.io` 1,032 at $400. `salesOfWord('harbor')` gives one word's count, its median, how many endings it sold on and the month of its last sale. `salesByLength()`, `salesMovers()` and `salesSeries()` give the same market by name length, by the words whose sales moved and day by day. Counts and medians, never a single sale. `salesPulse()` answers with no key. The newest sales are a page: [unique.domains/sales](https://unique.domains/sales).
 
 ```bash
 npx domain-sales .com
@@ -59,7 +59,7 @@ const word = await salesOfWord('harbor');
 console.log(word.sales12m, word.median12mUsd, word.endingsSoldOn, word.lastSaleMonth);
 ```
 
-Without a key, one address reads one word a day: the same word again is answered, and another throws a `RateLimitError` until the next UTC day. RapidAPI's free Basic plan reads one word a day per subscription. A member key or a paid RapidAPI plan reads any number of words. A word with no sale in 12 months answers `status: 'none'`.
+Without a key, one address reads one word a day: the same word again is answered, and another throws a `RateLimitError` until the next UTC day. RapidAPI's free Basic plan reads one word a day per subscription. A member key or a paid RapidAPI plan reads any number of words. A word that never sold answers `status: 'none'`; a word that sold before, but not in 12 months, answers `sales12m: 0` and the month of its last sale.
 
 ## The command
 

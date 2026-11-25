@@ -15,13 +15,13 @@ const takesNoName = (args: BinArgs, flag: string): void => {
 main({
     bin: 'ud-auctions',
     version: __PACKAGE_VERSION__,
-    summary: 'The domain names at auction today. The day, the sample, the venues and one name\'s auction are free, no key needed; --outcomes needs one.',
+    summary: 'The domain names at auction today. The day, the sample, the venues and one name\'s auction are free, no key needed; --outcomes needs a key on the Investor plan or a paid RapidAPI subscription.',
     usage: ['', '<name>', '--sample', '--venues', '--outcomes'],
     runsWithoutArguments: true,
     flags: [
         { name: 'sample', help: 'Up to 20 one-word names closing today, each with its venue, deadline and bid.' },
         { name: 'venues', help: 'Each venue\'s rules: how an auction closes, when to pay, who may bid.' },
-        { name: 'outcomes', help: 'How confirmed auctions ended, by venue and day. Needs a key on the Investor plan.' },
+        { name: 'outcomes', help: 'How confirmed auctions ended, by venue and day. Needs a key on the Investor plan, or a paid RapidAPI subscription.' },
     ],
     listing: 'auctions',
     plan: (args, connection) => {

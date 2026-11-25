@@ -1,6 +1,6 @@
 # Expired domains API for Node.js
 
-Which names come free this week? `await drops()` answers for one day: 19 names dropping, on 11 endings, `.site` ahead with 4. This package reads the names in their last days before they come free, each with its ending and the day it drops, and with `expiring()` the names at or past their expiry date, soonest first, with their drop day once it is set. A day runs from today to six days ahead, and an ending narrows both lists. `drops()` answers with no key. The same names are a page: [unique.domains/domains/expired](https://unique.domains/domains/expired).
+Which names come free this week? `await drops()` answers for one day: 19 names dropping, on 11 endings, `.site` ahead with 4. This package reads the names in their last days before they come free, each with its ending and the day it drops, and with `expiring()` the names nearing or past their expiry date, soonest first, with their drop day once it is set. A day runs from today to six days ahead, and an ending narrows both lists. `drops()` answers with no key. The same names are a page: [unique.domains/domains/expired](https://unique.domains/domains/expired).
 
 ```bash
 npx expired-domains-api
@@ -42,7 +42,7 @@ for await (const row of drops({ ending: 'io', apiKey: process.env.UD_API_KEY }))
 
 ## The names reaching their expiry date
 
-The names at or past their expiry date, soonest first, each with its drop day once it is set. `ending` narrows them, `after` and `before` bound the expiry day. This one needs a key on the Investor plan:
+The names nearing their expiry date or past it, soonest first, each with its drop day once it is set. `ending` narrows them, `after` and `before` bound the expiry day. This one needs a key on the Investor plan, or a paid RapidAPI subscription:
 
 <!-- example: expiring fixture -->
 ```js

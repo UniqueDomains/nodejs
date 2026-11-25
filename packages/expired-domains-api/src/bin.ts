@@ -21,13 +21,13 @@ const nextPageOf = (command: string, filters: Readonly<Record<string, string | u
 main({
     bin: 'ud-expired',
     version: __PACKAGE_VERSION__,
-    summary: 'The domain names dropping each day, by ending. The day\'s counts are free, no key needed; the names and --expiring need one.',
+    summary: 'The domain names dropping each day, by ending. The day\'s counts are free, no key needed; the names and --expiring need a key on the Investor plan or a paid RapidAPI subscription.',
     usage: ['', '--day <day> --ending <endings>', '--expiring --ending <endings>'],
     runsWithoutArguments: true,
     flags: [
         { name: 'day', value: '<day>', help: 'The drop day, YYYY-MM-DD, from today (UTC) to six days ahead. Defaults to today.' },
-        { name: 'ending', value: '<endings>', help: 'Endings, comma-separated. They narrow the names, with a key on the Investor plan.' },
-        { name: 'expiring', help: 'The names at or past their expiry date, soonest first. Needs a key on the Investor plan.' },
+        { name: 'ending', value: '<endings>', help: 'Endings, comma-separated. They narrow the names, with a key on the Investor plan or a paid RapidAPI subscription.' },
+        { name: 'expiring', help: 'The names nearing their expiry date or past it, soonest first. Needs a key on the Investor plan, or a paid RapidAPI subscription.' },
         { name: 'after', value: '<day>', help: 'With --expiring: an expiry on or after this day.' },
         { name: 'before', value: '<day>', help: 'With --expiring: an expiry before this day.' },
     ],

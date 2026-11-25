@@ -72,7 +72,10 @@ main({
         if (subject.startsWith('.')) return endingAction(subject, connection);
         return {
             call: salesOfWord(subject, connection),
-            empty: (answer: DataOf<'get_market_sales_word'>) => (answer.status === 'none' ? `No sales of "${answer.word}" in 12 months.` : null),
+            empty: (answer: DataOf<'get_market_sales_word'>) => {
+                if (answer.status === 'none') return `No sale of "${answer.word}" on record.`;
+                return answer.sales12m === 0 ? `No sales of "${answer.word}" in 12 months; its last sale was in ${answer.lastSaleMonth}.` : null;
+            },
             // RapidAPI's free Basic plan is gated per subscription, a keyless call per address (D11).
             explain: (error) => {
                 if (error.status !== 429 || !isWordOfTheDay(error.detail)) return null;
